@@ -1457,25 +1457,27 @@ export function IconsStory() {
   return (
     <StoryFrame>
       <Variant label={`${filtered.length} icons`}>
-        <div className="ds-search-wrap" style={{maxWidth:260,marginBottom:4}}>
-          <span className="ds-search-icon"><Search size={14} /></span>
-          <input
-            className="ds-input ds-search"
-            placeholder="Search icons…"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-          />
-        </div>
-        <div className="ds-icon-grid">
-          {filtered.map(({ name, Icon }) => (
-            <div key={name} className="ds-icon-grid-item" title={name}>
-              <Icon size={20} strokeWidth={1.5} />
-              <span className="ds-icon-grid-name">{name}</span>
-            </div>
-          ))}
-          {filtered.length === 0 && (
-            <span style={{fontSize:12,color:'var(--ds-neutral-400)'}}>No icons match "{query}"</span>
-          )}
+        <div style={{width:'100%',display:'flex',flexDirection:'column',gap:12}}>
+          <div className="ds-search-wrap" style={{maxWidth:280}}>
+            <span className="ds-search-icon"><Search size={14} /></span>
+            <input
+              className="ds-input ds-search"
+              placeholder="Search icons…"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="ds-icon-grid">
+            {filtered.map(({ name, Icon }) => (
+              <div key={name} className="ds-icon-grid-item" title={name}>
+                <Icon size={20} strokeWidth={1.5} />
+                <span className="ds-icon-grid-name">{name}</span>
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <span style={{fontSize:12,color:'var(--ds-neutral-400)'}}>No icons match "{query}"</span>
+            )}
+          </div>
         </div>
       </Variant>
     </StoryFrame>
