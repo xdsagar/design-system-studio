@@ -6,36 +6,52 @@ import Configurator from './components/Configurator';
 import Canvas from './components/Canvas';
 import ImportModal from './components/ImportModal';
 import BrandAnalyzer from './components/BrandAnalyzer';
+import WelcomeModal from './components/WelcomeModal';
 import { downloadTemplate } from './utils/tokenTemplate';
 import './index.css';
 
 function LogoMark() {
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="28" height="28" rx="7" fill="#252641"/>
-      <rect x="5" y="5" width="18" height="11" rx="2.5" fill="#E96A47"/>
-      <circle cx="10.5" cy="22" r="5" fill="#ECC94B"/>
-      <rect x="16" y="17" width="9" height="9" rx="4.5" fill="#3B82F6"/>
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="9" fill="#0D0F14"/>
+      <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" stroke="url(#logo-border)" strokeWidth="0.75"/>
+      {/* Top block — accent */}
+      <rect x="6" y="6" width="20" height="7" rx="2.5" fill="url(#logo-top)"/>
+      {/* Bottom left */}
+      <rect x="6" y="16" width="9" height="10" rx="2.5" fill="url(#logo-bl)"/>
+      {/* Bottom right */}
+      <rect x="17" y="16" width="9" height="10" rx="2.5" fill="url(#logo-br)"/>
+      <defs>
+        <linearGradient id="logo-top" x1="6" y1="6" x2="26" y2="13" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#6B7FFF"/>
+          <stop offset="1" stopColor="#A78BFA"/>
+        </linearGradient>
+        <linearGradient id="logo-bl" x1="6" y1="16" x2="15" y2="26" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#6B7FFF" stopOpacity="0.7"/>
+          <stop offset="1" stopColor="#6B7FFF" stopOpacity="0.3"/>
+        </linearGradient>
+        <linearGradient id="logo-br" x1="17" y1="16" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#A78BFA" stopOpacity="0.6"/>
+          <stop offset="1" stopColor="#A78BFA" stopOpacity="0.25"/>
+        </linearGradient>
+        <linearGradient id="logo-border" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#6B7FFF" stopOpacity="0.4"/>
+          <stop offset="0.5" stopColor="white" stopOpacity="0.06"/>
+          <stop offset="1" stopColor="#A78BFA" stopOpacity="0.3"/>
+        </linearGradient>
+      </defs>
     </svg>
   );
 }
 
 function ThemeToggle({ isDark, onToggle }) {
-  const bg     = isDark ? 'rgba(255,255,255,0.12)' : '#E4E4E7';
-  const border  = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)';
-  const ic      = isDark ? '#FFFFFF' : '#18171A';
   return (
     <button
       onClick={onToggle}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      style={{
-        display:'flex', alignItems:'center', justifyContent:'center',
-        width:34, height:34, borderRadius:8, flexShrink:0,
-        background:bg, border:`1px solid ${border}`,
-        cursor:'pointer', outline:'none', padding:0, color:ic,
-      }}
+      className="header-icon-btn"
     >
-      {isDark ? <Sun size={15} /> : <Moon size={15} />}
+      {isDark ? <Sun size={14} /> : <Moon size={14} />}
     </button>
   );
 }
@@ -48,10 +64,13 @@ function HeaderIconBtn({ onClick, title, children }) {
   );
 }
 
+const HAS_VISITED_KEY = 'dss-onboarded';
+
 export default function App() {
   const [shellDark, setShellDark]           = useState(true);
   const [showImport, setShowImport]         = useState(false);
   const [showAnalyzer, setShowAnalyzer]     = useState(false);
+  const [showWelcome, setShowWelcome]       = useState(() => !localStorage.getItem(HAS_VISITED_KEY));
   const [importedTokens, setImportedTokens] = useState(null);
 
   const {
@@ -78,7 +97,6 @@ export default function App() {
   function handleBrandAnalysis(suggestion) {
     const { reasoning, brand, coreColors: suggestedCore, ...rest } = suggestion;
 
-    // Surgically merge suggested core colors into existing ones — preserve entries not in suggestion
     const mergedCoreColors = suggestedCore?.length
       ? tokens.coreColors.map(existing => {
           const hit = suggestedCore.find(s => s.id === existing.id);
@@ -96,20 +114,39 @@ export default function App() {
     if (suggestion.darkMode !== undefined) setShellDark(suggestion.darkMode);
   }
 
+  function handleWelcomeClose() {
+    localStorage.setItem(HAS_VISITED_KEY, '1');
+    setShowWelcome(false);
+  }
+
+  function handleWelcomeAnalyze() {
+    handleWelcomeClose();
+    setShowAnalyzer(true);
+  }
+
+  function handleWelcomeImport() {
+    handleWelcomeClose();
+    setShowImport(true);
+  }
+
   return (
     <div className={`app${shellDark ? '' : ' shell-light'}`}>
       <header className="app-header">
         <div className="app-logo">
           <LogoMark />
-          <span className="logo-text">Design System Studio</span>
+          <div className="logo-wordmark">
+            <span className="logo-name">Design System Studio</span>
+            <span className="logo-tag">Token builder &amp; exporter</span>
+          </div>
         </div>
+
         <div className="app-meta">
           <button
             className="header-analyze-btn"
             onClick={() => setShowAnalyzer(true)}
             title="Analyze brand images with AI"
           >
-            <Sparkles size={13} />
+            <Sparkles size={12} />
             Analyze brand
           </button>
 
@@ -151,6 +188,14 @@ export default function App() {
         <BrandAnalyzer
           onClose={() => setShowAnalyzer(false)}
           onApply={handleBrandAnalysis}
+        />
+      )}
+
+      {showWelcome && (
+        <WelcomeModal
+          onClose={handleWelcomeClose}
+          onAnalyze={handleWelcomeAnalyze}
+          onImport={handleWelcomeImport}
         />
       )}
     </div>
