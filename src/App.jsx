@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Download, Upload, Sun, Moon } from 'lucide-react';
+import { Download, Upload, Sun, Moon, Sparkles } from 'lucide-react';
 import { useTokens } from './hooks/useTokens';
+import { deriveBrandTokens } from './utils/tokens';
 import Configurator from './components/Configurator';
 import Canvas from './components/Canvas';
 import ImportModal from './components/ImportModal';
+import BrandAnalyzer from './components/BrandAnalyzer';
 import { downloadTemplate } from './utils/tokenTemplate';
 import './index.css';
 
@@ -47,8 +49,9 @@ function HeaderIconBtn({ onClick, title, children }) {
 }
 
 export default function App() {
-  const [shellDark, setShellDark]         = useState(true);
-  const [showImport, setShowImport]       = useState(false);
+  const [shellDark, setShellDark]           = useState(true);
+  const [showImport, setShowImport]         = useState(false);
+  const [showAnalyzer, setShowAnalyzer]     = useState(false);
   const [importedTokens, setImportedTokens] = useState(null);
 
   const {
@@ -70,6 +73,19 @@ export default function App() {
     if (incoming.darkMode !== undefined) setShellDark(incoming.darkMode);
   }
 
+  function handleBrandAnalysis(suggestion) {
+    const { reasoning, brand, ...rest } = suggestion;
+    // Apply brand color with derived hover/light variants
+    if (brand) {
+      const derived = deriveBrandTokens(brand);
+      setAllTokens({ brand, ...derived, ...rest });
+    } else {
+      setAllTokens(rest);
+    }
+    // Sync shell dark mode with suggestion
+    if (suggestion.darkMode !== undefined) setShellDark(suggestion.darkMode);
+  }
+
   return (
     <div className={`app${shellDark ? '' : ' shell-light'}`}>
       <header className="app-header">
@@ -79,6 +95,15 @@ export default function App() {
         </div>
         <div className="app-meta">
           <span className="app-badge">57 components</span>
+
+          <button
+            className="header-analyze-btn"
+            onClick={() => setShowAnalyzer(true)}
+            title="Analyze brand images with AI"
+          >
+            <Sparkles size={13} />
+            Analyze brand
+          </button>
 
           <HeaderIconBtn onClick={downloadTemplate} title="Download token template">
             <Download size={14} />
@@ -109,6 +134,13 @@ export default function App() {
         <ImportModal
           onClose={() => setShowImport(false)}
           onImport={handleImport}
+        />
+      )}
+
+      {showAnalyzer && (
+        <BrandAnalyzer
+          onClose={() => setShowAnalyzer(false)}
+          onApply={handleBrandAnalysis}
         />
       )}
     </div>
