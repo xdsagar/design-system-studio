@@ -195,24 +195,61 @@ export default function BrandAnalyzer({ onClose, onApply }) {
             <div className="ba-results-phase">
               <div className="ba-results-scroll">
 
+                {/* Action colors — light vs dark side by side */}
                 <div className="ba-result-section">
-                  <div className="ba-result-label">Brand Colors</div>
-                  <div className="ba-swatches">
-                    <ColorSwatch label="Primary"   hex={suggestion.brand}     />
-                    <ColorSwatch label="Secondary" hex={suggestion.secondary} />
-                    <ColorSwatch label="Tertiary"  hex={suggestion.tertiary}  />
+                  <div className="ba-result-label">Action Colors</div>
+                  <div className="ba-dual-modes">
+                    <div className="ba-mode-col">
+                      <div className="ba-mode-heading">Light mode</div>
+                      <ColorSwatch label="Primary"   hex={suggestion.brand}     />
+                      <ColorSwatch label="Secondary" hex={suggestion.secondary} />
+                      <ColorSwatch label="Tertiary"  hex={suggestion.tertiary}  />
+                    </div>
+                    <div className="ba-mode-divider" />
+                    <div className="ba-mode-col">
+                      <div className="ba-mode-heading">Dark mode</div>
+                      <ColorSwatch label="Primary"   hex={suggestion.brandDm     ?? suggestion.brand}     />
+                      <ColorSwatch label="Secondary" hex={suggestion.secondaryDm ?? suggestion.secondary} />
+                      <ColorSwatch label="Tertiary"  hex={suggestion.tertiaryDm  ?? suggestion.tertiary}  />
+                    </div>
                   </div>
                 </div>
 
+                {/* Status colors */}
                 <div className="ba-result-section">
                   <div className="ba-result-label">Status Colors</div>
-                  <div className="ba-swatches">
-                    <ColorSwatch label="Success" hex={suggestion.success} />
-                    <ColorSwatch label="Caution" hex={suggestion.caution} />
-                    <ColorSwatch label="Error"   hex={suggestion.error}   />
+                  <div className="ba-dual-modes">
+                    <div className="ba-mode-col">
+                      <div className="ba-mode-heading">Light mode</div>
+                      <ColorSwatch label="Success" hex={suggestion.success} />
+                      <ColorSwatch label="Caution" hex={suggestion.caution} />
+                      <ColorSwatch label="Error"   hex={suggestion.error}   />
+                    </div>
+                    <div className="ba-mode-divider" />
+                    <div className="ba-mode-col">
+                      <div className="ba-mode-heading">Dark mode</div>
+                      <ColorSwatch label="Success" hex={suggestion.successDm ?? suggestion.success} />
+                      <ColorSwatch label="Caution" hex={suggestion.cautionDm ?? suggestion.caution} />
+                      <ColorSwatch label="Error"   hex={suggestion.errorDm   ?? suggestion.error}   />
+                    </div>
                   </div>
                 </div>
 
+                {/* Surfaces */}
+                {suggestion.coreColors?.length > 0 && (
+                  <div className="ba-result-section">
+                    <div className="ba-result-label">Surfaces</div>
+                    <div className="ba-swatches">
+                      {['bg-light','bg-dark','surface','text-primary','text-primary-dark','border']
+                        .map(id => {
+                          const c = suggestion.coreColors.find(x => x.id === id);
+                          return c ? <ColorSwatch key={id} label={c.label} hex={c.hex} /> : null;
+                        })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Shape */}
                 <div className="ba-result-section">
                   <div className="ba-result-label">Shape & Shadow</div>
                   <RadiusPreview sm={suggestion.radiusSm} md={suggestion.radiusMd} lg={suggestion.radiusLg} />
@@ -222,6 +259,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                   </div>
                 </div>
 
+                {/* Typography */}
                 <div className="ba-result-section">
                   <div className="ba-result-label">Typography</div>
                   <div className="ba-font-row">

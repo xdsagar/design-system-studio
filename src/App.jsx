@@ -74,15 +74,23 @@ export default function App() {
   }
 
   function handleBrandAnalysis(suggestion) {
-    const { reasoning, brand, ...rest } = suggestion;
-    // Apply brand color with derived hover/light variants
-    if (brand) {
-      const derived = deriveBrandTokens(brand);
-      setAllTokens({ brand, ...derived, ...rest });
-    } else {
-      setAllTokens(rest);
-    }
-    // Sync shell dark mode with suggestion
+    const { reasoning, brand, coreColors: suggestedCore, ...rest } = suggestion;
+
+    // Surgically merge suggested core colors into existing ones — preserve entries not in suggestion
+    const mergedCoreColors = suggestedCore?.length
+      ? tokens.coreColors.map(existing => {
+          const hit = suggestedCore.find(s => s.id === existing.id);
+          return hit ? { ...existing, hex: hit.hex } : existing;
+        })
+      : undefined;
+
+    const payload = {
+      ...rest,
+      ...(brand ? { brand, ...deriveBrandTokens(brand) } : {}),
+      ...(mergedCoreColors ? { coreColors: mergedCoreColors } : {}),
+    };
+
+    setAllTokens(payload);
     if (suggestion.darkMode !== undefined) setShellDark(suggestion.darkMode);
   }
 

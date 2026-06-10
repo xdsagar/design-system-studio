@@ -1856,3 +1856,18 @@ input[type=color] {
   transition: opacity .15s;
 }
 .ba-apply-btn:hover { opacity: .85; }
+
+/* ── Brand Analyzer — dual mode color layout ────────────── */
+.ba-dual-modes {
+  display: flex; gap: 0; width: 100%;
+}
+.ba-mode-col {
+  flex: 1; display: flex; flex-direction: column; gap: 7px;
+}
+.ba-mode-divider {
+  width: 0.5px; background: var(--shell-border-2); margin: 0 14px; flex-shrink: 0;
+}
+.ba-mode-heading {
+  font-size: 10px; font-weight: 600; color: var(--shell-text-3);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px;
+}
