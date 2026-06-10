@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Folder, Sun, Moon, ChevronRight, ChevronDown, Layers, Monitor } from 'lucide-react';
+import { Folder, Sun, Moon, ChevronRight, ChevronDown, Monitor, X } from 'lucide-react';
 import ThemePreview from './ThemePreview';
 import {
   AccordionStory, ActionBarStory, AlertStory, AppLayoutStory, AvatarStory,
@@ -79,7 +79,7 @@ const COMPONENTS = [
 export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   const [active, setActive] = useState('button');
   const [search, setSearch] = useState('');
-  const [mode, setMode] = useState('stories');
+  const [showPreview, setShowPreview] = useState(false);
 
   const filtered = useMemo(() =>
     search.trim()
@@ -94,7 +94,7 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   return (
     <div className="canvas-panel">
 
-      {mode === 'stories' && <nav className="canvas-sidenav">
+      <nav className="canvas-sidenav">
         <div className="story-search-wrap">
           <input
             className="story-search-input"
@@ -126,34 +126,23 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
             <div className="story-empty">No results for "{search}"</div>
           )}
         </div>
-      </nav>}
+      </nav>
 
       <div className="canvas-content">
         <div className="canvas-content-header">
-          {mode === 'stories' ? (
-            <>
-              <span className="canvas-story-path">Components</span>
-              <span className="canvas-story-sep">/</span>
-              <span className="canvas-story-name">{activeComp.label}</span>
-            </>
-          ) : (
-            <span className="canvas-story-name">Theme Preview</span>
-          )}
+          <span className="canvas-story-path">Components</span>
+          <span className="canvas-story-sep">/</span>
+          <span className="canvas-story-name">{activeComp.label}</span>
+
           <div className="canvas-header-right">
-            <div className="canvas-view-toggle">
-              <button
-                className={`canvas-view-pill${mode === 'stories' ? ' active' : ''}`}
-                onClick={() => setMode('stories')}
-              >
-                <Layers size={11} /> Components
-              </button>
-              <button
-                className={`canvas-view-pill${mode === 'preview' ? ' active' : ''}`}
-                onClick={() => setMode('preview')}
-              >
-                <Monitor size={11} /> Preview
-              </button>
-            </div>
+            <button
+              className="canvas-preview-btn"
+              onClick={() => setShowPreview(true)}
+              title="Open theme preview"
+            >
+              <Monitor size={12} />
+              Preview theme
+            </button>
             <button
               className="canvas-mode-btn"
               onClick={() => setDarkMode(!darkMode)}
@@ -163,14 +152,29 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
             </button>
           </div>
         </div>
-        <div
-          className={`canvas-body${mode === 'preview' ? ' canvas-body--preview' : ''}`}
-          style={cssVars}
-          data-dark={darkMode ? 'true' : undefined}
-        >
-          {mode === 'stories' ? <Story key={active} /> : <ThemePreview />}
+
+        <div className="canvas-body" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
+          <Story key={active} />
         </div>
       </div>
+
+      {/* Theme preview modal */}
+      {showPreview && (
+        <div className="tp-modal-overlay" onClick={() => setShowPreview(false)}>
+          <div className="tp-modal" onClick={e => e.stopPropagation()}>
+            <div className="tp-modal-header">
+              <span className="tp-modal-title">Theme Preview</span>
+              <button className="tp-modal-close" onClick={() => setShowPreview(false)}>
+                <X size={15} />
+              </button>
+            </div>
+            <div className="tp-modal-body" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
+              <ThemePreview />
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
