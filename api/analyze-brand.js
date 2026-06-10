@@ -18,27 +18,41 @@ export default async function handler(req, res) {
 
   const PROMPT = `You are a senior UI/brand designer generating a complete design token set from brand images.
 
-━━━ MOST IMPORTANT RULE ━━━
-The "brand" and "brandDm" tokens are INTERACTIVE ACTION COLORS — used for buttons, links, and CTAs.
-They MUST visually POP against their background. They are NOT the dominant brand color.
+━━━ CRITICAL RULE — FILL SEMANTICS ━━━
+brand / brandDm are rendered as SOLID FILL backgrounds for buttons and toggle tracks.
+The design system overlays WHITE (#fff) text and icons on top of that fill.
+Therefore: your chosen brand/brandDm MUST have sufficient contrast against white text.
 
-NEVER return black or near-black (#000–#333) as brandDm — it disappears on dark surfaces.
-NEVER return white or near-white (#CCC–#FFF) as brand — it disappears on light surfaces.
+Luminosity test — avoid the following ranges entirely:
+  • brand (light mode): NEVER near-white #BBBBBB–#FFFFFF — disappears on white page backgrounds
+  • brandDm (dark mode): NEVER near-white #CCCCCC–#FFFFFF — white text becomes INVISIBLE on the white fill;
+    toggle knobs (white) become invisible on the white track; filled buttons look like disabled states.
+  • brandDm (dark mode): NEVER near-black #000000–#333333 — disappears on dark page backgrounds
 
 ━━━ HOW TO PICK ACTION COLORS ━━━
 
-1. First look for an ACCENT color in the images — something used on buttons, icons, gradients, or logo marks that is NOT the background color and NOT plain black/white text.
+1. First look for an ACCENT in the images — something used on buttons, icons, gradients, or logo ring marks
+   that is NOT the plain background or plain body text. Even a subtle warm or cool hue qualifies.
 
-2. If the brand uses a real accent (e.g. orange, gold, electric blue) — use that as both brand and brandDm, possibly adjusting lightness slightly for each mode.
+2. If the brand uses a real accent (e.g. orange, gold, electric blue, red) — use it as brand/brandDm,
+   possibly adjusting lightness slightly for each mode.
 
-3. If the brand is FULLY MONOCHROMATIC (only black, white, grey — like a premium athletic/luxury brand):
-   - brand (light mode action) = deep charcoal, e.g. #111111 or #1A1A1A — readable on white
-   - brandDm (dark mode action) = bright off-white, e.g. #F5F5F5 or #EEEEEE — readable on near-black
-   - This high-contrast monochromatic approach is the correct design decision for such brands
+3. If the brand is FULLY MONOCHROMATIC (only black, white, grey):
+   LOOK HARDER first: logo gradient rings, photographic warm skin tones, cool steel tones, highlight
+   colors in lifestyle imagery. A warm sand or cool slate found in photos is a valid accent.
+
+   If truly nothing exists beyond black/white/grey:
+   - brand (light mode) = deep charcoal #111111 — dark fill on white page ✓
+   - brandDm (dark mode) = choose a medium-luminosity value that looks like a filled CTA on a dark surface
+     AND ensures white text overlaid on it is readable. Good options:
+       Warm: #A07850 (tan/bronze), #B89060 (gold-sand), #C8A070 (warm amber)
+       Cool: #607890 (steel blue), #7090A0 (slate), #506878 (deep teal)
+     These signal "premium neutral" while creating contrast for white labels/icons on top.
+   - NEVER use near-white (#CCCCCC+) as brandDm even for monochromatic brands.
 
 4. secondary / secondaryDm = the next most important interactive color (slightly lighter/softer than brand)
 
-5. tertiary / tertiaryDm = a supporting accent (can be a mid-tone or warm grey)
+5. tertiary / tertiaryDm = a supporting accent (can be a mid-tone variant)
 
 ━━━ SURFACE & BACKGROUND (coreColors) ━━━
 Return a coreColors array that sets the actual page/surface colors.

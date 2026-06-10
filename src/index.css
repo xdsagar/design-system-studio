@@ -1513,7 +1513,7 @@ input[type=color] {
   font-size: 12.5px; font-weight: 500; font-family: var(--ds-font-body);
   cursor: pointer; border: none; transition: background .12s; white-space: nowrap;
 }
-.tp-btn-primary { background: var(--ds-brand); color: #fff; }
+.tp-btn-primary { background: var(--ds-brand); color: var(--ds-surface); }
 .tp-btn-primary:hover { background: var(--ds-brand-dark); }
 .tp-btn-ghost {
   background: transparent; color: var(--ds-neutral-800);
@@ -1644,9 +1644,14 @@ input[type=color] {
 .tp-toggle-knob {
   position: absolute; top: 3px; left: 3px;
   width: 14px; height: 14px; border-radius: 50%;
-  background: #fff; display: block; transition: transform .15s;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.08);
+  display: block; transition: transform .15s;
 }
-.tp-toggle.on .tp-toggle-knob { transform: translateX(14px); }
+.tp-toggle.on .tp-toggle-knob {
+  transform: translateX(14px);
+  background: var(--ds-surface); /* dark surface on light brand = visible; light surface on dark brand = visible */
+}
 
 /* Callout */
 .tp-callout {
