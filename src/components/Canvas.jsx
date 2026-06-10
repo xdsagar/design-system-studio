@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Folder, Sun, Moon, ChevronRight, ChevronDown, Monitor, X } from 'lucide-react';
+import { Folder, Sun, Moon, ChevronRight, ChevronDown } from 'lucide-react';
 import ThemePreview from './ThemePreview';
+import MobilePreview from './MobilePreview';
+import MarketingPreview from './MarketingPreview';
 import {
   AccordionStory, ActionBarStory, AlertStory, AppLayoutStory, AvatarStory,
   BadgeStory, BannerStory, BreadcrumbsStory, ButtonStory, ButtonGroupStory,
@@ -76,10 +78,17 @@ const COMPONENTS = [
   { id: 'tooltip',         label: 'Tooltip',         Story: TooltipStory },
 ];
 
+const SCENES = [
+  { id: 'dashboard',  label: 'Dashboard'  },
+  { id: 'mobile',     label: 'Mobile'     },
+  { id: 'marketing',  label: 'Marketing'  },
+  { id: 'components', label: 'Components' },
+];
+
 export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   const [active, setActive] = useState('button');
   const [search, setSearch] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
+  const [scene,  setScene]  = useState('dashboard');
 
   const filtered = useMemo(() =>
     search.trim()
@@ -94,87 +103,105 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   return (
     <div className="canvas-panel">
 
-      <nav className="canvas-sidenav">
-        <div className="story-search-wrap">
-          <input
-            className="story-search-input"
-            placeholder="Search…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="story-section-header">
-          <ChevronDown size={11} style={{flexShrink:0}} />
-          <span>Components</span>
-          <span className="story-section-count">{filtered.length}</span>
-        </div>
-
-        <div className="story-list">
-          {filtered.map(comp => (
+      {/* ── Toolbar ── */}
+      <div className="canvas-toolbar">
+        <div className="canvas-scene-tabs">
+          {SCENES.map(s => (
             <button
-              key={comp.id}
-              className={`story-item${active === comp.id ? ' active' : ''}`}
-              onClick={() => setActive(comp.id)}
+              key={s.id}
+              className={`canvas-scene-tab${scene === s.id ? ' active' : ''}`}
+              onClick={() => setScene(s.id)}
             >
-              <span className="story-item-chevron"><ChevronRight size={10} /></span>
-              <span className="story-item-icon"><Folder size={12} /></span>
-              <span className="story-item-label">{comp.label}</span>
+              {s.label}
             </button>
           ))}
-          {filtered.length === 0 && (
-            <div className="story-empty">No results for "{search}"</div>
-          )}
         </div>
-      </nav>
 
-      <div className="canvas-content">
-        <div className="canvas-content-header">
-          <span className="canvas-story-path">Components</span>
-          <span className="canvas-story-sep">/</span>
-          <span className="canvas-story-name">{activeComp.label}</span>
-
-          <div className="canvas-header-right">
-            <button
-              className="canvas-preview-btn"
-              onClick={() => setShowPreview(true)}
-              title="Open theme preview"
-            >
-              <Monitor size={12} />
-              Preview theme
-            </button>
-            <button
-              className="canvas-mode-btn"
-              onClick={() => setDarkMode(!darkMode)}
-              title={darkMode ? 'Switch canvas to light' : 'Switch canvas to dark'}
-            >
-              {darkMode ? <Sun size={14} /> : <Moon size={14} />}
-            </button>
+        {scene === 'components' && (
+          <div className="canvas-breadcrumb">
+            <span className="canvas-story-path">Components</span>
+            <span className="canvas-story-sep"> / </span>
+            <span className="canvas-story-name">{activeComp.label}</span>
           </div>
-        </div>
+        )}
 
-        <div className="canvas-body" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
-          <Story key={active} />
+        <div className="canvas-toolbar-right">
+          <button
+            className="canvas-mode-btn"
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? 'Switch canvas to light' : 'Switch canvas to dark'}
+          >
+            {darkMode ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
         </div>
       </div>
 
-      {/* Theme preview modal */}
-      {showPreview && (
-        <div className="tp-modal-overlay" onClick={() => setShowPreview(false)}>
-          <div className="tp-modal" onClick={e => e.stopPropagation()}>
-            <div className="tp-modal-header">
-              <span className="tp-modal-title">Theme Preview</span>
-              <button className="tp-modal-close" onClick={() => setShowPreview(false)}>
-                <X size={15} />
-              </button>
-            </div>
-            <div className="tp-modal-body" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
-              <ThemePreview />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Content area ── */}
+      <div className="canvas-content-area">
 
+        {/* Dashboard */}
+        {scene === 'dashboard' && (
+          <div className="canvas-preview-scene" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
+            <ThemePreview />
+          </div>
+        )}
+
+        {/* Mobile */}
+        {scene === 'mobile' && (
+          <div className="canvas-preview-scene canvas-preview-scene--center" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
+            <MobilePreview />
+          </div>
+        )}
+
+        {/* Marketing */}
+        {scene === 'marketing' && (
+          <div className="canvas-preview-scene" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
+            <MarketingPreview />
+          </div>
+        )}
+
+        {/* Components */}
+        {scene === 'components' && (
+          <>
+            <nav className="canvas-sidenav">
+              <div className="story-search-wrap">
+                <input
+                  className="story-search-input"
+                  placeholder="Search…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="story-section-header">
+                <ChevronDown size={11} style={{ flexShrink: 0 }} />
+                <span>Components</span>
+                <span className="story-section-count">{filtered.length}</span>
+              </div>
+              <div className="story-list">
+                {filtered.map(comp => (
+                  <button
+                    key={comp.id}
+                    className={`story-item${active === comp.id ? ' active' : ''}`}
+                    onClick={() => setActive(comp.id)}
+                  >
+                    <span className="story-item-chevron"><ChevronRight size={10} /></span>
+                    <span className="story-item-icon"><Folder size={12} /></span>
+                    <span className="story-item-label">{comp.label}</span>
+                  </button>
+                ))}
+                {filtered.length === 0 && (
+                  <div className="story-empty">No results for "{search}"</div>
+                )}
+              </div>
+            </nav>
+
+            <div className="canvas-body" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
+              <Story key={active} />
+            </div>
+          </>
+        )}
+
+      </div>
     </div>
   );
 }
