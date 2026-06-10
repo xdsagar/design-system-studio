@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Check, X, ChevronDown } from 'lucide-react';
 import {
   defaultTokens,
   radiusPresets,
@@ -359,7 +360,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
             className={`step-tab ${i === step ? 'active' : ''} ${i < step ? 'done' : ''}`}
             onClick={() => setStep(i)}
           >
-            <span className="step-num">{i < step ? '✓' : i + 1}</span>
+            <span className="step-num">{i < step ? <Check size={13} /> : i + 1}</span>
             <span>{s}</span>
           </button>
         ))}
@@ -570,7 +571,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                     onChange={e => updateCustomColor(color.id, 'name', e.target.value)}
                     placeholder="Name (e.g. chart-blue)"
                   />
-                  <button className="custom-remove-btn" onClick={() => removeCustomColor(color.id)}>×</button>
+                  <button className="custom-remove-btn" onClick={() => removeCustomColor(color.id)}><X size={12} /></button>
                 </div>
               ))}
             </div>
@@ -713,7 +714,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                     <span>Token Output</span>
                     <div style={{display:'flex',alignItems:'center',gap:8}}>
                       <span className="token-count-pill">{tokenCount}</span>
-                      <span style={{color:'var(--shell-text-2)',fontSize:12,transform:tokenAccordionOpen?'rotate(180deg)':'none',display:'inline-block',transition:'transform .2s'}}>⌄</span>
+                      <ChevronDown size={14} style={{color:'var(--shell-text-2)',transform:tokenAccordionOpen?'rotate(180deg)':'none',transition:'transform .2s',flexShrink:0}} />
                     </div>
                   </button>
                   {tokenAccordionOpen && (
@@ -791,7 +792,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
 
       {toast && (
         <div className="shell-toast" role="status" key={toast}>
-          <span className="shell-toast-check">✓</span>
+          <span className="shell-toast-check"><Check size={12} /></span>
           <div className="shell-toast-body">
             <span className="shell-toast-title">Copied to clipboard</span>
             <span className="shell-toast-hex">The hex color "{toast}" has been copied</span>

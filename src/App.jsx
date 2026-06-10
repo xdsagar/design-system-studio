@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Download, Upload, Sun, Moon } from 'lucide-react';
 import { useTokens } from './hooks/useTokens';
 import Configurator from './components/Configurator';
 import Canvas from './components/Canvas';
@@ -29,26 +30,10 @@ function ThemeToggle({ isDark, onToggle }) {
         display:'flex', alignItems:'center', justifyContent:'center',
         width:34, height:34, borderRadius:8, flexShrink:0,
         background:bg, border:`1px solid ${border}`,
-        cursor:'pointer', outline:'none', padding:0,
+        cursor:'pointer', outline:'none', padding:0, color:ic,
       }}
     >
-      {isDark ? (
-        <svg width="16" height="16" viewBox="0 0 13 13" fill="none">
-          <circle cx="6.5" cy="6.5" r="2.3" fill={ic}/>
-          <line x1="6.5" y1="0.5" x2="6.5" y2="2" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="6.5" y1="11" x2="6.5" y2="12.5" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="0.5" y1="6.5" x2="2" y2="6.5" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="11" y1="6.5" x2="12.5" y2="6.5" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="2.4" y1="2.4" x2="3.4" y2="3.4" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="9.6" y1="9.6" x2="10.6" y2="10.6" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="10.6" y1="2.4" x2="9.6" y2="3.4" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-          <line x1="3.4" y1="9.6" x2="2.4" y2="10.6" stroke={ic} strokeWidth="1.4" strokeLinecap="round"/>
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 13 13" fill="none">
-          <path d="M9 2.5A5 5 0 1 1 2.5 9 4 4 0 0 0 9 2.5Z" fill={ic}/>
-        </svg>
-      )}
+      {isDark ? <Sun size={15} /> : <Moon size={15} />}
     </button>
   );
 }
@@ -82,7 +67,6 @@ export default function App() {
   function handleImport(incoming) {
     setAllTokens(incoming);
     setImportedTokens(incoming);
-    // sync canvas dark mode if the template specifies one
     if (incoming.darkMode !== undefined) setShellDark(incoming.darkMode);
   }
 
@@ -96,22 +80,12 @@ export default function App() {
         <div className="app-meta">
           <span className="app-badge">57 components</span>
 
-          {/* Download template */}
           <HeaderIconBtn onClick={downloadTemplate} title="Download token template">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
+            <Download size={14} />
           </HeaderIconBtn>
 
-          {/* Import template */}
           <HeaderIconBtn onClick={() => setShowImport(true)} title="Import token template">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
+            <Upload size={14} />
           </HeaderIconBtn>
 
           <ThemeToggle isDark={shellDark} onToggle={toggleShell} />

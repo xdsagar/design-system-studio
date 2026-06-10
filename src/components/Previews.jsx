@@ -1,4 +1,10 @@
 import { useState } from 'react';
+import {
+  AlertTriangle, ArrowUp, ArrowDown, Bell, Check, ChevronDown, ChevronLeft,
+  ChevronRight, ExternalLink, FileUp, Folder, GripVertical, Info, LayoutGrid,
+  Mail, Megaphone, Pencil, Plus, Search, Settings, Trash2, TrendingUp,
+  TrendingDown, Upload, User, Users, X, Home, Star, BookOpen, BarChart2,
+} from 'lucide-react';
 
 // ─── Shared helpers ─────────────────────────────────────────
 function Row({ children, wrap }) {
@@ -21,7 +27,7 @@ function DsChip({ children }) {
   return (
     <span className="ds-chip">
       {children}
-      <button className="chip-x" aria-label={`Remove ${children}`}>×</button>
+      <button className="chip-x" aria-label={`Remove ${children}`}><X size={10} /></button>
     </span>
   );
 }
@@ -68,7 +74,7 @@ export function AccordionStory() {
             <div key={i} className="accordion-item">
               <button className="accordion-trigger" onClick={()=>setOpen(open===i?null:i)}>
                 <span>{item.q}</span>
-                <span style={{transform:open===i?'rotate(180deg)':'none',transition:'transform .2s',display:'inline-block',color:'var(--ds-neutral-400)'}}>⌄</span>
+                <ChevronDown size={14} style={{transform:open===i?'rotate(180deg)':'none',transition:'transform .2s',flexShrink:0,color:'var(--ds-neutral-400)'}} />
               </button>
               {open===i && <div className="accordion-body">{item.a}</div>}
             </div>
@@ -97,18 +103,19 @@ export function ActionBarStory() {
 }
 
 export function AlertStory() {
+  const alerts = [
+    {type:'info',    Icon:Info,          title:'Heads up',  desc:'Your trial ends in 3 days.'},
+    {type:'success', Icon:Check,         title:'Saved',     desc:'Your changes have been saved.'},
+    {type:'warning', Icon:AlertTriangle, title:'Attention', desc:'Storage is at 88% capacity.'},
+    {type:'danger',  Icon:X,            title:'Error',     desc:'Something went wrong. Please retry.'},
+  ];
   return (
     <StoryFrame>
       <Variant label="Variants">
         <Col>
-          {[
-            {type:'info',    icon:'ℹ', title:'Heads up',  desc:'Your trial ends in 3 days.'},
-            {type:'success', icon:'✓', title:'Saved',     desc:'Your changes have been saved.'},
-            {type:'warning', icon:'⚠', title:'Attention', desc:'Storage is at 88% capacity.'},
-            {type:'danger',  icon:'✕', title:'Error',     desc:'Something went wrong. Please retry.'},
-          ].map(a=>(
+          {alerts.map(a=>(
             <div key={a.type} className={`ds-alert ${a.type}`}>
-              <span style={{flexShrink:0,marginTop:1}}>{a.icon}</span>
+              <a.Icon size={14} style={{flexShrink:0,marginTop:1}} />
               <div><div style={{fontWeight:500,marginBottom:2}}>{a.title}</div><div style={{fontSize:11,opacity:.9}}>{a.desc}</div></div>
             </div>
           ))}
@@ -178,6 +185,10 @@ export function BadgeStory() {
           <span className="ds-badge warning">Pending</span>
           <span className="ds-badge danger">Error</span>
           <span className="ds-badge neutral">Draft</span>
+        </Row>
+      </Variant>
+      <Variant label="With status dot">
+        <Row wrap>
           <span className="ds-badge success dot">Online</span>
           <span className="ds-badge warning dot">Away</span>
           <span className="ds-badge danger dot">Offline</span>
@@ -193,12 +204,18 @@ export function BannerStory() {
       <Variant label="Variants">
         <Col>
           <div className="ds-banner info">
-            <span>🎉 New features available — <a style={{color:'inherit',fontWeight:600,cursor:'pointer'}}>See what's new</a></span>
-            <button className="ds-banner-close">×</button>
+            <span style={{display:'flex',alignItems:'center',gap:6}}>
+              <Megaphone size={14} style={{flexShrink:0}} />
+              New features available — <a style={{color:'inherit',fontWeight:600,cursor:'pointer'}}>See what's new</a>
+            </span>
+            <button className="ds-banner-close"><X size={13} /></button>
           </div>
           <div className="ds-banner warning">
-            <span>⚠ Subscription expires in 7 days. <a style={{color:'inherit',fontWeight:600,cursor:'pointer'}}>Renew now</a></span>
-            <button className="ds-banner-close">×</button>
+            <span style={{display:'flex',alignItems:'center',gap:6}}>
+              <AlertTriangle size={14} style={{flexShrink:0}} />
+              Subscription expires in 7 days. <a style={{color:'inherit',fontWeight:600,cursor:'pointer'}}>Renew now</a>
+            </span>
+            <button className="ds-banner-close"><X size={13} /></button>
           </div>
         </Col>
       </Variant>
@@ -210,22 +227,22 @@ export function BreadcrumbsStory() {
   return (
     <StoryFrame>
       <Variant label="Default">
-        <nav style={{display:'flex',alignItems:'center',gap:6,fontSize:13}}>
+        <nav style={{display:'flex',alignItems:'center',gap:4,fontSize:13}}>
           {['Home','Projects'].map(c=>(
-            <span key={c} style={{display:'flex',alignItems:'center',gap:6}}>
+            <span key={c} style={{display:'flex',alignItems:'center',gap:4}}>
               <a style={{color:'var(--ds-neutral-600)',textDecoration:'none',cursor:'pointer'}}>{c}</a>
-              <span style={{color:'var(--ds-neutral-400)'}}>/</span>
+              <ChevronRight size={12} style={{color:'var(--ds-neutral-400)'}} />
             </span>
           ))}
           <span style={{color:'var(--ds-neutral-800)',fontWeight:500}}>Design System</span>
         </nav>
       </Variant>
       <Variant label="Long path">
-        <nav style={{display:'flex',alignItems:'center',gap:6,fontSize:13}}>
+        <nav style={{display:'flex',alignItems:'center',gap:4,fontSize:13}}>
           {['Home','Workspace','Team'].map(c=>(
-            <span key={c} style={{display:'flex',alignItems:'center',gap:6}}>
+            <span key={c} style={{display:'flex',alignItems:'center',gap:4}}>
               <a style={{color:'var(--ds-neutral-600)',textDecoration:'none',cursor:'pointer'}}>{c}</a>
-              <span style={{color:'var(--ds-neutral-400)'}}>/</span>
+              <ChevronRight size={12} style={{color:'var(--ds-neutral-400)'}} />
             </span>
           ))}
           <span style={{color:'var(--ds-neutral-800)',fontWeight:500}}>Settings</span>
@@ -246,7 +263,7 @@ export function ButtonStory() {
           <button className="ds-btn secondary">Secondary</button>
           <button className="ds-btn ghost">Ghost</button>
           <button className="ds-btn danger">Danger</button>
-          <button className="ds-btn link">Link →</button>
+          <button className="ds-btn link">Link</button>
         </Row>
       </Variant>
       <Variant label="Sizes">
@@ -258,20 +275,22 @@ export function ButtonStory() {
       </Variant>
       <Variant label="States">
         <StateTable>
-          <StateRow label="Default"><button className="ds-btn primary">Save changes</button></StateRow>
+          <StateRow label="Default">
+            <button className="ds-btn primary">Save changes</button>
+          </StateRow>
           <StateRow label="Loading">
             <button className="ds-btn primary" onClick={simulateLoad}>
-              {loading ? <><BtnSpinner /> Saving…</> : 'Click me →'}
+              {loading ? <><BtnSpinner /> Saving…</> : 'Click me'}
             </button>
           </StateRow>
           <StateRow label="Disabled">
             <button className="ds-btn primary" style={{opacity:.45,cursor:'not-allowed'}} disabled>Save changes</button>
           </StateRow>
           <StateRow label="Icon only">
-            <button className="ds-btn ghost icon-only" aria-label="Settings">⚙</button>
+            <button className="ds-btn ghost icon-only" aria-label="Settings"><Settings size={14} /></button>
           </StateRow>
           <StateRow label="Icon + label">
-            <button className="ds-btn secondary icon-left"><span>↑</span> Upload</button>
+            <button className="ds-btn secondary icon-left"><Upload size={13} /> Upload</button>
           </StateRow>
         </StateTable>
       </Variant>
@@ -282,7 +301,7 @@ export function ButtonStory() {
 export function ButtonGroupStory() {
   return (
     <StoryFrame>
-      <Variant label="Default">
+      <Variant label="Primary">
         <div className="ds-btn-group">
           <button className="ds-btn primary">Save</button>
           <button className="ds-btn primary">Preview</button>
@@ -302,16 +321,17 @@ export function ButtonGroupStory() {
 }
 
 export function CalloutStory() {
+  const callouts = [
+    {type:'info',    Icon:Info,          title:'Pro tip',  text:'Use keyboard shortcuts to navigate faster.'},
+    {type:'warning', Icon:AlertTriangle, title:'Heads up', text:'This action may take up to 5 minutes.'},
+  ];
   return (
     <StoryFrame>
       <Variant label="Variants">
         <Col>
-          {[
-            {type:'info',   icon:'ℹ', title:'Pro tip',  text:'Use keyboard shortcuts to navigate faster.'},
-            {type:'warning',icon:'⚠', title:'Heads up', text:'This action may take up to 5 minutes.'},
-          ].map(c=>(
+          {callouts.map(c=>(
             <div key={c.type} className={`ds-callout ${c.type}`}>
-              <span>{c.icon}</span>
+              <c.Icon size={14} style={{flexShrink:0}} />
               <div><div style={{fontWeight:500,marginBottom:2,fontSize:13}}>{c.title}</div><div style={{fontSize:12,lineHeight:1.5}}>{c.text}</div></div>
             </div>
           ))}
@@ -505,7 +525,7 @@ export function DragDropStory() {
               onDragStart={()=>setDragging(idx)}
               onDragOver={e=>e.preventDefault()}
               onDrop={()=>onDrop(idx)}>
-              <span className="ds-draggable-handle">⋮⋮</span>
+              <span className="ds-draggable-handle"><GripVertical size={14} /></span>
               {item}
             </div>
           ))}
@@ -535,9 +555,9 @@ export function FabStory() {
     <StoryFrame>
       <Variant label="Variants">
         <StateTable>
-          <StateRow label="Primary"><button className="ds-fab" title="Add">+</button></StateRow>
-          <StateRow label="Secondary"><button className="ds-fab secondary" title="Edit">✏</button></StateRow>
-          <StateRow label="Small"><button className="ds-fab sm" title="Up">↑</button></StateRow>
+          <StateRow label="Primary"><button className="ds-fab" title="Add"><Plus size={18} /></button></StateRow>
+          <StateRow label="Secondary"><button className="ds-fab secondary" title="Edit"><Pencil size={14} /></button></StateRow>
+          <StateRow label="Small"><button className="ds-fab sm" title="Up"><ArrowUp size={13} /></button></StateRow>
         </StateTable>
       </Variant>
     </StoryFrame>
@@ -549,7 +569,7 @@ export function FileUploaderStory() {
     <StoryFrame>
       <Variant label="Drop zone">
         <label className="ds-file-uploader">
-          <span className="file-uploader-icon">📁</span>
+          <span className="file-uploader-icon"><FileUp size={28} /></span>
           <span className="file-uploader-text">Drop files here or <span style={{color:'var(--ds-brand)'}}>browse</span></span>
           <span className="file-uploader-hint">PNG, JPG, PDF — up to 10 MB</span>
           <input type="file" style={{display:'none'}} />
@@ -573,7 +593,7 @@ export function FooterStory() {
               <a key={l} style={{fontSize:11,color:'var(--ds-neutral-400)',textDecoration:'none',cursor:'pointer'}}>{l}</a>
             ))}
           </nav>
-          <span style={{fontSize:11,color:'var(--ds-neutral-400)'}}>© 2026</span>
+          <span style={{fontSize:11,color:'var(--ds-neutral-400)'}}>&copy; 2026</span>
         </div>
       </Variant>
     </StoryFrame>
@@ -640,22 +660,27 @@ export function HeadlineStory() {
 }
 
 export function HeroIconStory() {
+  const icons = [
+    {name:'Home',     Icon:Home},
+    {name:'Search',   Icon:Search},
+    {name:'Bell',     Icon:Bell},
+    {name:'User',     Icon:User},
+    {name:'Settings', Icon:Settings},
+    {name:'Star',     Icon:Star},
+    {name:'Folder',   Icon:Folder},
+    {name:'Upload',   Icon:Upload},
+    {name:'Trash',    Icon:Trash2},
+    {name:'Pencil',   Icon:Pencil},
+    {name:'Mail',     Icon:Mail},
+    {name:'Chart',    Icon:BarChart2},
+  ];
   return (
     <StoryFrame>
       <Variant label="Icon library">
         <div className="ds-hero-icon-grid">
-          {[
-            {name:'Home',     svg:'M3 12l9-9 9 9M5 10v9h5v-5h4v5h5v-9'},
-            {name:'Search',   svg:'M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z'},
-            {name:'Bell',     svg:'M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.003 6.003 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6.003 6.003 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 0 1-6 0v-1m6 0H9'},
-            {name:'User',     svg:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'},
-            {name:'Settings', svg:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'},
-            {name:'Star',     svg:'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 0 0 .95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 0 0-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 0 0-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 0 0-.363-1.118L3.98 10.1c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 0 0 .951-.69l1.519-4.674z'},
-          ].map(({name,svg})=>(
+          {icons.map(({name,Icon})=>(
             <div key={name} className="ds-hero-icon-item">
-              <svg className="ds-hero-icon-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d={svg}/>
-              </svg>
+              <Icon size={24} className="ds-hero-icon-symbol" strokeWidth={1.5} />
               <span className="ds-hero-icon-name">{name}</span>
             </div>
           ))}
@@ -672,7 +697,7 @@ export function IndicatorStory() {
         <StateTable>
           <StateRow label="Badge count">
             <div className="ds-indicator">
-              <button className="ds-btn ghost icon-only">🔔</button>
+              <button className="ds-btn ghost icon-only"><Bell size={15} /></button>
               <span className="ds-indicator-dot danger">3</span>
             </div>
           </StateRow>
@@ -684,7 +709,7 @@ export function IndicatorStory() {
           </StateRow>
           <StateRow label="Message count">
             <div className="ds-indicator">
-              <button className="ds-btn ghost icon-only">✉</button>
+              <button className="ds-btn ghost icon-only"><Mail size={15} /></button>
               <span className="ds-indicator-dot brand">12</span>
             </div>
           </StateRow>
@@ -748,12 +773,12 @@ export function ListStory() {
       <Variant label="User list">
         <div className="ds-list" style={{maxWidth:320}}>
           {[
-            {label:'Jane Doe',   meta:'Admin',  icon:'👤'},
-            {label:'Mike Kim',   meta:'Editor', icon:'👤'},
-            {label:'Sara Reyes', meta:'Viewer', icon:'👤'},
+            {label:'Jane Doe',   meta:'Admin'},
+            {label:'Mike Kim',   meta:'Editor'},
+            {label:'Sara Reyes', meta:'Viewer'},
           ].map(item=>(
             <div key={item.label} className="ds-list-item">
-              <span className="ds-list-icon">{item.icon}</span>
+              <span className="ds-list-icon"><User size={14} /></span>
               <div className="ds-list-item-label">{item.label}</div>
               <div className="ds-list-item-meta">{item.meta}</div>
             </div>
@@ -770,7 +795,9 @@ export function MenuStory() {
     <StoryFrame>
       <Variant label="Dropdown menu">
         <div style={{position:'relative',display:'inline-block'}}>
-          <button className="ds-btn secondary sm" onClick={()=>setOpen(v=>!v)}>Options ⌄</button>
+          <button className="ds-btn secondary sm" onClick={()=>setOpen(v=>!v)} style={{display:'flex',alignItems:'center',gap:6}}>
+            Options <ChevronDown size={12} />
+          </button>
           {open && (
             <div className="ds-menu">
               {['Edit','Duplicate','Archive',null,'Delete'].map((item,i)=>
@@ -797,7 +824,7 @@ export function ModalStory() {
             <div className="ds-modal" onClick={e=>e.stopPropagation()}>
               <div className="ds-modal-header">
                 <span className="ds-modal-title">Confirm action</span>
-                <button className="ds-modal-close" onClick={()=>setOpen(false)}>×</button>
+                <button className="ds-modal-close" onClick={()=>setOpen(false)}><X size={16} /></button>
               </div>
               <div className="ds-modal-body">
                 Are you sure you want to delete this project? This action cannot be undone.
@@ -817,10 +844,10 @@ export function ModalStory() {
 export function NavStory() {
   const [active, setActive] = useState('dashboard');
   const navItems = [
-    {id:'dashboard', label:'Dashboard', icon:'⊞'},
-    {id:'projects',  label:'Projects',  icon:'📁'},
-    {id:'team',      label:'Team',      icon:'👥'},
-    {id:'settings',  label:'Settings',  icon:'⚙'},
+    {id:'dashboard', label:'Dashboard', Icon:LayoutGrid},
+    {id:'projects',  label:'Projects',  Icon:Folder},
+    {id:'team',      label:'Team',      Icon:Users},
+    {id:'settings',  label:'Settings',  Icon:Settings},
   ];
   return (
     <StoryFrame>
@@ -828,7 +855,7 @@ export function NavStory() {
         <div className="ds-nav">
           {navItems.map(item=>(
             <button key={item.id} className={`ds-nav-item ${active===item.id?'active':''}`} onClick={()=>setActive(item.id)}>
-              <span className="ds-nav-icon">{item.icon}</span>
+              <span className="ds-nav-icon"><item.Icon size={14} /></span>
               {item.label}
             </button>
           ))}
@@ -847,7 +874,7 @@ export function PageHeadingStory() {
             <h1 className="ds-page-heading-title">Projects</h1>
             <p className="ds-page-heading-desc">Manage and track all your design projects.</p>
           </div>
-          <button className="ds-btn primary sm">+ New project</button>
+          <button className="ds-btn primary sm">New project</button>
         </div>
       </Variant>
       <Variant label="Simple">
@@ -868,13 +895,13 @@ export function PaginationStory() {
     <StoryFrame>
       <Variant label="Default">
         <div className="ds-pagination">
-          <button className="page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))}>‹</button>
+          <button className="page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))}><ChevronLeft size={14} /></button>
           {[1,2,3,'…',12].map((n,i)=>(
             typeof n==='number'
               ? <button key={i} className={`page-btn ${page===n?'active':''}`} onClick={()=>setPage(n)}>{n}</button>
               : <span key={i} className="page-ellipsis">…</span>
           ))}
-          <button className="page-btn" onClick={()=>setPage(p=>Math.min(12,p+1))}>›</button>
+          <button className="page-btn" onClick={()=>setPage(p=>Math.min(12,p+1))}><ChevronRight size={14} /></button>
         </div>
       </Variant>
     </StoryFrame>
@@ -888,7 +915,7 @@ export function PanelStory() {
         <div className="ds-panel" style={{maxWidth:340}}>
           <div className="ds-panel-header">
             <span>Team members</span>
-            <button className="ds-btn ghost sm">+ Add</button>
+            <button className="ds-btn ghost sm">Add</button>
           </div>
           <div className="ds-panel-body">
             {['Jane Doe — Admin','Mike Kim — Editor','Sara Reyes — Viewer'].map(m=>(
@@ -991,7 +1018,7 @@ export function SearchStory() {
     <StoryFrame>
       <Variant label="Search input">
         <div className="ds-search-wrap" style={{maxWidth:320}}>
-          <span className="ds-search-icon">🔍</span>
+          <span className="ds-search-icon"><Search size={14} /></span>
           <input className="ds-input ds-search" placeholder="Search components…" />
         </div>
       </Variant>
@@ -1081,13 +1108,13 @@ export function SnackbarStory() {
       <Variant label="Toast notifications">
         <div style={{display:'flex',flexDirection:'column',gap:8,maxWidth:320}}>
           {[
-            {type:'success',icon:'✓',title:'Saved',desc:'Your changes were saved.'},
-            {type:'danger', icon:'✕',title:'Failed',desc:'Could not connect to server.'},
+            {type:'success', Icon:Check, title:'Saved',  desc:'Your changes were saved.'},
+            {type:'danger',  Icon:X,    title:'Failed', desc:'Could not connect to server.'},
           ].map(t=>(
             <div key={t.type} className="ds-toast">
-              <span className={`toast-icon ${t.type}`}>{t.icon}</span>
+              <span className={`toast-icon ${t.type}`}><t.Icon size={13} /></span>
               <div><div className="toast-title">{t.title}</div><div className="toast-desc">{t.desc}</div></div>
-              <button className="toast-close">×</button>
+              <button className="toast-close"><X size={13} /></button>
             </div>
           ))}
         </div>
@@ -1098,8 +1125,8 @@ export function SnackbarStory() {
             Show snackbar
           </button>
           {show && (
-            <div className="ds-snackbar" style={{position:'absolute',left:0,bottom:'calc(100% + 8px)',whiteSpace:'nowrap'}}>
-              ✓ Action completed
+            <div className="ds-snackbar" style={{position:'absolute',left:0,bottom:'calc(100% + 8px)',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:6}}>
+              <Check size={13} /> Action completed
               <button className="ds-snackbar-action" onClick={()=>setShow(false)}>Undo</button>
             </div>
           )}
@@ -1132,15 +1159,22 @@ export function SpinnerStory() {
 }
 
 export function StatCardStory() {
+  const stats = [
+    {label:'Revenue', value:'$48.2k', trend:'+12.5%', type:'success', up:true},
+    {label:'Users',   value:'8,421',  trend:'+4.1%',  type:'success', up:true},
+    {label:'Churn',   value:'2.3%',   trend:'+0.4%',  type:'danger',  up:false},
+  ];
   return (
     <StoryFrame>
       <Variant label="Metrics">
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
-          {[['Revenue','$48.2k','↑ 12.5%','success'],['Users','8,421','↑ 4.1%','success'],['Churn','2.3%','↑ 0.4%','danger']].map(([l,v,c,t])=>(
-            <div key={l} className="ds-stat-card">
-              <div className="stat-label">{l}</div>
-              <div className="stat-value">{v}</div>
-              <div className={`stat-change ${t}`}>{c}</div>
+          {stats.map(s=>(
+            <div key={s.label} className="ds-stat-card">
+              <div className="stat-label">{s.label}</div>
+              <div className="stat-value">{s.value}</div>
+              <div className={`stat-change ${s.type}`} style={{display:'flex',alignItems:'center',gap:3}}>
+                {s.up ? <TrendingUp size={11}/> : <TrendingDown size={11}/>} {s.trend}
+              </div>
             </div>
           ))}
         </div>
@@ -1156,7 +1190,7 @@ export function StepperStory() {
         <div className="ds-stepper">
           {['Cart','Shipping','Payment','Confirm'].map((s,i)=>(
             <div key={s} className={`ds-step ${i===0?'done':i===1?'active':''}`}>
-              <div className="step-dot">{i===0?'✓':i+1}</div>
+              <div className="step-dot">{i===0?<Check size={12}/>:i+1}</div>
               <div className="step-label">{s}</div>
             </div>
           ))}
@@ -1268,13 +1302,19 @@ export function ToggleStory() {
 }
 
 export function TooltipStory() {
+  const targets = [
+    {Icon:Settings,     tip:'Open settings'},
+    {Icon:Trash2,       tip:'Delete item'},
+    {Icon:Pencil,       tip:'Edit'},
+    {Icon:ExternalLink, tip:'Share'},
+  ];
   return (
     <StoryFrame>
       <Variant label="Hover targets">
         <Row>
-          {[['⚙','Open settings'],['🗑','Delete item'],['✏','Edit'],['↗','Share']].map(([icon,tip])=>(
+          {targets.map(({Icon,tip})=>(
             <div key={tip} className="tooltip-root">
-              <button className="ds-btn ghost sm">{icon}</button>
+              <button className="ds-btn ghost sm"><Icon size={14} /></button>
               <span className="ds-tooltip">{tip}</span>
             </div>
           ))}

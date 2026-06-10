@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Folder, Sun, Moon, ChevronRight, ChevronDown } from 'lucide-react';
 import {
   AccordionStory, ActionBarStory, AlertStory, AppLayoutStory, AvatarStory,
   BadgeStory, BannerStory, BreadcrumbsStory, ButtonStory, ButtonGroupStory,
@@ -73,38 +74,6 @@ const COMPONENTS = [
   { id: 'tooltip',         label: 'Tooltip',         Story: TooltipStory },
 ];
 
-function FolderIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-    </svg>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 13 13" fill="none">
-      <circle cx="6.5" cy="6.5" r="2.3" fill="currentColor"/>
-      <line x1="6.5" y1="0.5" x2="6.5" y2="2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="6.5" y1="11" x2="6.5" y2="12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="0.5" y1="6.5" x2="2" y2="6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="11" y1="6.5" x2="12.5" y2="6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="2.4" y1="2.4" x2="3.4" y2="3.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="9.6" y1="9.6" x2="10.6" y2="10.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="10.6" y1="2.4" x2="9.6" y2="3.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="3.4" y1="9.6" x2="2.4" y2="10.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 13 13" fill="none">
-      <path d="M9 2.5A5 5 0 1 1 2.5 9 4 4 0 0 0 9 2.5Z" fill="currentColor"/>
-    </svg>
-  );
-}
-
 export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   const [active, setActive] = useState('button');
   const [search, setSearch] = useState('');
@@ -122,9 +91,7 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   return (
     <div className="canvas-panel">
 
-      {/* Storybook-style sidenav */}
       <nav className="canvas-sidenav">
-        {/* Search */}
         <div className="story-search-wrap">
           <input
             className="story-search-input"
@@ -134,14 +101,12 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
           />
         </div>
 
-        {/* Section header */}
         <div className="story-section-header">
-          <span className="story-section-caret">▾</span>
+          <ChevronDown size={11} style={{flexShrink:0}} />
           <span>Components</span>
           <span className="story-section-count">{filtered.length}</span>
         </div>
 
-        {/* Flat alphabetical list */}
         <div className="story-list">
           {filtered.map(comp => (
             <button
@@ -149,8 +114,8 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
               className={`story-item${active === comp.id ? ' active' : ''}`}
               onClick={() => setActive(comp.id)}
             >
-              <span className="story-item-chevron">›</span>
-              <span className="story-item-icon"><FolderIcon /></span>
+              <span className="story-item-chevron"><ChevronRight size={10} /></span>
+              <span className="story-item-icon"><Folder size={12} /></span>
               <span className="story-item-label">{comp.label}</span>
             </button>
           ))}
@@ -160,7 +125,6 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
         </div>
       </nav>
 
-      {/* Canvas content */}
       <div className="canvas-content">
         <div className="canvas-content-header">
           <span className="canvas-story-path">Components</span>
@@ -171,7 +135,7 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
             onClick={() => setDarkMode(!darkMode)}
             title={darkMode ? 'Switch canvas to light' : 'Switch canvas to dark'}
           >
-            {darkMode ? <SunIcon /> : <MoonIcon />}
+            {darkMode ? <Sun size={14} /> : <Moon size={14} />}
           </button>
         </div>
         <div

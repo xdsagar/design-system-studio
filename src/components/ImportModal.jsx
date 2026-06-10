@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Check, X, FileUp } from 'lucide-react';
 import { parseImportFile } from '../utils/tokenTemplate';
 
 export default function ImportModal({ onClose, onImport }) {
@@ -47,7 +48,7 @@ export default function ImportModal({ onClose, onImport }) {
 
         <div className="import-modal-header">
           <span className="import-modal-title">Import token template</span>
-          <button className="import-modal-close" onClick={onClose}>×</button>
+          <button className="import-modal-close" onClick={onClose}><X size={16} /></button>
         </div>
 
         <div className="import-modal-body">
@@ -59,12 +60,7 @@ export default function ImportModal({ onClose, onImport }) {
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{color:'var(--shell-text-3)'}}>
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="12" y1="18" x2="12" y2="12"/>
-                <polyline points="9 15 12 12 15 15"/>
-              </svg>
+              <FileUp size={28} style={{color:'var(--shell-text-3)'}} />
               <span className="import-dropzone-text">
                 Drop your template here or{' '}
                 <span style={{color:'var(--shell-accent)'}}>browse</span>
@@ -89,7 +85,7 @@ export default function ImportModal({ onClose, onImport }) {
 
           {phase === 'success' && result && (
             <div className="import-result-wrap">
-              <div className="import-result-icon success">✓</div>
+              <div className="import-result-icon success"><Check size={22} /></div>
               <div className="import-result-title">Import successful</div>
 
               <div className="import-token-count">
@@ -124,7 +120,7 @@ export default function ImportModal({ onClose, onImport }) {
 
           {phase === 'fail' && (
             <div className="import-result-wrap">
-              <div className="import-result-icon fail">✕</div>
+              <div className="import-result-icon fail"><X size={22} /></div>
               <div className="import-result-title">Import failed</div>
               <div className="import-fail-desc">{error}</div>
               <button className="import-retry-btn" onClick={() => setPhase('idle')}>
