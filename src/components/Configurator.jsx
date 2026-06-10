@@ -3,14 +3,17 @@ import { Check, X, ChevronDown } from 'lucide-react';
 import {
   defaultTokens,
   radiusPresets,
-  fontDisplayOptions, fontBodyOptions,
+  fontDisplayOptions, fontBodyOptions, fontMonoOptions,
+  typeSizeOptions, typeScaleRatioOptions, computeTypeScale,
+  spacingScaleOptions, SPACING_SCALES, SPACE_STEP_KEYS,
+  MOTION_PRESETS,
+  ELEVATION_PRESETS,
   computeHoverColor, shadowValues, wcagContrast, generateColorScale,
 } from '../utils/tokens';
 import { exportSkillFile, exportComponentsCss } from '../utils/exportSkill';
 
-const STEPS = ['Colors', 'Type', 'Shape', 'Export'];
+const STEPS = ['Colors', 'Type', 'Space', 'Motion', 'Shape', 'Export'];
 
-// Industry-standard order: brand → secondary → tertiary → feedback (success, caution, error, info) → utility (ghost)
 const COLOR_GROUPS = [
   { key: 'brand',     label: 'Primary',   tokenKey: 'brand',     dmKey: 'brandDm',     hoverTextKey: 'brandHoverText',     dmHoverTextKey: 'brandHoverTextDm',     cssVar: '--ds-brand',     hoverVar: '--ds-brand-hover',     hoverTextVar: '--ds-brand-hover-text'     },
   { key: 'secondary', label: 'Secondary', tokenKey: 'secondary', dmKey: 'secondaryDm', hoverTextKey: 'secondaryHoverText', dmHoverTextKey: 'secondaryHoverTextDm', cssVar: '--ds-secondary', hoverVar: '--ds-secondary-hover', hoverTextVar: '--ds-secondary-hover-text' },
@@ -23,6 +26,8 @@ const COLOR_GROUPS = [
 ];
 
 const SCALE_STEPS = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+
+const TYPE_SCALE_NAMES = ['2xs','xs','sm','base','md','lg','xl','2xl','3xl','4xl','5xl'];
 
 function toVarName(name) {
   return '--ds-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -60,6 +65,7 @@ function buildAllTokenLines(tokens) {
     { section: 'Typography' },
     { key: '--ds-font-display',         value: tokens.fontDisplay },
     { key: '--ds-font-body',            value: tokens.fontBody },
+    { key: '--ds-font-mono',            value: tokens.fontMono },
     { section: 'Shape' },
     { key: '--ds-radius-sm',            value: tokens.radiusSm },
     { key: '--ds-radius-md',            value: tokens.radiusMd },
@@ -200,7 +206,12 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
     return () => document.removeEventListener('mousedown', onDown);
   }, [resetOpen]);
 
-  const { setBrand, setFont, setRadius, setBorderStyle, setShadow, setDarkMode, setSemanticColor, setCustomColors, setCoreColors, setAllTokens } = handlers;
+  const {
+    setBrand, setFont, setTypeScale, setSpacingScale,
+    setMotionPersonality, setElevationStyle,
+    setRadius, setBorderStyle, setShadow, setDarkMode,
+    setSemanticColor, setCustomColors, setCoreColors, setAllTokens,
+  } = handlers;
 
   function makeInitHex() {
     const init = {};
@@ -250,10 +261,17 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
     } else if (step === 1) {
       setFont('display', defaultTokens.fontDisplay);
       setFont('body', defaultTokens.fontBody);
+      setFont('mono', defaultTokens.fontMono);
+      setTypeScale(defaultTokens.typeBaseSize, defaultTokens.typeScaleRatio);
     } else if (step === 2) {
+      setSpacingScale(defaultTokens.spacingScale);
+    } else if (step === 3) {
+      setMotionPersonality(defaultTokens.motionPersonality);
+    } else if (step === 4) {
       setRadius({ sm: defaultTokens.radiusSm, md: defaultTokens.radiusMd, lg: defaultTokens.radiusLg, pill: defaultTokens.radiusPill });
       setBorderStyle(defaultTokens.borderStyle);
       setShadow(defaultTokens.shadow);
+      setElevationStyle(defaultTokens.elevationStyle);
       setRadiusIdx(2);
     }
   }
@@ -263,9 +281,14 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
     handlers.setNeutral(defaultTokens.neutral);
     setFont('display', defaultTokens.fontDisplay);
     setFont('body', defaultTokens.fontBody);
+    setFont('mono', defaultTokens.fontMono);
+    setTypeScale(defaultTokens.typeBaseSize, defaultTokens.typeScaleRatio);
+    setSpacingScale(defaultTokens.spacingScale);
+    setMotionPersonality(defaultTokens.motionPersonality);
     setRadius({ sm: defaultTokens.radiusSm, md: defaultTokens.radiusMd, lg: defaultTokens.radiusLg, pill: defaultTokens.radiusPill });
     setBorderStyle(defaultTokens.borderStyle);
     setShadow(defaultTokens.shadow);
+    setElevationStyle(defaultTokens.elevationStyle);
     setDarkMode(defaultTokens.darkMode);
     COLOR_GROUPS.forEach(g => {
       if (g.tokenKey !== 'brand') setSemanticColor(g.tokenKey, defaultTokens[g.tokenKey]);
@@ -399,12 +422,28 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
     exportComponentsCss(tokens, dsName.trim());
   }
 
-
   const allTokenLines = buildAllTokenLines(tokens);
   const q = tokenSearch.trim().toLowerCase();
   const filteredLines = q
     ? allTokenLines.filter(t => t.key && (t.key.includes(q) || t.value.toLowerCase().includes(q)))
     : allTokenLines;
+
+  // Derived type scale for preview
+  const typeScale = computeTypeScale(
+    tokens.typeBaseSize  || 16,
+    tokens.typeScaleRatio || 'perfectFourth',
+  );
+
+  // Spacing scale values for selected preset
+  const spaceVals = SPACING_SCALES[tokens.spacingScale] || SPACING_SCALES.default;
+  const maxSpace  = Math.max(...spaceVals);
+
+  // Motion preset for selected personality
+  const motionPreset = MOTION_PRESETS[tokens.motionPersonality] || MOTION_PRESETS.fluid;
+
+  // Elevation preset for selected style
+  const elevPreset = ELEVATION_PRESETS[tokens.elevationStyle] || ELEVATION_PRESETS.subtle;
+  const elevShadows = tokens.darkMode ? elevPreset.dark : elevPreset.light;
 
   return (
     <aside className="config-panel">
@@ -422,11 +461,11 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
       </div>
 
       <div className="config-body">
+
         {/* ── Step 0: Colors ── */}
         {step === 0 && (
           <div className="config-section">
 
-            {/* ── Light / Dark mode sub-tab ── */}
             <div className="color-mode-switch">
               <button
                 className={`color-mode-tab ${colorMode === 'light' ? 'active' : ''}`}
@@ -442,7 +481,6 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
               </button>
             </div>
 
-            {/* ── Semantic Colors ── */}
             <div className="color-section">
               <div className="color-section-header">
                 <span className="color-section-title">Semantic Colors</span>
@@ -468,7 +506,6 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
 
                       {isOpen && (
                         <div className="color-group-body">
-                          {/* Base color picker */}
                           <div className="config-row">
                             <input
                               type="color"
@@ -485,13 +522,9 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                             />
                           </div>
 
-                          {/* WCAG badge */}
                           <WcagBadge hex={activeHex} />
-
-                          {/* Palette scale strip */}
                           <ColorScaleStrip hex={activeHex} onSwatchClick={copyHexToClipboard} />
 
-                          {/* Hover — vertical radio list */}
                           <div>
                             <div className="config-label" style={{ marginBottom: 6 }}>Hover</div>
                             <div className="hover-radio-list">
@@ -546,7 +579,6 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
               </div>
             </div>
 
-            {/* ── Core Colors ── */}
             <div className="color-section dashed">
               <div className="color-section-header">
                 <span className="color-section-title">Core Colors</span>
@@ -567,7 +599,6 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
 
                       {isOpen && (
                         <div className="color-group-body">
-                          {/* Base color picker — sets the 60-shade */}
                           <div className="config-row">
                             <input
                               type="color"
@@ -584,8 +615,6 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                             />
                             <span className="scale-base-tag">60</span>
                           </div>
-
-                          {/* Palette scale strip */}
                           <ColorScaleStrip hex={hex} onSwatchClick={copyHexToClipboard} />
                         </div>
                       )}
@@ -595,7 +624,6 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
               </div>
             </div>
 
-            {/* ── Custom / Data-Viz ── */}
             <div className="color-section dashed">
               <div className="color-section-header">
                 <span className="color-section-title">Custom / Data-Viz</span>
@@ -631,13 +659,14 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
               ))}
             </div>
 
-
           </div>
         )}
 
         {/* ── Step 1: Type ── */}
         {step === 1 && (
           <div className="config-section">
+
+            {/* Font families */}
             <div className="config-group">
               <label className="config-label">Display font</label>
               <select value={tokens.fontDisplay} onChange={e => setFont('display', e.target.value)} className="config-select">
@@ -647,6 +676,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                 The quick brown fox jumps
               </div>
             </div>
+
             <div className="config-group">
               <label className="config-label">Body font</label>
               <select value={tokens.fontBody} onChange={e => setFont('body', e.target.value)} className="config-select">
@@ -656,12 +686,193 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                 The quick brown fox jumps over the lazy dog. 0123456789
               </div>
             </div>
+
+            <div className="config-group">
+              <label className="config-label">Mono font</label>
+              <select value={tokens.fontMono} onChange={e => setFont('mono', e.target.value)} className="config-select">
+                {fontMonoOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <div className="font-preview mono-preview" style={{ fontFamily: tokens.fontMono }}>
+                const value = tokens['--ds-brand'];
+              </div>
+            </div>
+
+            {/* Type scale */}
+            <div className="config-group">
+              <label className="config-label">Base size</label>
+              <div className="type-size-row">
+                {typeSizeOptions.map(sz => (
+                  <button
+                    key={sz}
+                    className={`type-size-btn ${tokens.typeBaseSize === sz ? 'active' : ''}`}
+                    onClick={() => setTypeScale(sz, null)}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="config-group">
+              <label className="config-label">Scale ratio</label>
+              <div className="ratio-card-list">
+                {typeScaleRatioOptions.map(o => (
+                  <button
+                    key={o.id}
+                    className={`ratio-card ${tokens.typeScaleRatio === o.id ? 'active' : ''}`}
+                    onClick={() => setTypeScale(null, o.id)}
+                  >
+                    <span className="ratio-card-label">{o.label}</span>
+                    <span className="ratio-card-ratio">{o.ratio.toFixed(3)}</span>
+                    <span className="ratio-card-desc">{o.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live type scale preview */}
+            <div className="config-group">
+              <label className="config-label">Scale preview</label>
+              <div className="type-scale-preview">
+                {TYPE_SCALE_NAMES.map(name => {
+                  const px = typeScale[name];
+                  return (
+                    <div key={name} className="type-scale-row">
+                      <span className="type-scale-name">{name}</span>
+                      <span className="type-scale-px">{px}px</span>
+                      <span
+                        className="type-scale-sample"
+                        style={{ fontFamily: tokens.fontBody, fontSize: Math.min(px, 20) }}
+                      >
+                        Aa
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
         )}
 
-        {/* ── Step 2: Shape ── */}
+        {/* ── Step 2: Space ── */}
         {step === 2 && (
           <div className="config-section">
+
+            <div className="config-group">
+              <label className="config-label">Density preset</label>
+              <p className="config-hint">Controls spacing across all components — from data-dense tools to editorial layouts.</p>
+              <div className="density-card-list">
+                {spacingScaleOptions.map(o => (
+                  <button
+                    key={o.id}
+                    className={`density-card ${tokens.spacingScale === o.id ? 'active' : ''}`}
+                    onClick={() => setSpacingScale(o.id)}
+                  >
+                    <div className="density-card-top">
+                      <span className="density-card-label">{o.label}</span>
+                      <span className="density-card-ref">{o.ref}</span>
+                    </div>
+                    <span className="density-card-desc">{o.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Visual spacing scale */}
+            <div className="config-group">
+              <label className="config-label">Space scale</label>
+              <div className="space-scale-viz">
+                {spaceVals.map((px, i) => (
+                  <div key={i} className="space-scale-row">
+                    <span className="space-scale-key">{SPACE_STEP_KEYS[i]}</span>
+                    <div className="space-scale-bar-wrap">
+                      <div
+                        className="space-scale-bar"
+                        style={{ width: `${Math.round((px / maxSpace) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="space-scale-val">{px}px</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ── Step 3: Motion ── */}
+        {step === 3 && (
+          <div className="config-section">
+
+            <div className="config-group">
+              <label className="config-label">Motion personality</label>
+              <p className="config-hint">Sets the pacing and feel of all transitions — from instant feedback to cinematic reveals.</p>
+              <div className="motion-card-list">
+                {Object.entries(MOTION_PRESETS).map(([id, preset]) => (
+                  <button
+                    key={id}
+                    className={`motion-card ${tokens.motionPersonality === id ? 'active' : ''}`}
+                    onClick={() => setMotionPersonality(id)}
+                  >
+                    <div className="motion-card-top">
+                      <span className="motion-card-label">{preset.label}</span>
+                      <span className="motion-card-ref">{preset.ref}</span>
+                    </div>
+                    <span className="motion-card-desc">{preset.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Duration values for selected preset */}
+            <div className="config-group">
+              <label className="config-label">Durations</label>
+              <div className="motion-durations">
+                {[
+                  ['Fast',       motionPreset.fast       ],
+                  ['Base',       motionPreset.base       ],
+                  ['Slow',       motionPreset.slow       ],
+                  ['Deliberate', motionPreset.deliberate ],
+                ].map(([name, ms]) => (
+                  <div key={name} className="motion-dur-row">
+                    <span className="motion-dur-name">{name}</span>
+                    <div className="motion-dur-bar-wrap">
+                      <div
+                        className="motion-dur-bar"
+                        style={{ width: `${Math.round((ms / 1100) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="motion-dur-ms">{ms}ms</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Easing preview */}
+            <div className="config-group">
+              <label className="config-label">Easing</label>
+              <div className="motion-easing-list">
+                {[
+                  ['Standard', motionPreset.ease     ],
+                  ['Enter',    motionPreset.easeEnter],
+                  ['Exit',     motionPreset.easeExit ],
+                ].map(([name, val]) => (
+                  <div key={name} className="motion-ease-row">
+                    <span className="motion-ease-name">{name}</span>
+                    <code className="motion-ease-val">{val}</code>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ── Step 4: Shape ── */}
+        {step === 4 && (
+          <div className="config-section">
+
             <div className="config-group">
               <label className="config-label">Corner radius</label>
               <div className="radius-row">
@@ -702,12 +913,39 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
               </div>
             </div>
 
+            {/* Elevation style */}
+            <div className="config-group">
+              <label className="config-label">Elevation style</label>
+              <p className="config-hint">Controls shadow depth across layers — from flat minimal to dramatic layered depth.</p>
+              <div className="elev-card-list">
+                {Object.entries(ELEVATION_PRESETS).map(([id, preset]) => (
+                  <button
+                    key={id}
+                    className={`elev-card ${tokens.elevationStyle === id ? 'active' : ''}`}
+                    onClick={() => setElevationStyle(id)}
+                  >
+                    <span className="elev-card-label">{preset.label}</span>
+                    <span className="elev-card-desc">{preset.desc}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* 6 shadow level samples */}
+              <div className="elev-samples">
+                {elevShadows.map((shadow, i) => (
+                  <div key={i} className="elev-sample-item">
+                    <div className="elev-sample-box" style={{ boxShadow: shadow }} />
+                    <span className="elev-sample-label">Level {i}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="shape-preview">
               <div className="shape-preview-card" style={{
                 borderRadius: tokens.radiusLg,
                 borderStyle: tokens.borderStyle,
-                boxShadow: tokens.shadow === 'none' ? 'none' : tokens.shadow === 'sm'
-                  ? '0 1px 3px rgba(0,0,0,.08)' : '0 4px 12px rgba(0,0,0,.12)',
+                boxShadow: elevShadows[2],
               }}>
                 <div className="shape-preview-label" style={{ fontFamily: tokens.fontDisplay }}>Preview</div>
                 <button style={{
@@ -717,14 +955,14 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                 }}>Button</button>
               </div>
             </div>
+
           </div>
         )}
 
-        {/* ── Step 3: Export ── */}
-        {step === 3 && (
+        {/* ── Step 5: Export ── */}
+        {step === 5 && (
           <div className="config-section">
 
-            {/* ── Design system name ── */}
             <div className="export-name-field">
               <label className="export-name-label">
                 Design system name <span style={{color:'var(--shell-danger)'}}>*</span>
@@ -757,10 +995,8 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
               </div>
             </div>
 
-            {/* ── How to use accordion ── */}
             <HowToUseAccordion />
 
-            {/* ── Token output accordion ── */}
             {(() => {
               const tokenCount = allTokenLines.filter(t => t.key).length;
               return (
@@ -841,7 +1077,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
         {step > 0 && (
           <button className="nav-btn" onClick={() => setStep(s => s - 1)}>Back</button>
         )}
-        {step < 3 && (
+        {step < 5 && (
           <button className="nav-btn primary" onClick={() => setStep(s => s + 1)} style={{ marginLeft: 'auto' }}>
             Next
           </button>

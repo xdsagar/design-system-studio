@@ -56,7 +56,9 @@ export default function App() {
 
   const {
     tokens, cssVars,
-    setBrand, setNeutral, setFont, setRadius, setBorderStyle,
+    setBrand, setNeutral, setFont, setTypeScale, setSpacingScale,
+    setMotionPersonality, setElevationStyle,
+    setRadius, setBorderStyle,
     setShadow, setDarkMode, setSemanticColor, setCustomColors, setCoreColors,
     setAllTokens,
   } = useTokens();
@@ -129,7 +131,9 @@ export default function App() {
           tokens={tokens}
           importedTokens={importedTokens}
           handlers={{
-            setBrand, setNeutral, setFont, setRadius, setBorderStyle,
+            setBrand, setNeutral, setFont, setTypeScale, setSpacingScale,
+            setMotionPersonality, setElevationStyle,
+            setRadius, setBorderStyle,
             setShadow, setDarkMode, setSemanticColor, setCustomColors, setCoreColors,
             setAllTokens,
           }}
