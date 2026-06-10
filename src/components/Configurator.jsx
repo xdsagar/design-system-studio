@@ -122,6 +122,61 @@ function ColorScaleStrip({ hex, onSwatchClick }) {
   );
 }
 
+function HowToUseAccordion() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="token-accordion">
+      <button className="token-accordion-trigger" onClick={() => setOpen(o => !o)}>
+        <span>How to use</span>
+        <ChevronDown size={14} style={{color:'var(--shell-text-2)',transform:open?'rotate(180deg)':'none',transition:'transform .2s',flexShrink:0}} />
+      </button>
+      {open && (
+        <div className="token-accordion-body how-to-use-body">
+          <div className="htu-section">
+            <div className="htu-file-label">
+              <span className="htu-file-badge css">CSS</span>
+              Component Library
+            </div>
+            <p className="htu-desc">
+              Link the CSS file in your project to get all design tokens as CSS custom properties.
+            </p>
+            <pre className="htu-code">{`<!-- In your HTML <head> -->
+<link rel="stylesheet" href="your-system-tokens.css" />
+
+/* Or import in CSS */
+@import './your-system-tokens.css';`}</pre>
+            <p className="htu-desc">Then use the variables anywhere in your styles:</p>
+            <pre className="htu-code">{`.button {
+  background: var(--ds-brand);
+  border-radius: var(--ds-radius-md);
+  font-family: var(--ds-font-body);
+  color: var(--ds-neutral-900);
+  box-shadow: var(--ds-shadow);
+}`}</pre>
+          </div>
+
+          <div className="htu-divider" />
+
+          <div className="htu-section">
+            <div className="htu-file-label">
+              <span className="htu-file-badge skill">SKILL</span>
+              Design System Skill File
+            </div>
+            <p className="htu-desc">
+              The <code className="htu-inline-code">.skill</code> archive contains a Markdown reference of your full design system — tokens, usage notes, and component guidance.
+            </p>
+            <ol className="htu-steps">
+              <li>Unzip the <code className="htu-inline-code">.skill</code> file</li>
+              <li>Add the <code className="htu-inline-code">.md</code> file to your AI context (Cursor, Claude Code, ChatGPT, etc.)</li>
+              <li>Ask your AI to build components that match your design system — it will use your exact colors, radii, and token names</li>
+            </ol>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Configurator({ tokens, handlers, importedTokens }) {
   const [step, setStep]           = useState(0);
   const [colorMode, setColorMode] = useState('light'); // 'light' | 'dark'
@@ -701,6 +756,9 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                 </button>
               </div>
             </div>
+
+            {/* ── How to use accordion ── */}
+            <HowToUseAccordion />
 
             {/* ── Token output accordion ── */}
             {(() => {

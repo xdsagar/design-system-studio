@@ -1,9 +1,18 @@
 import { useState } from 'react';
 import {
-  AlertTriangle, ArrowUp, ArrowDown, Bell, Check, ChevronDown, ChevronLeft,
-  ChevronRight, ExternalLink, FileUp, Folder, GripVertical, Info, LayoutGrid,
-  Mail, Megaphone, Pencil, Plus, Search, Settings, Trash2, TrendingUp,
-  TrendingDown, Upload, User, Users, X, Home, Star, BookOpen, BarChart2,
+  Activity, AlertCircle, AlertTriangle, Archive, ArrowDown, ArrowLeft, ArrowRight,
+  ArrowUp, BarChart2, Bell, Bookmark, Calendar, Camera, Check, CheckCircle,
+  ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clipboard, Clock,
+  Copy, Crop, Database, Download, Edit, ExternalLink, Eye, EyeOff, File,
+  FileDown, FileText, FileUp, Filter, Folder, FolderOpen, Globe, Grid3x3,
+  GripVertical, Heart, HelpCircle, Home, Image, Info, Key, LayoutDashboard,
+  Layers, Link, List, Loader, Lock, Mail, MapPin, Maximize2, Megaphone,
+  Menu, MessageCircle, MessageSquare, Mic, Minimize2, Minus, MoreHorizontal,
+  MoreVertical, Move, Navigation, Palette, Pencil, Phone, PieChart, Play,
+  Plus, RefreshCw, RotateCcw, Search, Send, Settings, Shield, Scissors,
+  SkipBack, SkipForward, Sliders, SortAsc, Star, Trash2, TrendingDown,
+  TrendingUp, Timer, Unlock, Upload, User, UserMinus, UserPlus, Users,
+  Video, Volume2, X, XCircle, ZoomIn, ZoomOut, LayoutGrid,
 } from 'lucide-react';
 
 // ─── Shared helpers ─────────────────────────────────────────
@@ -1319,6 +1328,155 @@ export function TooltipStory() {
             </div>
           ))}
         </Row>
+      </Variant>
+    </StoryFrame>
+  );
+}
+
+export function IconsStory() {
+  const [query, setQuery] = useState('');
+
+  const ALL_ICONS = [
+    // Actions
+    { name: 'Plus',          Icon: Plus },
+    { name: 'Minus',         Icon: Minus },
+    { name: 'X',             Icon: X },
+    { name: 'Check',         Icon: Check },
+    { name: 'ChevronUp',     Icon: ChevronUp },
+    { name: 'ChevronDown',   Icon: ChevronDown },
+    { name: 'ChevronLeft',   Icon: ChevronLeft },
+    { name: 'ChevronRight',  Icon: ChevronRight },
+    { name: 'ArrowUp',       Icon: ArrowUp },
+    { name: 'ArrowDown',     Icon: ArrowDown },
+    { name: 'ArrowLeft',     Icon: ArrowLeft },
+    { name: 'ArrowRight',    Icon: ArrowRight },
+    { name: 'MoreHorizontal',Icon: MoreHorizontal },
+    { name: 'MoreVertical',  Icon: MoreVertical },
+    { name: 'Move',          Icon: Move },
+    { name: 'RefreshCw',     Icon: RefreshCw },
+    { name: 'RotateCcw',     Icon: RotateCcw },
+    { name: 'Copy',          Icon: Copy },
+    { name: 'Clipboard',     Icon: Clipboard },
+    { name: 'Scissors',      Icon: Scissors },
+    // UI
+    { name: 'Search',        Icon: Search },
+    { name: 'Filter',        Icon: Filter },
+    { name: 'SortAsc',       Icon: SortAsc },
+    { name: 'Sliders',       Icon: Sliders },
+    { name: 'Menu',          Icon: Menu },
+    { name: 'List',          Icon: List },
+    { name: 'Grid',          Icon: Grid3x3 },
+    { name: 'Layers',        Icon: Layers },
+    { name: 'Layout',        Icon: LayoutDashboard },
+    { name: 'Settings',      Icon: Settings },
+    { name: 'Maximize',      Icon: Maximize2 },
+    { name: 'Minimize',      Icon: Minimize2 },
+    { name: 'ZoomIn',        Icon: ZoomIn },
+    { name: 'ZoomOut',       Icon: ZoomOut },
+    { name: 'Crop',          Icon: Crop },
+    { name: 'Palette',       Icon: Palette },
+    // Files
+    { name: 'File',          Icon: File },
+    { name: 'FileText',      Icon: FileText },
+    { name: 'FileUp',        Icon: FileUp },
+    { name: 'FileDown',      Icon: FileDown },
+    { name: 'Folder',        Icon: Folder },
+    { name: 'FolderOpen',    Icon: FolderOpen },
+    { name: 'Download',      Icon: Download },
+    { name: 'Upload',        Icon: Upload },
+    { name: 'Archive',       Icon: Archive },
+    { name: 'Trash',         Icon: Trash2 },
+    // Communication
+    { name: 'Mail',          Icon: Mail },
+    { name: 'Bell',          Icon: Bell },
+    { name: 'MessageSquare', Icon: MessageSquare },
+    { name: 'MessageCircle', Icon: MessageCircle },
+    { name: 'Send',          Icon: Send },
+    { name: 'Phone',         Icon: Phone },
+    { name: 'Video',         Icon: Video },
+    { name: 'Mic',           Icon: Mic },
+    // Media
+    { name: 'Image',         Icon: Image },
+    { name: 'Camera',        Icon: Camera },
+    { name: 'Volume',        Icon: Volume2 },
+    { name: 'Play',          Icon: Play },
+    { name: 'SkipBack',      Icon: SkipBack },
+    { name: 'SkipForward',   Icon: SkipForward },
+    // Navigation
+    { name: 'Home',          Icon: Home },
+    { name: 'Bookmark',      Icon: Bookmark },
+    { name: 'Star',          Icon: Star },
+    { name: 'Heart',         Icon: Heart },
+    { name: 'Link',          Icon: Link },
+    { name: 'ExternalLink',  Icon: ExternalLink },
+    { name: 'Globe',         Icon: Globe },
+    { name: 'MapPin',        Icon: MapPin },
+    { name: 'Navigation',    Icon: Navigation },
+    // Users
+    { name: 'User',          Icon: User },
+    { name: 'Users',         Icon: Users },
+    { name: 'UserPlus',      Icon: UserPlus },
+    { name: 'UserMinus',     Icon: UserMinus },
+    // Security
+    { name: 'Lock',          Icon: Lock },
+    { name: 'Unlock',        Icon: Unlock },
+    { name: 'Eye',           Icon: Eye },
+    { name: 'EyeOff',        Icon: EyeOff },
+    { name: 'Shield',        Icon: Shield },
+    { name: 'Key',           Icon: Key },
+    // Data
+    { name: 'BarChart',      Icon: BarChart2 },
+    { name: 'PieChart',      Icon: PieChart },
+    { name: 'TrendingUp',    Icon: TrendingUp },
+    { name: 'TrendingDown',  Icon: TrendingDown },
+    { name: 'Activity',      Icon: Activity },
+    { name: 'Database',      Icon: Database },
+    // Status
+    { name: 'AlertTriangle', Icon: AlertTriangle },
+    { name: 'AlertCircle',   Icon: AlertCircle },
+    { name: 'Info',          Icon: Info },
+    { name: 'CheckCircle',   Icon: CheckCircle },
+    { name: 'XCircle',       Icon: XCircle },
+    { name: 'HelpCircle',    Icon: HelpCircle },
+    { name: 'Loader',        Icon: Loader },
+    // Time
+    { name: 'Calendar',      Icon: Calendar },
+    { name: 'Clock',         Icon: Clock },
+    { name: 'Timer',         Icon: Timer },
+    // Design
+    { name: 'Pencil',        Icon: Pencil },
+    { name: 'Edit',          Icon: Edit },
+    { name: 'Megaphone',     Icon: Megaphone },
+    { name: 'GripVertical',  Icon: GripVertical },
+  ];
+
+  const filtered = query.trim()
+    ? ALL_ICONS.filter(i => i.name.toLowerCase().includes(query.toLowerCase()))
+    : ALL_ICONS;
+
+  return (
+    <StoryFrame>
+      <Variant label={`${filtered.length} icons`}>
+        <div className="ds-search-wrap" style={{maxWidth:260,marginBottom:4}}>
+          <span className="ds-search-icon"><Search size={14} /></span>
+          <input
+            className="ds-input ds-search"
+            placeholder="Search icons…"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+        <div className="ds-icon-grid">
+          {filtered.map(({ name, Icon }) => (
+            <div key={name} className="ds-icon-grid-item" title={name}>
+              <Icon size={20} strokeWidth={1.5} />
+              <span className="ds-icon-grid-name">{name}</span>
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <span style={{fontSize:12,color:'var(--ds-neutral-400)'}}>No icons match "{query}"</span>
+          )}
+        </div>
       </Variant>
     </StoryFrame>
   );
