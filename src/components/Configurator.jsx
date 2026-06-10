@@ -447,19 +447,20 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
 
   return (
     <aside className="config-panel">
-      <div className="step-tabs">
+      <nav className="step-nav-rail">
         {STEPS.map((s, i) => (
           <button
             key={s}
-            className={`step-tab ${i === step ? 'active' : ''} ${i < step ? 'done' : ''}`}
+            className={`step-nav-item${i === step ? ' active' : ''}${i < step ? ' done' : ''}${i === 5 ? ' export-item' : ''}`}
             onClick={() => setStep(i)}
           >
-            <span className="step-num">{i < step ? <Check size={13} /> : i + 1}</span>
-            <span>{s}</span>
+            <span className="step-nav-num">{i < step ? <Check size={11} /> : i + 1}</span>
+            <span className="step-nav-label">{s}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
+      <div className="config-step-area">
       <div className="config-body">
 
         {/* ── Step 0: Colors ── */}
@@ -1094,6 +1095,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
           <span className="shell-toast-color" style={{ background: toast }} />
         </div>
       )}
+      </div>{/* /config-step-area */}
     </aside>
   );
 }

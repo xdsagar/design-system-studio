@@ -174,58 +174,79 @@ body {
 .app.shell-light .shell-theme-btn:hover { background: rgba(0,0,0,.1); }
 
 .app-main {
-  display: grid; grid-template-columns: 1fr 320px;
+  display: grid; grid-template-columns: 420px 1fr;
   flex: 1; min-height: 0; overflow: hidden;
 }
 
 /* ── Configurator panel ─────────────────────────────── */
 .config-panel {
-  display: flex; flex-direction: column;
+  display: flex; flex-direction: row;
   background: var(--shell-surface);
-  border-left: 1px solid var(--shell-border);
+  border-right: 1px solid var(--shell-border);
   overflow: hidden; min-height: 0;
 }
 
-/* Step rail — horizontal slim progress bar */
-.step-tabs {
-  display: flex; align-items: stretch;
-  background: var(--shell-surface);
-  border-bottom: 1px solid var(--shell-border);
-  flex-shrink: 0;
-  padding: 0 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
+/* ── Vertical step nav (left mini-rail) ─────────────── */
+.step-nav-rail {
+  width: 80px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  background: var(--shell-surface-1);
+  border-right: 1px solid var(--shell-border);
+  padding: 8px 0;
+  gap: 2px;
+  overflow-y: auto; scrollbar-width: none;
 }
-.step-tabs::-webkit-scrollbar { display: none; }
+.step-nav-rail::-webkit-scrollbar { display: none; }
 
-.step-tab {
+.step-nav-item {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 10px 8px; gap: 3px; min-width: 46px;
-  font-size: 9px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
-  color: var(--shell-text-3);
-  cursor: pointer; border-bottom: 2px solid transparent;
-  background: none; border-top: none; border-left: none; border-right: none;
-  transition: color .15s, border-color .15s;
-  white-space: nowrap;
+  gap: 5px; padding: 10px 4px; min-height: 60px;
+  cursor: pointer; border: none; background: none;
+  position: relative; transition: background .15s;
+  border-radius: 0;
 }
-.step-tab:hover { color: var(--shell-text-2); }
-.step-tab.active { color: var(--shell-accent); border-bottom-color: var(--shell-accent); }
-.step-tab.done   { color: var(--shell-text-3); }
-.step-num {
-  width: 18px; height: 18px; border-radius: 50%;
+.step-nav-item:hover { background: var(--shell-surface-2); }
+.step-nav-item.active { background: var(--shell-surface-2); }
+.step-nav-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 12px; bottom: 12px;
+  width: 2.5px; border-radius: 0 2px 2px 0;
+  background: var(--shell-accent);
+}
+.step-nav-num {
+  width: 22px; height: 22px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700;
+  font-size: 10px; font-weight: 700;
   background: var(--shell-surface-2);
   color: var(--shell-text-3);
-  transition: background .15s, color .15s;
+  border: 1.5px solid transparent;
+  transition: all .15s;
 }
-.step-tab.active .step-num {
+.step-nav-item.active .step-nav-num {
   background: var(--shell-accent-dim);
   color: var(--shell-accent);
+  border-color: color-mix(in srgb, var(--shell-accent) 35%, transparent);
 }
-.step-tab.done .step-num {
-  background: color-mix(in srgb, var(--shell-accent) 15%, transparent);
+.step-nav-item.done .step-nav-num {
+  background: color-mix(in srgb, var(--shell-accent) 12%, transparent);
   color: var(--shell-accent);
+}
+.step-nav-label {
+  font-size: 9px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--shell-text-3);
+  transition: color .15s;
+  line-height: 1;
+}
+.step-nav-item:hover .step-nav-label { color: var(--shell-text-2); }
+.step-nav-item.active .step-nav-label { color: var(--shell-accent); }
+.step-nav-item.done  .step-nav-label { color: var(--shell-text-3); }
+
+/* Export item — pinned to bottom */
+.step-nav-item.export-item { margin-top: auto; border-top: 1px solid var(--shell-border); }
+
+/* ── Config step content area ───────────────────────── */
+.config-step-area {
+  flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden;
 }
 
 .config-body { flex: 1; overflow-y: auto; min-height: 0; }
@@ -743,6 +764,20 @@ input[type=color] {
 .canvas-story-name { color: var(--shell-text-2); font-weight: 500; }
 
 .canvas-toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+/* Components browser button */
+.canvas-components-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 7px;
+  font-size: 11.5px; font-weight: 500;
+  color: var(--shell-text-2);
+  background: var(--shell-surface); border: 1px solid var(--shell-border-2);
+  cursor: pointer; transition: all .15s;
+}
+.canvas-components-btn:hover {
+  color: var(--shell-text); background: var(--shell-surface-2);
+  border-color: rgba(255,255,255,.14);
+}
 
 .canvas-mode-btn {
   display: flex; align-items: center; justify-content: center;
@@ -2658,6 +2693,45 @@ input[type=color] {
 }
 .app.shell-light .welcome-hero {
   background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(79,99,255,.07) 0%, transparent 100%);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Components Browser overlay (.cb-*)
+   ═══════════════════════════════════════════════════════ */
+
+.cb-overlay {
+  position: fixed; inset: 0;
+  z-index: 300;
+  display: flex; flex-direction: column;
+  background: var(--shell-surface);
+  animation: cb-in .18s ease;
+}
+@keyframes cb-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cb-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 48px; flex-shrink: 0;
+  background: var(--shell-surface-1);
+  border-bottom: 1px solid var(--shell-border);
+}
+.cb-header-left { display: flex; align-items: center; gap: 8px; }
+.cb-title { font-size: 13px; font-weight: 600; color: var(--shell-text); }
+.cb-breadcrumb-sep  { color: var(--shell-text-3); font-size: 13px; }
+.cb-breadcrumb-name { font-size: 13px; font-weight: 500; color: var(--shell-text-2); }
+.cb-header-right { display: flex; align-items: center; gap: 8px; }
+.cb-close-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--shell-surface); border: 1px solid var(--shell-border-2);
+  color: var(--shell-text-2); cursor: pointer; transition: all .15s;
+}
+.cb-close-btn:hover { background: var(--shell-surface-2); color: var(--shell-text); }
+
+.cb-body {
+  flex: 1; display: flex; flex-direction: row; min-height: 0; overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════════

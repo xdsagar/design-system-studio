@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Folder, Sun, Moon, ChevronRight, ChevronDown } from 'lucide-react';
+import { Folder, Sun, Moon, ChevronRight, ChevronDown, LayoutGrid } from 'lucide-react';
 import ThemePreview from './ThemePreview';
 import MobilePreview from './MobilePreview';
 import MarketingPreview from './MarketingPreview';
+import ComponentsBrowser from './ComponentsBrowser';
 import {
   AccordionStory, ActionBarStory, AlertStory, AppLayoutStory, AvatarStory,
   BadgeStory, BannerStory, BreadcrumbsStory, ButtonStory, ButtonGroupStory,
@@ -79,16 +80,16 @@ const COMPONENTS = [
 ];
 
 const SCENES = [
-  { id: 'dashboard',  label: 'Dashboard'  },
-  { id: 'mobile',     label: 'Mobile'     },
-  { id: 'marketing',  label: 'Marketing'  },
-  { id: 'components', label: 'Components' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'mobile',    label: 'Mobile'    },
+  { id: 'marketing', label: 'Marketing' },
 ];
 
 export default function Canvas({ cssVars, darkMode, setDarkMode }) {
+  const [scene,          setScene]          = useState('dashboard');
+  const [showComponents, setShowComponents] = useState(false);
   const [active, setActive] = useState('button');
   const [search, setSearch] = useState('');
-  const [scene,  setScene]  = useState('dashboard');
 
   const filtered = useMemo(() =>
     search.trim()
@@ -101,6 +102,7 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   const { Story } = activeComp;
 
   return (
+    <>
     <div className="canvas-panel">
 
       {/* ── Toolbar ── */}
@@ -117,19 +119,19 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
           ))}
         </div>
 
-        {scene === 'components' && (
-          <div className="canvas-breadcrumb">
-            <span className="canvas-story-path">Components</span>
-            <span className="canvas-story-sep"> / </span>
-            <span className="canvas-story-name">{activeComp.label}</span>
-          </div>
-        )}
-
         <div className="canvas-toolbar-right">
+          <button
+            className="canvas-components-btn"
+            onClick={() => setShowComponents(true)}
+            title="Browse components"
+          >
+            <LayoutGrid size={13} />
+            Components
+          </button>
           <button
             className="canvas-mode-btn"
             onClick={() => setDarkMode(!darkMode)}
-            title={darkMode ? 'Switch canvas to light' : 'Switch canvas to dark'}
+            title={darkMode ? 'Switch to light' : 'Switch to dark'}
           >
             {darkMode ? <Sun size={13} /> : <Moon size={13} />}
           </button>
@@ -139,69 +141,36 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
       {/* ── Content area ── */}
       <div className="canvas-content-area">
 
-        {/* Dashboard */}
         {scene === 'dashboard' && (
           <div className="canvas-preview-scene" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
             <ThemePreview />
           </div>
         )}
 
-        {/* Mobile */}
         {scene === 'mobile' && (
           <div className="canvas-preview-scene canvas-preview-scene--center" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
             <MobilePreview />
           </div>
         )}
 
-        {/* Marketing */}
         {scene === 'marketing' && (
           <div className="canvas-preview-scene" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
             <MarketingPreview />
           </div>
         )}
 
-        {/* Components */}
-        {scene === 'components' && (
-          <>
-            <nav className="canvas-sidenav">
-              <div className="story-search-wrap">
-                <input
-                  className="story-search-input"
-                  placeholder="Search…"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
-              </div>
-              <div className="story-section-header">
-                <ChevronDown size={11} style={{ flexShrink: 0 }} />
-                <span>Components</span>
-                <span className="story-section-count">{filtered.length}</span>
-              </div>
-              <div className="story-list">
-                {filtered.map(comp => (
-                  <button
-                    key={comp.id}
-                    className={`story-item${active === comp.id ? ' active' : ''}`}
-                    onClick={() => setActive(comp.id)}
-                  >
-                    <span className="story-item-chevron"><ChevronRight size={10} /></span>
-                    <span className="story-item-icon"><Folder size={12} /></span>
-                    <span className="story-item-label">{comp.label}</span>
-                  </button>
-                ))}
-                {filtered.length === 0 && (
-                  <div className="story-empty">No results for "{search}"</div>
-                )}
-              </div>
-            </nav>
-
-            <div className="canvas-body" style={cssVars} data-dark={darkMode ? 'true' : undefined}>
-              <Story key={active} />
-            </div>
-          </>
-        )}
-
       </div>
     </div>
+
+    {showComponents && (
+      <ComponentsBrowser
+        cssVars={cssVars}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        onClose={() => setShowComponents(false)}
+        components={COMPONENTS}
+      />
+    )}
+    </>
   );
 }

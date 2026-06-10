@@ -163,7 +163,6 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        <Canvas cssVars={cssVars} darkMode={tokens.darkMode} setDarkMode={setDarkMode} />
         <Configurator
           tokens={tokens}
           importedTokens={importedTokens}
@@ -175,6 +174,7 @@ export default function App() {
             setAllTokens,
           }}
         />
+        <Canvas cssVars={cssVars} darkMode={tokens.darkMode} setDarkMode={setDarkMode} />
       </main>
 
       {showImport && (
