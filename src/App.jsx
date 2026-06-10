@@ -102,8 +102,6 @@ export default function App() {
           <span className="logo-text">Design System Studio</span>
         </div>
         <div className="app-meta">
-          <span className="app-badge">57 components</span>
-
           <button
             className="header-analyze-btn"
             onClick={() => setShowAnalyzer(true)}

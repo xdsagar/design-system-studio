@@ -1871,3 +1871,168 @@ input[type=color] {
   font-size: 10px; font-weight: 600; color: var(--shell-text-3);
   text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px;
 }
+
+/* ── Brand Analyzer — large results modal ────────────────── */
+.ba-modal-large {
+  max-width: 1080px;
+  height: calc(100vh - 60px);
+  max-height: 900px;
+}
+
+.ba-results-large {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Left: live preview panel */
+.ba-preview-panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 0.5px solid var(--shell-border-2);
+  overflow: hidden;
+}
+
+.ba-preview-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  background: var(--shell-surface-1);
+  border-bottom: 0.5px solid var(--shell-border-2);
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--shell-text-3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.ba-preview-toggle {
+  display: flex;
+  background: var(--shell-surface-2);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 1px;
+}
+
+.ba-pt-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: none;
+  background: none;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--shell-text-3);
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: background .12s, color .12s;
+}
+.ba-pt-btn.active {
+  background: var(--shell-surface);
+  color: var(--shell-text);
+}
+
+.ba-preview-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Right: token breakdown panel */
+.ba-tokens-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ba-tokens-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ba-tl-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ba-tl-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--shell-text-3);
+  padding-bottom: 5px;
+  border-bottom: 0.5px solid var(--shell-border-2);
+}
+
+.ba-tl-col-heads {
+  display: grid;
+  grid-template-columns: 68px 1fr 1fr;
+  font-size: 8.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--shell-text-3);
+  margin-bottom: -1px;
+}
+
+.ba-tl-dual-row {
+  display: grid;
+  grid-template-columns: 68px 1fr 1fr;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+}
+
+.ba-tl-single-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px;
+}
+
+.ba-tl-name {
+  font-size: 10.5px;
+  color: var(--shell-text-2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ba-tl-name-muted {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--shell-text-3);
+}
+
+.ba-tl-val {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ba-tl-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 0.5px solid rgba(255,255,255,.1);
+  box-shadow: inset 0 0 0 0.5px rgba(0,0,0,.15);
+}
+
+.ba-tl-hex {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  color: var(--shell-text-2);
+  letter-spacing: .02em;
+}

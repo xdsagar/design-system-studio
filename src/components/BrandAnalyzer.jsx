@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react';
-import { X, Upload, RotateCcw, ArrowRight, ImageIcon } from 'lucide-react';
+import { X, Upload, RotateCcw, ArrowRight, ImageIcon, Sun, Moon } from 'lucide-react';
+import { buildCssVars } from '../hooks/useTokens';
+import { defaultTokens } from '../utils/tokens';
+import ThemePreview from './ThemePreview';
 
-// Resize + base64-encode an image file before sending to the API
 function processImage(file) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -27,41 +29,88 @@ function processImage(file) {
   });
 }
 
-function ColorSwatch({ label, hex }) {
+function buildPreviewVars(s, isDark) {
+  if (!s) return {};
+  const base = {
+    ...defaultTokens,
+    brand:       s.brand       ?? defaultTokens.brand,
+    brandDm:     s.brandDm     ?? s.brand    ?? defaultTokens.brandDm,
+    secondary:   s.secondary   ?? defaultTokens.secondary,
+    secondaryDm: s.secondaryDm ?? s.secondary ?? defaultTokens.secondaryDm,
+    tertiary:    s.tertiary    ?? defaultTokens.tertiary,
+    tertiaryDm:  s.tertiaryDm  ?? s.tertiary  ?? defaultTokens.tertiaryDm,
+    success:     s.success     ?? defaultTokens.success,
+    successDm:   s.successDm   ?? s.success   ?? defaultTokens.successDm,
+    caution:     s.caution     ?? defaultTokens.caution,
+    cautionDm:   s.cautionDm   ?? s.caution   ?? defaultTokens.cautionDm,
+    error:       s.error       ?? defaultTokens.error,
+    errorDm:     s.errorDm     ?? s.error     ?? defaultTokens.errorDm,
+    info:        s.info        ?? defaultTokens.info,
+    infoDm:      s.infoDm      ?? s.info      ?? defaultTokens.infoDm,
+    fontDisplay: s.fontDisplay ?? defaultTokens.fontDisplay,
+    fontBody:    s.fontBody    ?? defaultTokens.fontBody,
+    radiusSm:    s.radiusSm    ?? defaultTokens.radiusSm,
+    radiusMd:    s.radiusMd    ?? defaultTokens.radiusMd,
+    radiusLg:    s.radiusLg    ?? defaultTokens.radiusLg,
+    radiusPill:  s.radiusPill  ?? defaultTokens.radiusPill,
+    shadow:      s.shadow      ?? defaultTokens.shadow,
+    darkMode:    isDark,
+    coreColors: s.coreColors?.length
+      ? defaultTokens.coreColors.map(existing => {
+          const hit = s.coreColors.find(c => c.id === existing.id);
+          return hit ? { ...existing, hex: hit.hex } : existing;
+        })
+      : defaultTokens.coreColors,
+  };
+  return buildCssVars(base);
+}
+
+function DualRow({ label, light, dark }) {
   return (
-    <div className="ba-swatch">
-      <div className="ba-swatch-dot" style={{ background: hex }} />
-      <div>
-        <div className="ba-swatch-label">{label}</div>
-        <div className="ba-swatch-hex">{hex}</div>
+    <div className="ba-tl-dual-row">
+      <span className="ba-tl-name">{label}</span>
+      <div className="ba-tl-val">
+        {light && <div className="ba-tl-dot" style={{ background: light }} />}
+        <span className="ba-tl-hex">{light ?? '—'}</span>
+      </div>
+      <div className="ba-tl-val">
+        {dark && <div className="ba-tl-dot" style={{ background: dark }} />}
+        <span className="ba-tl-hex">{dark ?? '—'}</span>
       </div>
     </div>
   );
 }
 
-function RadiusPreview({ sm, md, lg }) {
+function SingleRow({ label, hex }) {
   return (
-    <div className="ba-radius-row">
-      {[['SM', sm], ['MD', md], ['LG', lg]].map(([name, val]) => (
-        <div key={name} className="ba-radius-item">
-          <div className="ba-radius-box" style={{ borderRadius: val }} />
-          <span className="ba-radius-label">{name} · {val}</span>
-        </div>
-      ))}
+    <div className="ba-tl-single-row">
+      <div className="ba-tl-val">
+        {hex && <div className="ba-tl-dot" style={{ background: hex }} />}
+        <span className="ba-tl-hex">{hex ?? '—'}</span>
+      </div>
+      <span className="ba-tl-name ba-tl-name-muted">{label}</span>
     </div>
   );
 }
 
+function countTokens(s) {
+  if (!s) return 0;
+  const pairs = ['brand','secondary','tertiary','success','caution','error','info'];
+  const cores = s.coreColors?.length ?? 0;
+  return pairs.length * 2 + cores + 5; // pairs×2 + coreColors + shape/font fields
+}
+
 export default function BrandAnalyzer({ onClose, onApply }) {
-  const [images, setImages]     = useState([]); // [{preview, data, mediaType}]
-  const [phase, setPhase]       = useState('upload'); // upload | analyzing | results | error
-  const [suggestion, setSuggestion] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [dragOver, setDragOver] = useState(false);
+  const [images, setImages]           = useState([]);
+  const [phase, setPhase]             = useState('upload');
+  const [suggestion, setSuggestion]   = useState(null);
+  const [errorMsg, setErrorMsg]       = useState('');
+  const [dragOver, setDragOver]       = useState(false);
+  const [previewDark, setPreviewDark] = useState(true);
   const fileRef = useRef(null);
 
   async function addFiles(files) {
-    const remaining = 3 - images.length;
+    const remaining = 5 - images.length;
     const toAdd = Array.from(files).slice(0, remaining);
     const processed = await Promise.all(toAdd.map(processImage));
     setImages(prev => [...prev, ...processed]);
@@ -83,6 +132,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error ?? 'Analysis failed');
       setSuggestion(json.suggestion);
+      setPreviewDark(json.suggestion.darkMode ?? true);
       setPhase('results');
     } catch (err) {
       setErrorMsg(err.message);
@@ -101,27 +151,36 @@ export default function BrandAnalyzer({ onClose, onApply }) {
     onClose();
   }
 
+  const isLarge     = phase === 'results' && !!suggestion;
+  const previewVars = isLarge ? buildPreviewVars(suggestion, previewDark) : null;
+  const tokenCount  = countTokens(suggestion);
+
+  const SURFACE_IDS = ['bg-dark','bg-light','surface','text-primary','text-primary-dark','text-secondary','border','neutral'];
+
   return (
     <div className="ba-overlay" onClick={onClose}>
-      <div className="ba-modal" onClick={e => e.stopPropagation()}>
+      <div className={`ba-modal${isLarge ? ' ba-modal-large' : ''}`} onClick={e => e.stopPropagation()}>
 
+        {/* ── Header ── */}
         <div className="ba-header">
           <div>
             <div className="ba-title">Analyze Brand</div>
-            <div className="ba-subtitle">Upload brand images to get AI-suggested design tokens</div>
+            <div className="ba-subtitle">
+              {isLarge
+                ? `${tokenCount} tokens extracted · review before applying`
+                : 'Upload brand images to get AI-suggested design tokens'}
+            </div>
           </div>
           <button className="ba-close" onClick={onClose}><X size={15} /></button>
         </div>
 
         <div className="ba-body">
 
-          {/* ── Upload ── */}
+          {/* ── Upload / Error ── */}
           {(phase === 'upload' || phase === 'error') && (
             <div className="ba-upload-phase">
               {phase === 'error' && (
-                <div className="ba-error-banner">
-                  {errorMsg}
-                </div>
+                <div className="ba-error-banner">{errorMsg}</div>
               )}
 
               <label
@@ -132,9 +191,9 @@ export default function BrandAnalyzer({ onClose, onApply }) {
               >
                 <ImageIcon size={28} className="ba-drop-icon" />
                 <span className="ba-drop-text">
-                  {images.length >= 3 ? 'Maximum 3 images' : 'Drop images here or browse'}
+                  {images.length >= 5 ? 'Maximum 5 images' : 'Drop images here or browse'}
                 </span>
-                <span className="ba-drop-hint">Up to 3 images · JPG, PNG, WebP</span>
+                <span className="ba-drop-hint">Up to 5 images · JPG, PNG, WebP</span>
                 <input
                   ref={fileRef}
                   type="file"
@@ -155,7 +214,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                       </button>
                     </div>
                   ))}
-                  {images.length < 3 && (
+                  {images.length < 5 && (
                     <label className="ba-thumb ba-thumb-add" title="Add another image">
                       <Upload size={16} className="ba-thumb-add-icon" />
                       <input
@@ -190,108 +249,128 @@ export default function BrandAnalyzer({ onClose, onApply }) {
             </div>
           )}
 
-          {/* ── Results ── */}
+          {/* ── Results (large 2-panel) ── */}
           {phase === 'results' && suggestion && (
-            <div className="ba-results-phase">
-              <div className="ba-results-scroll">
+            <div className="ba-results-large">
 
-                {/* Action colors — light vs dark side by side */}
-                <div className="ba-result-section">
-                  <div className="ba-result-label">Action Colors</div>
-                  <div className="ba-dual-modes">
-                    <div className="ba-mode-col">
-                      <div className="ba-mode-heading">Light mode</div>
-                      <ColorSwatch label="Primary"   hex={suggestion.brand}     />
-                      <ColorSwatch label="Secondary" hex={suggestion.secondary} />
-                      <ColorSwatch label="Tertiary"  hex={suggestion.tertiary}  />
-                    </div>
-                    <div className="ba-mode-divider" />
-                    <div className="ba-mode-col">
-                      <div className="ba-mode-heading">Dark mode</div>
-                      <ColorSwatch label="Primary"   hex={suggestion.brandDm     ?? suggestion.brand}     />
-                      <ColorSwatch label="Secondary" hex={suggestion.secondaryDm ?? suggestion.secondary} />
-                      <ColorSwatch label="Tertiary"  hex={suggestion.tertiaryDm  ?? suggestion.tertiary}  />
-                    </div>
+              {/* Left: live preview */}
+              <div className="ba-preview-panel">
+                <div className="ba-preview-topbar">
+                  <span>Live Preview</span>
+                  <div className="ba-preview-toggle">
+                    <button
+                      className={`ba-pt-btn${previewDark ? ' active' : ''}`}
+                      onClick={() => setPreviewDark(true)}
+                    >
+                      <Moon size={10} /> Dark
+                    </button>
+                    <button
+                      className={`ba-pt-btn${!previewDark ? ' active' : ''}`}
+                      onClick={() => setPreviewDark(false)}
+                    >
+                      <Sun size={10} /> Light
+                    </button>
                   </div>
                 </div>
-
-                {/* Status colors */}
-                <div className="ba-result-section">
-                  <div className="ba-result-label">Status Colors</div>
-                  <div className="ba-dual-modes">
-                    <div className="ba-mode-col">
-                      <div className="ba-mode-heading">Light mode</div>
-                      <ColorSwatch label="Success" hex={suggestion.success} />
-                      <ColorSwatch label="Caution" hex={suggestion.caution} />
-                      <ColorSwatch label="Error"   hex={suggestion.error}   />
-                    </div>
-                    <div className="ba-mode-divider" />
-                    <div className="ba-mode-col">
-                      <div className="ba-mode-heading">Dark mode</div>
-                      <ColorSwatch label="Success" hex={suggestion.successDm ?? suggestion.success} />
-                      <ColorSwatch label="Caution" hex={suggestion.cautionDm ?? suggestion.caution} />
-                      <ColorSwatch label="Error"   hex={suggestion.errorDm   ?? suggestion.error}   />
-                    </div>
-                  </div>
+                <div className="ba-preview-body" style={previewVars}>
+                  <ThemePreview />
                 </div>
-
-                {/* Surfaces */}
-                {suggestion.coreColors?.length > 0 && (
-                  <div className="ba-result-section">
-                    <div className="ba-result-label">Surfaces</div>
-                    <div className="ba-swatches">
-                      {['bg-light','bg-dark','surface','text-primary','text-primary-dark','border']
-                        .map(id => {
-                          const c = suggestion.coreColors.find(x => x.id === id);
-                          return c ? <ColorSwatch key={id} label={c.label} hex={c.hex} /> : null;
-                        })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Shape */}
-                <div className="ba-result-section">
-                  <div className="ba-result-label">Shape & Shadow</div>
-                  <RadiusPreview sm={suggestion.radiusSm} md={suggestion.radiusMd} lg={suggestion.radiusLg} />
-                  <div className="ba-meta-row">
-                    <span className="ba-meta-chip">Shadow · {suggestion.shadow}</span>
-                    <span className="ba-meta-chip">{suggestion.darkMode ? 'Dark mode' : 'Light mode'}</span>
-                  </div>
-                </div>
-
-                {/* Typography */}
-                <div className="ba-result-section">
-                  <div className="ba-result-label">Typography</div>
-                  <div className="ba-font-row">
-                    <div className="ba-font-item">
-                      <span className="ba-font-role">Display</span>
-                      <span className="ba-font-name" style={{ fontFamily: suggestion.fontDisplay }}>
-                        {suggestion.fontDisplay.split(',')[0].replace(/'/g, '')}
-                      </span>
-                    </div>
-                    <div className="ba-font-item">
-                      <span className="ba-font-role">Body</span>
-                      <span className="ba-font-name" style={{ fontFamily: suggestion.fontBody }}>
-                        {suggestion.fontBody.split(',')[0].replace(/'/g, '')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {suggestion.reasoning && (
-                  <div className="ba-reasoning">"{suggestion.reasoning}"</div>
-                )}
-
               </div>
 
-              <div className="ba-results-footer">
-                <button className="ba-retry-btn" onClick={retry}>
-                  <RotateCcw size={13} /> Re-analyze
-                </button>
-                <button className="ba-apply-btn" onClick={apply}>
-                  Apply to canvas <ArrowRight size={13} />
-                </button>
+              {/* Right: token breakdown */}
+              <div className="ba-tokens-panel">
+                <div className="ba-tokens-scroll">
+
+                  {/* Action Colors */}
+                  <div className="ba-tl-section">
+                    <div className="ba-tl-section-label">Action Colors</div>
+                    <div className="ba-tl-col-heads">
+                      <span />
+                      <span>Light mode</span>
+                      <span>Dark mode</span>
+                    </div>
+                    <DualRow label="Primary"   light={suggestion.brand}     dark={suggestion.brandDm     ?? suggestion.brand}     />
+                    <DualRow label="Secondary" light={suggestion.secondary} dark={suggestion.secondaryDm ?? suggestion.secondary} />
+                    <DualRow label="Tertiary"  light={suggestion.tertiary}  dark={suggestion.tertiaryDm  ?? suggestion.tertiary}  />
+                  </div>
+
+                  {/* Semantic Colors */}
+                  <div className="ba-tl-section">
+                    <div className="ba-tl-section-label">Semantic Colors</div>
+                    <div className="ba-tl-col-heads">
+                      <span />
+                      <span>Light mode</span>
+                      <span>Dark mode</span>
+                    </div>
+                    <DualRow label="Success" light={suggestion.success} dark={suggestion.successDm ?? suggestion.success} />
+                    <DualRow label="Caution" light={suggestion.caution} dark={suggestion.cautionDm ?? suggestion.caution} />
+                    <DualRow label="Error"   light={suggestion.error}   dark={suggestion.errorDm   ?? suggestion.error}   />
+                    <DualRow label="Info"    light={suggestion.info}    dark={suggestion.infoDm    ?? suggestion.info}    />
+                  </div>
+
+                  {/* Surfaces & Text */}
+                  {suggestion.coreColors?.length > 0 && (
+                    <div className="ba-tl-section">
+                      <div className="ba-tl-section-label">Surfaces & Text</div>
+                      {SURFACE_IDS.map(id => {
+                        const c = suggestion.coreColors.find(x => x.id === id);
+                        return c ? <SingleRow key={id} label={c.label} hex={c.hex} /> : null;
+                      })}
+                    </div>
+                  )}
+
+                  {/* Shape */}
+                  <div className="ba-tl-section">
+                    <div className="ba-tl-section-label">Shape & Shadow</div>
+                    <div className="ba-radius-row">
+                      {[['SM', suggestion.radiusSm], ['MD', suggestion.radiusMd], ['LG', suggestion.radiusLg]].map(([n, v]) => (
+                        <div key={n} className="ba-radius-item">
+                          <div className="ba-radius-box" style={{ borderRadius: v }} />
+                          <span className="ba-radius-label">{n} · {v}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="ba-meta-row">
+                      <span className="ba-meta-chip">Shadow · {suggestion.shadow}</span>
+                      <span className="ba-meta-chip">{suggestion.darkMode ? 'Dark mode' : 'Light mode'}</span>
+                    </div>
+                  </div>
+
+                  {/* Typography */}
+                  <div className="ba-tl-section">
+                    <div className="ba-tl-section-label">Typography</div>
+                    <div className="ba-font-row">
+                      <div className="ba-font-item">
+                        <span className="ba-font-role">Display</span>
+                        <span className="ba-font-name" style={{ fontFamily: suggestion.fontDisplay }}>
+                          {suggestion.fontDisplay.split(',')[0].replace(/'/g, '')}
+                        </span>
+                      </div>
+                      <div className="ba-font-item">
+                        <span className="ba-font-role">Body</span>
+                        <span className="ba-font-name" style={{ fontFamily: suggestion.fontBody }}>
+                          {suggestion.fontBody.split(',')[0].replace(/'/g, '')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {suggestion.reasoning && (
+                    <div className="ba-reasoning">"{suggestion.reasoning}"</div>
+                  )}
+
+                </div>
+
+                <div className="ba-results-footer">
+                  <button className="ba-retry-btn" onClick={retry}>
+                    <RotateCcw size={13} /> Re-analyze
+                  </button>
+                  <button className="ba-apply-btn" onClick={apply}>
+                    Apply to canvas <ArrowRight size={13} />
+                  </button>
+                </div>
               </div>
+
             </div>
           )}
 

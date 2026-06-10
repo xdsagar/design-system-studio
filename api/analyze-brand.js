@@ -14,6 +14,7 @@ export default async function handler(req, res) {
 
   const { images } = req.body ?? {};
   if (!images?.length) return res.status(400).json({ error: 'No images provided' });
+  if (images.length > 5) return res.status(400).json({ error: 'Maximum 5 images allowed' });
 
   const PROMPT = `You are a senior UI/brand designer generating a complete design token set from brand images.
 
@@ -106,7 +107,7 @@ Return ONLY valid JSON — no markdown fences, no text outside the JSON object.
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
+        max_tokens: 2048,
         messages: [{
           role: 'user',
           content: [
