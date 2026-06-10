@@ -284,6 +284,38 @@ body {
   background: var(--shell-surface); border-top: 0.5px solid var(--shell-border);
 }
 
+/* ── Text contrast preview ──────────────────────────── */
+.text-contrast-preview {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.text-contrast-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+}
+.text-contrast-aa {
+  font-size: 16px; font-weight: 800; letter-spacing: -.02em; line-height: 1;
+}
+.text-contrast-label {
+  font-size: 11px; font-weight: 500; opacity: .8;
+}
+.text-contrast-meta {
+  display: flex; align-items: center; gap: 6px;
+}
+.text-contrast-swatch {
+  width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+}
+.text-contrast-hex {
+  font-family: monospace; font-size: 11px; color: var(--shell-text-2);
+}
+.text-contrast-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px;
+  background: color-mix(in srgb, var(--shell-accent) 15%, transparent);
+  color: var(--shell-accent);
+  border: 1px solid color-mix(in srgb, var(--shell-accent) 30%, transparent);
+}
+
 /* ── Hover radio list ───────────────────────────────── */
 .hover-radio-list { display: flex; flex-direction: column; gap: 3px; }
 .hover-radio-item {
@@ -2219,7 +2251,7 @@ input[type=color] {
   cursor: pointer;
   transition: all .15s;
 }
-.type-size-btn:hover { border-color: var(--shell-border-2); color: var(--shell-text-1); }
+.type-size-btn:hover { border-color: var(--shell-border-2); color: var(--shell-text); }
 .type-size-btn.active {
   background: var(--shell-accent);
   border-color: var(--shell-accent);
@@ -2253,7 +2285,7 @@ input[type=color] {
 .ratio-card-label {
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--shell-text-1);
+  color: var(--shell-text);
 }
 .ratio-card-ratio {
   font-size: 10px;
@@ -2299,7 +2331,7 @@ input[type=color] {
   text-align: right;
 }
 .type-scale-sample {
-  color: var(--shell-text-1);
+  color: var(--shell-text);
   font-weight: 500;
   line-height: 1;
 }
@@ -2336,7 +2368,7 @@ input[type=color] {
 .density-card-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--shell-text-1);
+  color: var(--shell-text);
 }
 .density-card-ref {
   font-size: 9.5px;
@@ -2419,7 +2451,7 @@ input[type=color] {
 .motion-card-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--shell-text-1);
+  color: var(--shell-text);
 }
 .motion-card-ref {
   font-size: 9.5px;
@@ -2522,7 +2554,7 @@ input[type=color] {
 .elev-card-label {
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--shell-text-1);
+  color: var(--shell-text);
 }
 .elev-card-desc {
   font-size: 10px;

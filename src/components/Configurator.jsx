@@ -341,6 +341,12 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
       } else {
         setSemanticColor(group.dmKey, val);
       }
+      // Auto-compute accessible text color for this background
+      const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
+      if (htKey) {
+        const contrastOnWhite = wcagContrast(val, '#ffffff');
+        setSemanticColor(htKey, contrastOnWhite >= 4.5 ? '#ffffff' : '#111111');
+      }
     }
   }
 
@@ -524,6 +530,31 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
                           </div>
 
                           <WcagBadge hex={activeHex} />
+
+                          {!isGhost && (() => {
+                            const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
+                            const textHex = htKey ? (tokens[htKey] || '#ffffff') : '#ffffff';
+                            const contrastOnWhite = wcagContrast(activeHex, '#ffffff');
+                            const autoText = contrastOnWhite >= 4.5 ? '#ffffff' : '#111111';
+                            const isAuto = textHex === autoText;
+                            return (
+                              <div className="text-contrast-preview">
+                                <div
+                                  className="text-contrast-chip"
+                                  style={{ background: activeHex, color: textHex }}
+                                >
+                                  <span className="text-contrast-aa">Aa</span>
+                                  <span className="text-contrast-label">Text on this color</span>
+                                </div>
+                                <div className="text-contrast-meta">
+                                  <span className="text-contrast-swatch" style={{ background: textHex, border: textHex === '#ffffff' ? '1px solid rgba(255,255,255,.25)' : '1px solid rgba(0,0,0,.12)' }} />
+                                  <span className="text-contrast-hex">{textHex}</span>
+                                  {isAuto && <span className="text-contrast-badge">Auto</span>}
+                                </div>
+                              </div>
+                            );
+                          })()}
+
                           <ColorScaleStrip hex={activeHex} onSwatchClick={copyHexToClipboard} />
 
                           <div>
