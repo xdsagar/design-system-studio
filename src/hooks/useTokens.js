@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useLayoutEffect } from 'react';
 import {
   defaultTokens, deriveBrandTokens, shadowValues, darkOverrides,
   generateColorScale, lighten, rgbToHex,
@@ -219,6 +219,16 @@ export function useTokens() {
   const [tokens, setTokens] = useState(defaultTokens);
 
   const cssVars = buildCssVars(tokens);
+
+  // Apply CSS custom properties directly via setProperty — this is the only
+  // reliable way to update CSS vars from JS (React's style prop uses property
+  // assignment which browsers silently ignore for custom properties starting with --).
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    Object.entries(cssVars).forEach(([key, val]) => {
+      if (val != null) root.style.setProperty(key, String(val));
+    });
+  });
 
   const setBrand = useCallback((hex) => {
     setTokens(t => ({ ...t, ...deriveBrandTokens(hex) }));
