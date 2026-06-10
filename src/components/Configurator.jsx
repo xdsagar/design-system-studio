@@ -345,7 +345,7 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
       const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
       if (htKey) {
         const contrastOnWhite = wcagContrast(val, '#ffffff');
-        setSemanticColor(htKey, contrastOnWhite >= 4.5 ? '#ffffff' : '#111111');
+        setSemanticColor(htKey, contrastOnWhite >= 4.5 ? '#ffffff' : '#000000');
       }
     }
   }
@@ -533,23 +533,32 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
 
                           {!isGhost && (() => {
                             const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-                            const textHex = htKey ? (tokens[htKey] || '#ffffff') : '#ffffff';
-                            const contrastOnWhite = wcagContrast(activeHex, '#ffffff');
-                            const autoText = contrastOnWhite >= 4.5 ? '#ffffff' : '#111111';
-                            const isAuto = textHex === autoText;
+                            const textHex = (htKey && tokens[htKey]) ? tokens[htKey].toLowerCase() : '#ffffff';
+                            const autoText = wcagContrast(activeHex, '#ffffff') >= 4.5 ? '#ffffff' : '#000000';
+                            const isWhite = textHex === '#ffffff';
                             return (
                               <div className="text-contrast-preview">
-                                <div
-                                  className="text-contrast-chip"
-                                  style={{ background: activeHex, color: textHex }}
-                                >
+                                <div className="text-contrast-chip" style={{ background: activeHex, color: textHex }}>
                                   <span className="text-contrast-aa">Aa</span>
                                   <span className="text-contrast-label">Text on this color</span>
                                 </div>
-                                <div className="text-contrast-meta">
-                                  <span className="text-contrast-swatch" style={{ background: textHex, border: textHex === '#ffffff' ? '1px solid rgba(255,255,255,.25)' : '1px solid rgba(0,0,0,.12)' }} />
-                                  <span className="text-contrast-hex">{textHex}</span>
-                                  {isAuto && <span className="text-contrast-badge">Auto</span>}
+                                <div className="text-contrast-toggle">
+                                  <button
+                                    className={`tc-btn${isWhite ? ' active' : ''}`}
+                                    onClick={() => htKey && setSemanticColor(htKey, '#ffffff')}
+                                  >
+                                    <span className="tc-swatch tc-swatch--white" />
+                                    White
+                                    {autoText === '#ffffff' && <span className="tc-auto">Auto</span>}
+                                  </button>
+                                  <button
+                                    className={`tc-btn${!isWhite ? ' active' : ''}`}
+                                    onClick={() => htKey && setSemanticColor(htKey, '#000000')}
+                                  >
+                                    <span className="tc-swatch tc-swatch--black" />
+                                    Black
+                                    {autoText === '#000000' && <span className="tc-auto">Auto</span>}
+                                  </button>
                                 </div>
                               </div>
                             );

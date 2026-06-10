@@ -284,33 +284,50 @@ body {
   background: var(--shell-surface); border-top: 0.5px solid var(--shell-border);
 }
 
-/* ── Text contrast preview ──────────────────────────── */
+/* ── Text contrast preview + toggle ─────────────────── */
 .text-contrast-preview {
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 8px;
 }
 .text-contrast-chip {
   display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; border-radius: 8px;
+  padding: 9px 12px; border-radius: 8px;
   font-size: 12px; font-weight: 600;
+  transition: color .15s;
 }
 .text-contrast-aa {
-  font-size: 16px; font-weight: 800; letter-spacing: -.02em; line-height: 1;
+  font-size: 17px; font-weight: 800; letter-spacing: -.02em; line-height: 1;
 }
 .text-contrast-label {
-  font-size: 11px; font-weight: 500; opacity: .8;
+  font-size: 11px; font-weight: 500; opacity: .75;
 }
-.text-contrast-meta {
-  display: flex; align-items: center; gap: 6px;
+
+/* White / Black toggle */
+.text-contrast-toggle {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
 }
-.text-contrast-swatch {
-  width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+.tc-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 6px 10px; border-radius: 7px;
+  font-size: 11.5px; font-weight: 600;
+  color: var(--shell-text-2);
+  background: var(--shell-surface-1);
+  border: 1px solid var(--shell-border);
+  cursor: pointer; transition: all .15s;
 }
-.text-contrast-hex {
-  font-family: monospace; font-size: 11px; color: var(--shell-text-2);
+.tc-btn:hover { border-color: var(--shell-border-2); color: var(--shell-text); }
+.tc-btn.active {
+  background: color-mix(in srgb, var(--shell-accent) 10%, transparent);
+  border-color: var(--shell-accent);
+  color: var(--shell-text);
 }
-.text-contrast-badge {
-  font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-  padding: 2px 6px; border-radius: 4px;
+.tc-swatch {
+  width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+}
+.tc-swatch--white { background: #ffffff; border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+.tc-swatch--black { background: #000000; border: 1px solid rgba(0,0,0,.5); }
+.tc-auto {
+  font-size: 8.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 3px; margin-left: 2px;
   background: color-mix(in srgb, var(--shell-accent) 15%, transparent);
   color: var(--shell-accent);
   border: 1px solid color-mix(in srgb, var(--shell-accent) 30%, transparent);
