@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Folder, Sun, Moon, ChevronRight, ChevronDown } from 'lucide-react';
+import { Folder, Sun, Moon, ChevronRight, ChevronDown, Layers, Monitor } from 'lucide-react';
+import ThemePreview from './ThemePreview';
 import {
   AccordionStory, ActionBarStory, AlertStory, AppLayoutStory, AvatarStory,
   BadgeStory, BannerStory, BreadcrumbsStory, ButtonStory, ButtonGroupStory,
@@ -78,6 +79,7 @@ const COMPONENTS = [
 export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   const [active, setActive] = useState('button');
   const [search, setSearch] = useState('');
+  const [mode, setMode] = useState('stories');
 
   const filtered = useMemo(() =>
     search.trim()
@@ -92,7 +94,7 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
   return (
     <div className="canvas-panel">
 
-      <nav className="canvas-sidenav">
+      {mode === 'stories' && <nav className="canvas-sidenav">
         <div className="story-search-wrap">
           <input
             className="story-search-input"
@@ -124,27 +126,49 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
             <div className="story-empty">No results for "{search}"</div>
           )}
         </div>
-      </nav>
+      </nav>}
 
       <div className="canvas-content">
         <div className="canvas-content-header">
-          <span className="canvas-story-path">Components</span>
-          <span className="canvas-story-sep">/</span>
-          <span className="canvas-story-name">{activeComp.label}</span>
-          <button
-            className="canvas-mode-btn"
-            onClick={() => setDarkMode(!darkMode)}
-            title={darkMode ? 'Switch canvas to light' : 'Switch canvas to dark'}
-          >
-            {darkMode ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
+          {mode === 'stories' ? (
+            <>
+              <span className="canvas-story-path">Components</span>
+              <span className="canvas-story-sep">/</span>
+              <span className="canvas-story-name">{activeComp.label}</span>
+            </>
+          ) : (
+            <span className="canvas-story-name">Theme Preview</span>
+          )}
+          <div className="canvas-header-right">
+            <div className="canvas-view-toggle">
+              <button
+                className={`canvas-view-pill${mode === 'stories' ? ' active' : ''}`}
+                onClick={() => setMode('stories')}
+              >
+                <Layers size={11} /> Components
+              </button>
+              <button
+                className={`canvas-view-pill${mode === 'preview' ? ' active' : ''}`}
+                onClick={() => setMode('preview')}
+              >
+                <Monitor size={11} /> Preview
+              </button>
+            </div>
+            <button
+              className="canvas-mode-btn"
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Switch canvas to light' : 'Switch canvas to dark'}
+            >
+              {darkMode ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
+          </div>
         </div>
         <div
-          className="canvas-body"
+          className={`canvas-body${mode === 'preview' ? ' canvas-body--preview' : ''}`}
           style={cssVars}
           data-dark={darkMode ? 'true' : undefined}
         >
-          <Story key={active} />
+          {mode === 'stories' ? <Story key={active} /> : <ThemePreview />}
         </div>
       </div>
     </div>
