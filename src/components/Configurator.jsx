@@ -179,7 +179,7 @@ function HowToUseAccordion() {
 
 export default function Configurator({ tokens, handlers, importedTokens }) {
   const [step, setStep]           = useState(0);
-  const [colorMode, setColorMode] = useState('light'); // 'light' | 'dark'
+  const colorMode = tokens.darkMode ? 'dark' : 'light';
   const [radiusIdx, setRadiusIdx] = useState(2);
   const [openGroup, setOpenGroup] = useState('brand');
   const [openCoreGroup, setOpenCoreGroup] = useState(null);
@@ -430,13 +430,13 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
             <div className="color-mode-switch">
               <button
                 className={`color-mode-tab ${colorMode === 'light' ? 'active' : ''}`}
-                onClick={() => { setColorMode('light'); setDarkMode(false); }}
+                onClick={() => setDarkMode(false)}
               >
                 Light
               </button>
               <button
                 className={`color-mode-tab ${colorMode === 'dark' ? 'active' : ''}`}
-                onClick={() => { setColorMode('dark'); setDarkMode(true); }}
+                onClick={() => setDarkMode(true)}
               >
                 Dark
               </button>
