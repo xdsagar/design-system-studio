@@ -814,19 +814,6 @@ input[type=color] {
 
 .canvas-toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 
-/* Components browser button */
-.canvas-components-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 11px; border-radius: 7px;
-  font-size: 11.5px; font-weight: 500;
-  color: var(--shell-text-2);
-  background: var(--shell-surface); border: 1px solid var(--shell-border-2);
-  cursor: pointer; transition: all .15s;
-}
-.canvas-components-btn:hover {
-  color: var(--shell-text); background: var(--shell-surface-2);
-  border-color: rgba(255,255,255,.14);
-}
 
 .canvas-mode-btn {
   display: flex; align-items: center; justify-content: center;
@@ -2744,44 +2731,6 @@ input[type=color] {
   background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(79,99,255,.07) 0%, transparent 100%);
 }
 
-/* ═══════════════════════════════════════════════════════
-   Components Browser overlay (.cb-*)
-   ═══════════════════════════════════════════════════════ */
-
-.cb-overlay {
-  position: fixed; inset: 0;
-  z-index: 300;
-  display: flex; flex-direction: column;
-  background: var(--shell-surface);
-  animation: cb-in .18s ease;
-}
-@keyframes cb-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.cb-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px; height: 48px; flex-shrink: 0;
-  background: var(--shell-surface-1);
-  border-bottom: 1px solid var(--shell-border);
-}
-.cb-header-left { display: flex; align-items: center; gap: 8px; }
-.cb-title { font-size: 13px; font-weight: 600; color: var(--shell-text); }
-.cb-breadcrumb-sep  { color: var(--shell-text-3); font-size: 13px; }
-.cb-breadcrumb-name { font-size: 13px; font-weight: 500; color: var(--shell-text-2); }
-.cb-header-right { display: flex; align-items: center; gap: 8px; }
-.cb-close-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 7px;
-  background: var(--shell-surface); border: 1px solid var(--shell-border-2);
-  color: var(--shell-text-2); cursor: pointer; transition: all .15s;
-}
-.cb-close-btn:hover { background: var(--shell-surface-2); color: var(--shell-text); }
-
-.cb-body {
-  flex: 1; display: flex; flex-direction: row; min-height: 0; overflow: hidden;
-}
 
 /* ═══════════════════════════════════════════════════════
    Mobile Preview (.mp-*)
