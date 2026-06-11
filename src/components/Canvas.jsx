@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Folder, Sun, Moon, ChevronRight, ChevronDown } from 'lucide-react';
+import { Folder, Sun, Moon, ChevronRight, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import ThemePreview from './ThemePreview';
 import MobilePreview from './MobilePreview';
 import MarketingPreview from './MarketingPreview';
@@ -79,14 +79,14 @@ const COMPONENTS = [
 ];
 
 const SCENES = [
+  { id: 'components', label: 'Components' },
+  { id: 'marketing',  label: 'Marketing'  },
   { id: 'dashboard',  label: 'Dashboard'  },
   { id: 'mobile',     label: 'Mobile'     },
-  { id: 'marketing',  label: 'Marketing'  },
-  { id: 'components', label: 'Components' },
 ];
 
-export default function Canvas({ cssVars, darkMode, setDarkMode }) {
-  const [scene,  setScene]  = useState('dashboard');
+export default function Canvas({ cssVars, darkMode, setDarkMode, configCollapsed, setConfigCollapsed }) {
+  const [scene,  setScene]  = useState('components');
   const [active, setActive] = useState('button');
   const [search, setSearch] = useState('');
 
@@ -105,6 +105,14 @@ export default function Canvas({ cssVars, darkMode, setDarkMode }) {
 
       {/* ── Toolbar ── */}
       <div className="canvas-toolbar">
+        <button
+          className="canvas-collapse-btn"
+          onClick={() => setConfigCollapsed(c => !c)}
+          title={configCollapsed ? 'Show configurator' : 'Hide configurator'}
+        >
+          {configCollapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+        </button>
+
         <div className="canvas-scene-tabs">
           {SCENES.map(s => (
             <button

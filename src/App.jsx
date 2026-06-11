@@ -67,11 +67,12 @@ function HeaderIconBtn({ onClick, title, children }) {
 const HAS_VISITED_KEY = 'dss-onboarded';
 
 export default function App() {
-  const [shellDark, setShellDark]           = useState(true);
-  const [showImport, setShowImport]         = useState(false);
-  const [showAnalyzer, setShowAnalyzer]     = useState(false);
-  const [showWelcome, setShowWelcome]       = useState(() => !localStorage.getItem(HAS_VISITED_KEY));
-  const [importedTokens, setImportedTokens] = useState(null);
+  const [shellDark, setShellDark]             = useState(true);
+  const [showImport, setShowImport]           = useState(false);
+  const [showAnalyzer, setShowAnalyzer]       = useState(false);
+  const [showWelcome, setShowWelcome]         = useState(() => !localStorage.getItem(HAS_VISITED_KEY));
+  const [importedTokens, setImportedTokens]   = useState(null);
+  const [configCollapsed, setConfigCollapsed] = useState(false);
 
   const {
     tokens, cssVars,
@@ -162,7 +163,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="app-main">
+      <main className={`app-main${configCollapsed ? ' config-collapsed' : ''}`}>
         <Configurator
           tokens={tokens}
           importedTokens={importedTokens}
@@ -174,7 +175,13 @@ export default function App() {
             setAllTokens,
           }}
         />
-        <Canvas cssVars={cssVars} darkMode={tokens.darkMode} setDarkMode={setDarkMode} />
+        <Canvas
+          cssVars={cssVars}
+          darkMode={tokens.darkMode}
+          setDarkMode={setDarkMode}
+          configCollapsed={configCollapsed}
+          setConfigCollapsed={setConfigCollapsed}
+        />
       </main>
 
       {showImport && (
