@@ -163,10 +163,12 @@ export default function App() {
         </div>
       </header>
 
-      <main className={`app-main${configCollapsed ? ' config-collapsed' : ''}`}>
+      <main className="app-main">
         <Configurator
           tokens={tokens}
           importedTokens={importedTokens}
+          configCollapsed={configCollapsed}
+          onCollapseToggle={() => setConfigCollapsed(c => !c)}
           handlers={{
             setBrand, setNeutral, setFont, setTypeScale, setSpacingScale,
             setMotionPersonality, setElevationStyle,
@@ -179,8 +181,6 @@ export default function App() {
           cssVars={cssVars}
           darkMode={tokens.darkMode}
           setDarkMode={setDarkMode}
-          configCollapsed={configCollapsed}
-          setConfigCollapsed={setConfigCollapsed}
         />
       </main>
 

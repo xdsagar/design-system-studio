@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Check, X, ChevronDown } from 'lucide-react';
+import { Check, X, ChevronDown, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import {
   defaultTokens,
   radiusPresets,
@@ -183,7 +183,7 @@ function HowToUseAccordion() {
   );
 }
 
-export default function Configurator({ tokens, handlers, importedTokens }) {
+export default function Configurator({ tokens, handlers, importedTokens, configCollapsed, onCollapseToggle }) {
   const [step, setStep]           = useState(0);
   const colorMode = tokens.darkMode ? 'dark' : 'light';
   const [radiusIdx, setRadiusIdx] = useState(2);
@@ -452,18 +452,28 @@ export default function Configurator({ tokens, handlers, importedTokens }) {
   const elevShadows = tokens.darkMode ? elevPreset.dark : elevPreset.light;
 
   return (
-    <aside className="config-panel">
+    <aside className={`config-panel${configCollapsed ? ' config-collapsed' : ''}`}>
       <nav className="step-nav-rail">
         {STEPS.map((s, i) => (
           <button
             key={s}
-            className={`step-nav-item${i === step ? ' active' : ''}${i < step ? ' done' : ''}${i === 5 ? ' export-item' : ''}`}
-            onClick={() => setStep(i)}
+            className={`step-nav-item${!configCollapsed && i === step ? ' active' : ''}${i < step ? ' done' : ''}`}
+            onClick={() => {
+              setStep(i);
+              if (configCollapsed) onCollapseToggle();
+            }}
           >
             <span className="step-nav-num">{i < step ? <Check size={11} /> : i + 1}</span>
             <span className="step-nav-label">{s}</span>
           </button>
         ))}
+        <button
+          className="nav-collapse-btn"
+          onClick={onCollapseToggle}
+          title={configCollapsed ? 'Show configurator' : 'Hide configurator'}
+        >
+          {configCollapsed ? <ChevronsRight size={14} /> : <ChevronsLeft size={14} />}
+        </button>
       </nav>
 
       <div className="config-step-area">

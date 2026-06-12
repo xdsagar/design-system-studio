@@ -181,16 +181,9 @@ body {
 /* ── Configurator panel ─────────────────────────────── */
 .config-panel {
   display: flex; flex-direction: row;
-  width: 420px; flex-shrink: 0; min-width: 0;
+  flex-shrink: 0; min-width: 0;
   background: var(--shell-surface);
-  border-right: 1px solid var(--shell-border);
   overflow: hidden; min-height: 0;
-  transition: width .22s cubic-bezier(.4, 0, .2, 1),
-              border-color .22s;
-}
-.app-main.config-collapsed .config-panel {
-  width: 0;
-  border-right-color: transparent;
 }
 
 /* ── Vertical step nav (left mini-rail) ─────────────── */
@@ -248,12 +241,33 @@ body {
 .step-nav-item.active .step-nav-label { color: var(--shell-accent); }
 .step-nav-item.done  .step-nav-label { color: var(--shell-text-3); }
 
-/* Export item — pinned to bottom */
-.step-nav-item.export-item { margin-top: auto; border-top: 1px solid var(--shell-border); }
+/* Collapsed state — strip active styles from all nav items */
+.config-panel.config-collapsed .step-nav-item.active { background: none; }
+.config-panel.config-collapsed .step-nav-item.active::before { display: none; }
+.config-panel.config-collapsed .step-nav-item.active .step-nav-num {
+  background: var(--shell-surface-2); color: var(--shell-text-3); border-color: transparent;
+}
+.config-panel.config-collapsed .step-nav-item.active .step-nav-label { color: var(--shell-text-3); }
+
+/* Collapse toggle — pinned to bottom of nav rail */
+.nav-collapse-btn {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 40px; flex-shrink: 0;
+  border: none; border-top: 1px solid var(--shell-border);
+  background: none; color: var(--shell-text-3);
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.nav-collapse-btn:hover { background: var(--shell-surface-2); color: var(--shell-text); }
 
 /* ── Config step content area ───────────────────────── */
 .config-step-area {
-  flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+  width: 340px; flex-shrink: 0;
+  display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+  transition: width .22s cubic-bezier(.4, 0, .2, 1);
+}
+.config-panel.config-collapsed .config-step-area {
+  width: 0;
 }
 
 .config-body { flex: 1; overflow-y: auto; min-height: 0; }
@@ -698,7 +712,7 @@ input[type=color] {
 
 /* ── Canvas panel ───────────────────────────────────── */
 .canvas-panel {
-  display: flex; flex-direction: column; overflow: hidden; min-height: 0;
+  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; min-width: 0;
   background:
     radial-gradient(ellipse 80% 60% at 15% 5%, rgba(107,127,255,.05) 0%, transparent 55%),
     radial-gradient(ellipse 50% 40% at 85% 90%, rgba(167,139,250,.04) 0%, transparent 50%),
