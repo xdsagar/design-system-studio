@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Upload, RotateCcw, ArrowRight, ImageIcon, Sun, Moon, LayoutDashboard, Layers } from 'lucide-react';
 import { buildCssVars } from '../hooks/useTokens';
 import { defaultTokens } from '../utils/tokens';
@@ -150,21 +150,43 @@ function ComponentsPreview() {
   );
 }
 
-// Editable color swatch — clicking opens the native color picker
+// Editable color swatch — dot opens native color picker, text field accepts hex
 function EditableSwatch({ hex, onChange }) {
-  const inputRef = useRef(null);
+  const colorRef = useRef(null);
+  const [localHex, setLocalHex] = useState(hex || '');
+
+  useEffect(() => { setLocalHex(hex || ''); }, [hex]);
+
   if (!hex) return <span className="ba-tl-hex">—</span>;
+
+  const validHex = /^#[0-9a-fA-F]{6}$/.test(localHex) ? localHex : hex;
+
+  function handleText(e) {
+    const v = e.target.value;
+    setLocalHex(v);
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) onChange(v);
+  }
+
   return (
-    <div className="ba-tl-val ba-tl-editable" onClick={() => inputRef.current?.click()} title="Click to edit">
-      <div className="ba-tl-dot" style={{ background: hex }} />
-      <span className="ba-tl-hex">{hex}</span>
+    <div className="ba-tl-val ba-tl-editable">
+      <div className="ba-tl-dot-wrap" onClick={() => colorRef.current?.click()} title="Open color picker">
+        <div className="ba-tl-dot" style={{ background: localHex || hex }} />
+        <input
+          ref={colorRef}
+          type="color"
+          value={validHex}
+          onChange={e => { const v = e.target.value; setLocalHex(v); onChange(v); }}
+          className="ba-color-input"
+          onClick={e => e.stopPropagation()}
+        />
+      </div>
       <input
-        ref={inputRef}
-        type="color"
-        value={hex}
-        onChange={e => onChange(e.target.value)}
-        className="ba-color-input"
-        onClick={e => e.stopPropagation()}
+        type="text"
+        className="ba-tl-hex-input"
+        value={localHex}
+        onChange={handleText}
+        maxLength={7}
+        spellCheck={false}
       />
     </div>
   );
@@ -180,13 +202,10 @@ function EditableDualRow({ label, lightKey, darkKey, light, dark, onEdit }) {
   );
 }
 
-function SingleRow({ label, hex }) {
+function EditableSingleRow({ label, id, hex, onEdit }) {
   return (
     <div className="ba-tl-single-row">
-      <div className="ba-tl-val">
-        {hex && <div className="ba-tl-dot" style={{ background: hex }} />}
-        <span className="ba-tl-hex">{hex ?? '—'}</span>
-      </div>
+      <EditableSwatch hex={hex} onChange={v => onEdit(id, v)} />
       <span className="ba-tl-name ba-tl-name-muted">{label}</span>
     </div>
   );
@@ -223,6 +242,14 @@ export default function BrandAnalyzer({ onClose, onApply }) {
 
   function editToken(key, value) {
     setSuggestion(s => ({ ...s, [key]: value }));
+    setPreviewDark(key.endsWith('Dm'));
+  }
+
+  function editCoreColor(id, value) {
+    setSuggestion(s => ({
+      ...s,
+      coreColors: (s.coreColors ?? []).map(c => c.id === id ? { ...c, hex: value } : c),
+    }));
   }
 
   async function analyze() {
@@ -456,7 +483,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                       <div className="ba-tl-section-label">Surfaces & Text</div>
                       {SURFACE_IDS.map(id => {
                         const c = suggestion.coreColors.find(x => x.id === id);
-                        return c ? <SingleRow key={id} label={c.label} hex={c.hex} /> : null;
+                        return c ? <EditableSingleRow key={id} id={id} label={c.label} hex={c.hex} onEdit={editCoreColor} /> : null;
                       })}
                     </div>
                   )}
