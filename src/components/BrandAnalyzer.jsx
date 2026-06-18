@@ -257,6 +257,23 @@ function EditableSingleRow({ label, id, hex, onEdit }) {
   );
 }
 
+function friendlyError(raw = '') {
+  const msg = raw.toLowerCase();
+  if (msg.includes('api_key') || msg.includes('api key') || msg.includes('not configured') || msg.includes('authentication'))
+    return { title: 'API key not set up', hint: 'The Anthropic API key is missing from the server. If you\'re running locally, add ANTHROPIC_API_KEY to your .env file.' };
+  if (msg.includes('rate limit') || msg.includes('overloaded') || msg.includes('529'))
+    return { title: 'Claude is busy right now', hint: 'Too many requests at once. Wait 30 seconds and try again.' };
+  if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token'))
+    return { title: 'Unexpected response from Claude', hint: 'The AI returned something we couldn\'t read. Try again — this usually resolves itself.' };
+  if (msg.includes('network') || msg.includes('failed to fetch') || msg.includes('networkerror'))
+    return { title: 'Network error', hint: 'Check your internet connection and try again.' };
+  if (msg.includes('timeout') || msg.includes('timed out'))
+    return { title: 'Request timed out', hint: 'The analysis took too long. Try with fewer images or a shorter description.' };
+  if (msg.includes('maximum') || msg.includes('5 images'))
+    return { title: 'Too many images', hint: 'Maximum 5 images allowed per analysis.' };
+  return { title: 'Analysis failed', hint: raw || 'Something went wrong. Try again or adjust your inputs.' };
+}
+
 function countTokens(s) {
   if (!s) return 0;
   const pairs = ['brand','secondary','tertiary','success','caution','error','info'];
@@ -371,9 +388,15 @@ export default function BrandAnalyzer({ onClose, onApply }) {
           {/* ── Upload / Error ── */}
           {(phase === 'upload' || phase === 'error') && (
             <div className="ba-upload-phase">
-              {phase === 'error' && (
-                <div className="ba-error-banner">{errorMsg}</div>
-              )}
+              {phase === 'error' && (() => {
+                const { title, hint } = friendlyError(errorMsg);
+                return (
+                  <div className="ba-error-banner">
+                    <div className="ba-error-title">{title}</div>
+                    <div className="ba-error-hint">{hint}</div>
+                  </div>
+                );
+              })()}
 
               <label
                 className={`ba-dropzone${dragOver ? ' drag-over' : ''}${images.length >= 5 ? ' full' : ''}`}

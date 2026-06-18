@@ -1909,8 +1909,19 @@ export function EmptyState({ icon, title, description, action, className = '' })
 
 function genReactIndexJs(name) {
   return `// ${name} — React component library
-// Import once: import './tokens.css'; import './components.css';
-// Then import components from here.
+//
+// HOW TO USE
+// ──────────
+// 1. Copy this entire folder into your project (e.g. src/ds/)
+// 2. At your app root, import the two CSS files once:
+//      import '../tokens.css';      // all --ds-* CSS custom properties
+//      import '../components.css';  // component classes that read those variables
+// 3. Import any component:
+//      import { Button, Badge } from './ds';
+//
+// Every component uses CSS class names (e.g. .ds-btn, .ds-badge) that are
+// fully driven by the --ds-* tokens — change a token in tokens.css and
+// every component updates automatically. No inline styles, no hard-coded values.
 
 export { Button, ButtonGroup }       from './Button.jsx';
 export { Field, Input, Textarea, Select, SearchInput, Checkbox, Radio, Toggle } from './Input.jsx';
