@@ -116,6 +116,7 @@ export default function App() {
     };
 
     setAllTokens(payload);
+    setImportedTokens(payload);
     if (suggestion.darkMode !== undefined) setShellDark(suggestion.darkMode);
   }
 
@@ -221,6 +222,7 @@ export default function App() {
           importedTokens={importedTokens}
           configCollapsed={configCollapsed}
           onCollapseToggle={() => setConfigCollapsed(c => !c)}
+          onShowAnalyzer={() => setShowAnalyzer(true)}
           configWidth={configWidth}
           isDragging={isDragging}
           handlers={{

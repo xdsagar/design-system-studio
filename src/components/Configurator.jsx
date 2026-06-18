@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Check, X, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
+import { Check, X, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Info, Sparkles } from 'lucide-react';
 import {
   defaultTokens,
   radiusPresets,
@@ -189,7 +189,7 @@ function HowToUseAccordion() {
   );
 }
 
-export default function Configurator({ tokens, handlers, importedTokens, configCollapsed, onCollapseToggle, configWidth, isDragging }) {
+export default function Configurator({ tokens, handlers, importedTokens, configCollapsed, onCollapseToggle, onShowAnalyzer, configWidth, isDragging }) {
   const [step, setStep]           = useState(0);
   const [activePreset, setActivePreset] = useState('studio');
   const colorMode = tokens.darkMode ? 'dark' : 'light';
@@ -277,11 +277,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     return init;
   }
 
-  function handleApplyPreset(preset) {
-    const merged = { ...defaultTokens, ...preset.tokens };
-    setAllTokens(merged);
-
-    // Sync Colors-step hex input UI state
+  function syncUiFromTokens(merged) {
     const newHex = {};
     COLOR_GROUPS.forEach(g => {
       newHex[`light:${g.tokenKey}`] = merged[g.tokenKey]  || '#000000';
@@ -319,16 +315,28 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     });
     setHoverModes(newModes);
 
-    setCoreHexInputsState(Object.fromEntries(merged.coreColors.map(c => [c.id, c.hex])));
+    const coreSource = merged.coreColors?.length ? merged.coreColors : defaultTokens.coreColors;
+    setCoreHexInputsState(Object.fromEntries(coreSource.map(c => [c.id, c.hex])));
 
-    // Approximate radiusIdx from radiusMd
     const mdVal = merged.radiusMd || '6px';
     const radiusStops = ['0px','2px','4px','6px','8px','12px','16px','24px','999px'];
     const idx = radiusStops.indexOf(mdVal);
     setRadiusIdx(idx >= 0 ? idx : 3);
+  }
 
+  function handleApplyPreset(preset) {
+    const merged = { ...defaultTokens, ...preset.tokens };
+    setAllTokens(merged);
+    syncUiFromTokens(merged);
     setActivePreset(preset.id);
   }
+
+  useEffect(() => {
+    if (!importedTokens) return;
+    const merged = { ...defaultTokens, ...importedTokens };
+    syncUiFromTokens(merged);
+    setActivePreset('custom');
+  }, [importedTokens]);
 
   function handleResetTab() {
     if (step === 1) {
@@ -576,6 +584,13 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
               </p>
             </div>
 
+            {activePreset === 'custom' && (
+              <div className="intro-custom-banner">
+                <Sparkles size={13} />
+                <span>Custom brand active — your analyzed brand is on the canvas. Pick a preset below to switch.</span>
+              </div>
+            )}
+
             <div className="preset-grid">
               {STYLE_PRESETS.map(preset => {
                 const isActive = activePreset === preset.id;
@@ -618,6 +633,14 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                 );
               })}
             </div>
+
+            <button className="intro-analyze-cta" onClick={onShowAnalyzer} type="button">
+              <span className="intro-analyze-icon"><Sparkles size={15} /></span>
+              <div className="intro-analyze-text">
+                <span className="intro-analyze-title">Analyze your brand</span>
+                <span className="intro-analyze-desc">Upload brand images or describe your brand — AI generates a matching token set</span>
+              </div>
+            </button>
 
           </div>
         )}
