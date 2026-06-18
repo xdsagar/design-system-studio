@@ -4066,8 +4066,10 @@ input[type=color] {
 /* ── Overlay backdrop (appears behind drawer in tablet mode) ────────────── */
 .overlay-backdrop {
   position: fixed;
-  inset: 0;
   top: 56px;
+  left: 80px;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(2px);
   z-index: 199;
