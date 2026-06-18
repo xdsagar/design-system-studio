@@ -14,6 +14,7 @@ const SECTIONS = [
   { id: 'analyzer',   label: 'Brand Analyzer' },
   { id: 'importexport', label: 'Import & Export' },
   { id: 'tips',       label: 'Tips & Tricks' },
+  { id: 'builder',    label: 'Meet the Builder' },
 ];
 
 function Tip({ children }) {
@@ -248,6 +249,37 @@ export default function GuideModal({ onClose }) {
               <p>If you've applied a custom brand via the Analyzer and then click a preset, a confirmation dialog appears before overwriting — so you won't accidentally lose brand work.</p>
               <h3 className="guide-h3">Token preview search</h3>
               <p>On the Export step, expand the Token preview accordion and use the search box to filter tokens by name. Useful for quickly checking a specific <code>--ds-*</code> value before downloading.</p>
+            </Section>
+
+            <Section id="builder" title="Meet the Builder">
+              <div className="guide-builder-card">
+                <img
+                  src="/sagar.jpg"
+                  alt="Sagar Mistry"
+                  className="guide-builder-photo"
+                />
+                <div className="guide-builder-info">
+                  <div className="guide-builder-name">Sagar Mistry</div>
+                  <div className="guide-builder-location">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 10c0 6-8 13-8 13s-8-7-8-13a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    Durham, North Carolina
+                  </div>
+                  <a
+                    href="https://www.linkedin.com/in/sagar-mistry/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="guide-builder-linkedin"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                      <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+                    </svg>
+                    Connect on LinkedIn
+                  </a>
+                </div>
+              </div>
             </Section>
 
           </div>
