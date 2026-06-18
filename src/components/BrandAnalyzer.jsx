@@ -1,10 +1,54 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Upload, RotateCcw, ArrowRight, ImageIcon, Sun, Moon, LayoutDashboard, Layers } from 'lucide-react';
 import { buildCssVars } from '../hooks/useTokens';
-import { defaultTokens, shadowValues } from '../utils/tokens';
+import { defaultTokens, shadowValues, wcagContrast } from '../utils/tokens';
+import ThemePreview from './ThemePreview';
 
 const RADIUS_STOPS = ['0px','2px','4px','6px','8px','12px','16px','24px','999px'];
-import ThemePreview from './ThemePreview';
+
+// Adjust a hex color's HSL lightness until it meets the target contrast ratio with textHex.
+// lighten=true moves toward white, lighten=false moves toward black.
+function enforceWcag(colorHex, textHex, lighten, targetRatio = 4.5) {
+  if (!colorHex || !/^#[0-9a-fA-F]{6}$/.test(colorHex)) return colorHex;
+  if (wcagContrast(colorHex, textHex) >= targetRatio) return colorHex;
+  const r = parseInt(colorHex.slice(1,3),16)/255;
+  const g = parseInt(colorHex.slice(3,5),16)/255;
+  const b = parseInt(colorHex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  let h = 0, s = 0, l = (max+min)/2;
+  if (d !== 0) {
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    if (max===r) h = ((g-b)/d + (g<b?6:0))/6;
+    else if (max===g) h = ((b-r)/d + 2)/6;
+    else h = ((r-g)/d + 4)/6;
+  }
+  const hue2rgb = (p,q,t) => { t=t<0?t+1:t>1?t-1:t; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+  for (let i = 0; i < 60; i++) {
+    l = lighten ? Math.min(0.95, l+0.02) : Math.max(0.05, l-0.02);
+    const q = l<0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
+    const nr = Math.round(hue2rgb(p,q,h+1/3)*255);
+    const ng = Math.round(hue2rgb(p,q,h)*255);
+    const nb = Math.round(hue2rgb(p,q,h-1/3)*255);
+    const adjusted = '#' + [nr,ng,nb].map(v=>v.toString(16).padStart(2,'0')).join('');
+    if (wcagContrast(adjusted, textHex) >= targetRatio) return adjusted;
+    if (l >= 0.95 || l <= 0.05) break;
+  }
+  return colorHex;
+}
+
+const SEMANTIC_KEYS = ['brand','secondary','tertiary','success','caution','error','info'];
+
+function applyWcagCorrections(suggestion) {
+  const textLight = suggestion.coreColors?.find(c=>c.id==='text-primary')?.hex ?? '#1E1E1E';
+  const textDark  = suggestion.coreColors?.find(c=>c.id==='text-primary-dark')?.hex ?? '#F5F5F5';
+  const out = { ...suggestion };
+  SEMANTIC_KEYS.forEach(key => {
+    if (out[key])          out[key]          = enforceWcag(out[key],          textLight, true);
+    const dm = `${key}Dm`;
+    if (out[dm])           out[dm]           = enforceWcag(out[dm],           textDark,  false);
+  });
+  return out;
+}
 
 function processImage(file) {
   return new Promise((resolve, reject) => {
@@ -276,9 +320,10 @@ export default function BrandAnalyzer({ onClose, onApply }) {
       });
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error ?? 'Analysis failed');
-      setSuggestion(json.suggestion);
-      setOriginalSuggestion(json.suggestion);
-      setPreviewDark(json.suggestion.darkMode ?? true);
+      const corrected = applyWcagCorrections(json.suggestion);
+      setSuggestion(corrected);
+      setOriginalSuggestion(corrected);
+      setPreviewDark(corrected.darkMode ?? true);
       setPhase('results');
     } catch (err) {
       setErrorMsg(err.message);
