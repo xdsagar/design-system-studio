@@ -191,7 +191,7 @@ export default function App() {
         </div>
 
         <button className="save-progress-link" onClick={() => setShowSave(true)}>
-          Save your progress
+          Save your progress?
         </button>
 
         <div className="app-meta">
