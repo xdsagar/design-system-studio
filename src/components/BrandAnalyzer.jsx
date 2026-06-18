@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Upload, RotateCcw, ArrowRight, ImageIcon, Sun, Moon, LayoutDashboard, Layers } from 'lucide-react';
 import { buildCssVars } from '../hooks/useTokens';
-import { defaultTokens } from '../utils/tokens';
+import { defaultTokens, shadowValues } from '../utils/tokens';
+
+const RADIUS_STOPS = ['0px','2px','4px','6px','8px','12px','16px','24px','999px'];
 import ThemePreview from './ThemePreview';
 
 function processImage(file) {
@@ -505,20 +507,55 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                     </div>
                   )}
 
-                  {/* Shape */}
+                  {/* Shape & Shadow */}
                   <div className="ba-tl-section">
                     <div className="ba-tl-section-label">Shape & Shadow</div>
+
+                    {/* Radius — brand-colored boxes + steppers */}
                     <div className="ba-radius-row">
-                      {[['SM', suggestion.radiusSm], ['MD', suggestion.radiusMd], ['LG', suggestion.radiusLg]].map(([n, v]) => (
-                        <div key={n} className="ba-radius-item">
-                          <div className="ba-radius-box" style={{ borderRadius: v }} />
-                          <span className="ba-radius-label">{n} · {v}</span>
-                        </div>
-                      ))}
+                      {[['SM','radiusSm',suggestion.radiusSm],['MD','radiusMd',suggestion.radiusMd],['LG','radiusLg',suggestion.radiusLg]].map(([n, key, v]) => {
+                        const idx = RADIUS_STOPS.indexOf(v ?? '');
+                        return (
+                          <div key={n} className="ba-radius-item">
+                            <div
+                              className="ba-radius-box"
+                              style={{ borderRadius: v, background: suggestion.brand || '#0D99FF' }}
+                            />
+                            <span className="ba-radius-label">{n} · {v}</span>
+                            <div className="ba-radius-steppers">
+                              <button
+                                className="ba-radius-step"
+                                disabled={idx <= 0}
+                                onClick={() => editToken(key, RADIUS_STOPS[Math.max(0, idx - 1)])}
+                              >−</button>
+                              <button
+                                className="ba-radius-step"
+                                disabled={idx >= RADIUS_STOPS.length - 1}
+                                onClick={() => editToken(key, RADIUS_STOPS[Math.min(RADIUS_STOPS.length - 1, idx + 1)])}
+                              >+</button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="ba-meta-row">
-                      <span className="ba-meta-chip">Shadow · {suggestion.shadow}</span>
-                      <span className="ba-meta-chip">{suggestion.darkMode ? 'Dark mode' : 'Light mode'}</span>
+
+                    {/* Shadow — card preview on light floor + toggle */}
+                    <div className="ba-shadow-floor">
+                      <div
+                        className="ba-shadow-card"
+                        style={{ borderRadius: suggestion.radiusMd ?? '6px', boxShadow: shadowValues[suggestion.shadow] ?? 'none' }}
+                      >
+                        <span className="ba-shadow-card-text">Card</span>
+                      </div>
+                      <div className="ba-shadow-toggle">
+                        {[['none','Flat'],['sm','Subtle'],['md','Raised']].map(([val, label]) => (
+                          <button
+                            key={val}
+                            className={`ba-shadow-opt${suggestion.shadow === val ? ' active' : ''}`}
+                            onClick={() => editToken('shadow', val)}
+                          >{label}</button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
