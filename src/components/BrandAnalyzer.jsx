@@ -223,6 +223,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
   const [brandDescription, setBrandDescription] = useState('');
   const [phase, setPhase]                     = useState('upload');
   const [suggestion, setSuggestion]           = useState(null);
+  const [originalSuggestion, setOriginalSuggestion] = useState(null);
   const [errorMsg, setErrorMsg]               = useState('');
   const [dragOver, setDragOver]               = useState(false);
   const [previewDark, setPreviewDark]         = useState(true);
@@ -252,6 +253,13 @@ export default function BrandAnalyzer({ onClose, onApply }) {
     }));
   }
 
+  function resetToOriginal() {
+    setSuggestion({ ...originalSuggestion });
+    setPreviewDark(originalSuggestion.darkMode ?? true);
+  }
+
+  const hasEdits = originalSuggestion && JSON.stringify(suggestion) !== JSON.stringify(originalSuggestion);
+
   async function analyze() {
     setPhase('analyzing');
     setErrorMsg('');
@@ -267,6 +275,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error ?? 'Analysis failed');
       setSuggestion(json.suggestion);
+      setOriginalSuggestion(json.suggestion);
       setPreviewDark(json.suggestion.darkMode ?? true);
       setPhase('results');
     } catch (err) {
@@ -279,6 +288,7 @@ export default function BrandAnalyzer({ onClose, onApply }) {
     setPhase('upload');
     setErrorMsg('');
     setSuggestion(null);
+    setOriginalSuggestion(null);
   }
 
   function apply() {
@@ -448,7 +458,14 @@ export default function BrandAnalyzer({ onClose, onApply }) {
               <div className="ba-tokens-panel">
                 <div className="ba-tokens-scroll">
 
-                  <div className="ba-edit-hint">Click any color swatch to adjust it</div>
+                  <div className="ba-edit-hint">
+                    <span>Click any color swatch to adjust it</span>
+                    {hasEdits && (
+                      <button className="ba-reset-edits-btn" onClick={resetToOriginal} title="Reset all edits back to the original AI suggestion">
+                        <RotateCcw size={10} /> Reset to original
+                      </button>
+                    )}
+                  </div>
 
                   {/* Action Colors */}
                   <div className="ba-tl-section">

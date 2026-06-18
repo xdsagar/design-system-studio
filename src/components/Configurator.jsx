@@ -192,6 +192,7 @@ function HowToUseAccordion() {
 export default function Configurator({ tokens, handlers, importedTokens, configCollapsed, onCollapseToggle, onShowAnalyzer, configWidth, isDragging }) {
   const [step, setStep]           = useState(0);
   const [activePreset, setActivePreset] = useState('studio');
+  const [confirmPreset, setConfirmPreset] = useState(null);
   const colorMode = tokens.darkMode ? 'dark' : 'light';
   const [radiusIdx, setRadiusIdx] = useState(2);
   const [openGroup, setOpenGroup] = useState('brand');
@@ -598,7 +599,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                   <button
                     key={preset.id}
                     className={`preset-card${isActive ? ' preset-card--active' : ''}`}
-                    onClick={() => handleApplyPreset(preset)}
+                    onClick={() => activePreset === 'custom' ? setConfirmPreset(preset) : handleApplyPreset(preset)}
                     type="button"
                   >
                     <div
@@ -1588,6 +1589,26 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
           </div>
         );
       })()}
+
+      {confirmPreset && (
+        <div className="preset-confirm-overlay" onClick={() => setConfirmPreset(null)}>
+          <div className="preset-confirm-dialog" onClick={e => e.stopPropagation()}>
+            <div className="preset-confirm-title">Switch to {confirmPreset.name}?</div>
+            <div className="preset-confirm-body">
+              Your custom analyzed brand will be replaced. You can re-run the analyzer any time to restore it.
+            </div>
+            <div className="preset-confirm-actions">
+              <button className="preset-confirm-cancel" onClick={() => setConfirmPreset(null)}>
+                Keep custom brand
+              </button>
+              <button className="preset-confirm-ok" onClick={() => { handleApplyPreset(confirmPreset); setConfirmPreset(null); }}>
+                Switch to {confirmPreset.name}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </aside>
   );
 }
