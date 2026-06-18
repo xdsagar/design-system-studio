@@ -261,6 +261,8 @@ function friendlyError(raw = '') {
   const msg = raw.toLowerCase();
   if (msg.includes('api_key') || msg.includes('api key') || msg.includes('not configured') || msg.includes('authentication'))
     return { title: 'API key not set up', hint: 'The Anthropic API key is missing from the server. If you\'re running locally, add ANTHROPIC_API_KEY to your .env file.' };
+  if (msg.includes('credits_exhausted') || msg.includes('credit balance') || msg.includes('out of credits') || msg.includes('billing') || msg.includes('402') || msg.includes('unavailable'))
+    return { title: 'Analyze Brand is temporarily unavailable', hint: 'Usage limit reached — this feature will be back up shortly. Try a style preset in the meantime.' };
   if (msg.includes('rate limit') || msg.includes('overloaded') || msg.includes('529'))
     return { title: 'Claude is busy right now', hint: 'Too many requests at once. Wait 30 seconds and try again.' };
   if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token'))

@@ -1,3 +1,40 @@
+async function notifyCreditsExhausted() {
+  if (!process.env.RESEND_API_KEY) return;
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Design System Studio <onboarding@resend.dev>',
+      to: 'sbmistry2021@gmail.com',
+      subject: '⚠️ Design System Studio — Analyze Brand is out of credits',
+      html: `
+        <div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a">
+          <h2 style="margin:0 0 8px;font-size:18px">Analyze Brand hit its usage limit</h2>
+          <p style="margin:0 0 16px;color:#555;font-size:14px;line-height:1.6">
+            A visitor just tried to use the AI brand analyzer on
+            <strong>Design System Studio</strong> but your Anthropic credit
+            balance is too low to complete the request.
+          </p>
+          <p style="margin:0 0 24px;color:#555;font-size:14px;line-height:1.6">
+            Top up your credits to restore the feature:
+          </p>
+          <a href="https://console.anthropic.com/settings/billing"
+             style="display:inline-block;background:#5c6bc0;color:#fff;text-decoration:none;
+                    padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600">
+            Add credits →
+          </a>
+          <p style="margin:24px 0 0;font-size:12px;color:#999">
+            This notification is sent once per credit-exhaustion event.
+          </p>
+        </div>
+      `,
+    }),
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -190,7 +227,15 @@ Return ONLY valid JSON — no markdown fences, no text outside the JSON object.
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: err.error?.message ?? 'Claude API error' });
+      const errMsg = err.error?.message ?? 'Claude API error';
+
+      // Credit exhaustion — HTTP 402 or "credit balance" in the message
+      if (response.status === 402 || errMsg.toLowerCase().includes('credit')) {
+        await notifyCreditsExhausted().catch(() => {});
+        return res.status(402).json({ error: 'credits_exhausted' });
+      }
+
+      return res.status(response.status).json({ error: errMsg });
     }
 
     const claude = await response.json();
