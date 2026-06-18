@@ -225,6 +225,7 @@ export default function App() {
           >
             <Sparkles size={12} />
             Analyze brand
+            <span className="beta-badge">Beta</span>
           </button>
 
           <HeaderIconBtn onClick={downloadTemplate} title="Download token template">

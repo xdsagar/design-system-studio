@@ -2193,6 +2193,11 @@ input[type=color] {
   opacity: .92;
   box-shadow: 0 4px 20px var(--shell-accent-glow);
 }
+.header-analyze-btn .beta-badge {
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border-color: rgba(255,255,255,.3);
+}
 
 /* ── Brand Analyzer modal ────────────────────────────────── */
 .ba-overlay {
@@ -3369,6 +3374,30 @@ input[type=color] {
   border-color: rgba(255,255,255,.14);
 }
 
+.welcome-dl-template {
+  background: none; border: none; cursor: pointer;
+  font-size: 11.5px; color: var(--shell-text-3);
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: var(--shell-border-2);
+  padding: 4px 0; margin-top: 2px;
+  transition: color .15s;
+}
+.welcome-dl-template:hover { color: var(--shell-text-2); }
+
+/* ── Beta badge ─────────────────────────────────────────────────────────── */
+.beta-badge {
+  display: inline-flex; align-items: center;
+  font-size: 9px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 1px 5px; border-radius: 4px;
+  background: rgba(167, 139, 250, 0.18);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  line-height: 1.5;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 .welcome-divider {
   display: flex; align-items: center; gap: 12px;
   color: var(--shell-text-3); font-size: 11px; font-weight: 500;
@@ -4287,6 +4316,7 @@ input[type=color] {
   gap: 2px;
 }
 .intro-analyze-title {
+  display: flex; align-items: center; gap: 6px;
   font-size: 12px;
   font-weight: 600;
   color: var(--shell-fg, #f0f0f0);

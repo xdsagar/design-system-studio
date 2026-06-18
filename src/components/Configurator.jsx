@@ -638,7 +638,10 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
             <button className="intro-analyze-cta" onClick={onShowAnalyzer} type="button">
               <span className="intro-analyze-icon"><Sparkles size={15} /></span>
               <div className="intro-analyze-text">
-                <span className="intro-analyze-title">Analyze your brand</span>
+                <span className="intro-analyze-title">
+                  Analyze your brand
+                  <span className="beta-badge">Beta</span>
+                </span>
                 <span className="intro-analyze-desc">Upload brand images or describe your brand — AI generates a matching token set</span>
               </div>
             </button>
