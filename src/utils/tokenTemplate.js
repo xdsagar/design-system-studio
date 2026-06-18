@@ -55,6 +55,25 @@ export function downloadTemplate() {
   saveAs(blob, 'design-system-template.json');
 }
 
+export function exportTokens(tokens) {
+  const payload = {
+    _meta: {
+      generator: 'Design System Studio',
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+    },
+    ...Object.fromEntries(SCALAR_KEYS.map(k => [k, tokens[k] ?? defaultTokens[k]])),
+    coreColors:   tokens.coreColors   ?? defaultTokens.coreColors,
+    customColors: tokens.customColors ?? [],
+    typeScalePreset:   tokens.typeScalePreset,
+    spacingScale:      tokens.spacingScale,
+    motionPersonality: tokens.motionPersonality,
+    elevationStyle:    tokens.elevationStyle,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  saveAs(blob, 'my-design-system.json');
+}
+
 export async function parseImportFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

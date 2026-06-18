@@ -1,4 +1,4 @@
-import { useState, useCallback, useLayoutEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   defaultTokens, deriveBrandTokens, shadowValues, darkOverrides,
   generateColorScale, lighten, rgbToHex,
@@ -63,29 +63,29 @@ export function buildCssVars(tokens) {
     '--ds-brand-dark':           derived.brandDark,
     '--ds-brand-light':          derived.brandLight,
     '--ds-brand-hover':          m('brandHover',         'brandHoverDm'),
-    '--ds-brand-hover-text':     textOnColor,
+    '--ds-brand-hover-text':     m('brandHoverText',     'brandHoverTextDm'),
     '--ds-secondary':            m('secondary',          'secondaryDm'),
     '--ds-secondary-hover':      m('secondaryHover',     'secondaryHoverDm'),
-    '--ds-secondary-hover-text': textOnColor,
+    '--ds-secondary-hover-text': m('secondaryHoverText', 'secondaryHoverTextDm'),
     '--ds-tertiary':             m('tertiary',           'tertiaryDm'),
     '--ds-tertiary-hover':       m('tertiaryHover',      'tertiaryHoverDm'),
-    '--ds-tertiary-hover-text':  textOnColor,
+    '--ds-tertiary-hover-text':  m('tertiaryHoverText',  'tertiaryHoverTextDm'),
     '--ds-ghost':                m('ghost',              'ghostDm'),
     '--ds-ghost-hover':          m('ghostHover',         'ghostHoverDm'),
 
     // ── Color: semantic
     '--ds-success':              successHex,
     '--ds-success-hover':        m('successHover',       'successHoverDm'),
-    '--ds-success-hover-text':   textOnColor,
+    '--ds-success-hover-text':   m('successHoverText',   'successHoverTextDm'),
     '--ds-warning':              warnHex,
     '--ds-warning-hover':        m('cautionHover',       'cautionHoverDm'),
-    '--ds-warning-hover-text':   textOnColor,
+    '--ds-warning-hover-text':   m('cautionHoverText',   'cautionHoverTextDm'),
     '--ds-danger':               dangerHex,
     '--ds-danger-hover':         m('errorHover',         'errorHoverDm'),
-    '--ds-danger-hover-text':    textOnColor,
+    '--ds-danger-hover-text':    m('errorHoverText',     'errorHoverTextDm'),
     '--ds-info':                 infoHex,
     '--ds-info-hover':           m('infoHover',          'infoHoverDm'),
-    '--ds-info-hover-text':      textOnColor,
+    '--ds-info-hover-text':      m('infoHoverText',      'infoHoverTextDm'),
 
     // ── Color: semantic tints (badges, alerts, callouts)
     '--ds-success-subtle':       subtle(successHex),
@@ -217,20 +217,34 @@ export function buildCssVars(tokens) {
   return vars;
 }
 
+const STORAGE_KEY = 'dss-tokens-v1';
+
+export function loadSavedTokens() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return { ...defaultTokens, ...JSON.parse(raw) };
+  } catch { return null; }
+}
+
+export function clearSavedTokens() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
 export function useTokens() {
-  const [tokens, setTokens] = useState(defaultTokens);
+  const [tokens, setTokens] = useState(() => loadSavedTokens() ?? defaultTokens);
+  const saveTimer = useRef(null);
+
+  // Debounced auto-save — 800 ms after last change
+  useEffect(() => {
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens)); } catch {}
+    }, 800);
+    return () => clearTimeout(saveTimer.current);
+  }, [tokens]);
 
   const cssVars = buildCssVars(tokens);
-
-  // Apply CSS custom properties directly via setProperty — this is the only
-  // reliable way to update CSS vars from JS (React's style prop uses property
-  // assignment which browsers silently ignore for custom properties starting with --).
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    Object.entries(cssVars).forEach(([key, val]) => {
-      if (val != null) root.style.setProperty(key, String(val));
-    });
-  });
 
   const setBrand = useCallback((hex) => {
     setTokens(t => ({ ...t, ...deriveBrandTokens(hex) }));

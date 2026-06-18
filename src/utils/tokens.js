@@ -106,7 +106,7 @@ export const defaultTokens = {
   motionPersonality: 'fluid', // 'instant' | 'snappy' | 'fluid' | 'playful' | 'cinematic'
 
   // ── Elevation
-  elevationStyle: 'subtle',  // 'flat' | 'subtle' | 'layered' | 'deep'
+  elevationStyle: 'flat',  // 'flat' | 'subtle' | 'layered' | 'deep'
 
   // Legacy single-shadow key kept for backward compat with Shape step
   shadow: 'sm',

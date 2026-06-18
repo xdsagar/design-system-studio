@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Download, Upload, Sun, Moon, Sparkles } from 'lucide-react';
 import { useTokens } from './hooks/useTokens';
 import { deriveBrandTokens } from './utils/tokens';
@@ -7,6 +7,7 @@ import Canvas from './components/Canvas';
 import ImportModal from './components/ImportModal';
 import BrandAnalyzer from './components/BrandAnalyzer';
 import WelcomeModal from './components/WelcomeModal';
+import SaveModal from './components/SaveModal';
 import { downloadTemplate } from './utils/tokenTemplate';
 import './index.css';
 
@@ -73,6 +74,9 @@ export default function App() {
   const [showWelcome, setShowWelcome]         = useState(() => !localStorage.getItem(HAS_VISITED_KEY));
   const [importedTokens, setImportedTokens]   = useState(null);
   const [configCollapsed, setConfigCollapsed] = useState(false);
+  const [showSave, setShowSave]               = useState(false);
+  const [configWidth, setConfigWidth]         = useState(340);
+  const [isDragging, setIsDragging]           = useState(false);
 
   const {
     tokens, cssVars,
@@ -130,6 +134,51 @@ export default function App() {
     setShowImport(true);
   }
 
+  const startResize = useCallback((e) => {
+    e.preventDefault();
+    const startX   = e.clientX;
+    const startW   = configWidth;
+    let   latestW  = startW;
+
+    // Keep the handle at least MIN_CANVAS px from the viewport edge so it
+    // never overlaps the browser's native window-resize grab zone.
+    const RAIL       = 80;
+    const HANDLE     = 6;
+    const MIN_CANVAS = 48;
+    const maxW = window.innerWidth - RAIL - HANDLE - MIN_CANVAS;
+
+    setIsDragging(true);
+    document.body.style.cursor     = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    function onMove(ev) {
+      const delta = ev.clientX - startX;
+      latestW = Math.max(240, Math.min(maxW, startW + delta));
+      setConfigWidth(latestW);
+    }
+
+    function onUp() {
+      document.body.style.cursor     = '';
+      document.body.style.userSelect = '';
+      setIsDragging(false);
+
+      // Snap to nearest of: compact (340), half viewport, wide (~full)
+      const half  = Math.round((window.innerWidth - RAIL) / 2);
+      const wide  = maxW; // largest safe width — canvas still has MIN_CANVAS px
+      const snaps = [340, half, wide];
+      const snapped = snaps.reduce((a, b) =>
+        Math.abs(b - latestW) < Math.abs(a - latestW) ? b : a
+      );
+      setConfigWidth(snapped);
+
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+  }, [configWidth]);
+
   return (
     <div className={`app${shellDark ? '' : ' shell-light'}`}>
       <header className="app-header">
@@ -139,6 +188,10 @@ export default function App() {
             <span className="logo-name">Design System Studio</span>
           </div>
         </div>
+
+        <button className="save-progress-link" onClick={() => setShowSave(true)}>
+          Save your progress
+        </button>
 
         <div className="app-meta">
           <button
@@ -168,6 +221,8 @@ export default function App() {
           importedTokens={importedTokens}
           configCollapsed={configCollapsed}
           onCollapseToggle={() => setConfigCollapsed(c => !c)}
+          configWidth={configWidth}
+          isDragging={isDragging}
           handlers={{
             setBrand, setNeutral, setFont, setTypeScale, setSpacingScale,
             setMotionPersonality, setElevationStyle,
@@ -176,6 +231,13 @@ export default function App() {
             setAllTokens,
           }}
         />
+        {!configCollapsed && (
+          <div
+            className={`config-resize-handle${isDragging ? ' is-dragging' : ''}`}
+            onMouseDown={startResize}
+            title="Drag to resize · snaps to compact / half / full"
+          />
+        )}
         <Canvas
           cssVars={cssVars}
           darkMode={tokens.darkMode}
@@ -202,6 +264,14 @@ export default function App() {
           onClose={handleWelcomeClose}
           onAnalyze={handleWelcomeAnalyze}
           onImport={handleWelcomeImport}
+        />
+      )}
+
+      {showSave && (
+        <SaveModal
+          tokens={tokens}
+          onClose={() => setShowSave(false)}
+          onImport={() => { setShowSave(false); setShowImport(true); }}
         />
       )}
     </div>

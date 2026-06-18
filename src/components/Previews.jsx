@@ -1,18 +1,25 @@
 import { useState } from 'react';
 import {
-  Activity, AlertCircle, AlertTriangle, Archive, ArrowDown, ArrowLeft, ArrowRight,
-  ArrowUp, BarChart2, Bell, Bookmark, Calendar, Camera, Check, CheckCircle,
-  ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clipboard, Clock,
-  Copy, Crop, Database, Download, Edit, ExternalLink, Eye, EyeOff, File,
-  FileDown, FileText, FileUp, Filter, Folder, FolderOpen, Globe, Grid3x3,
-  GripVertical, Heart, HelpCircle, Home, Image, Info, Key, LayoutDashboard,
-  Layers, Link, List, Loader, Lock, Mail, MapPin, Maximize2, Megaphone,
-  Menu, MessageCircle, MessageSquare, Mic, Minimize2, Minus, MoreHorizontal,
-  MoreVertical, Move, Navigation, Palette, Pencil, Phone, PieChart, Play,
-  Plus, RefreshCw, RotateCcw, Search, Send, Settings, Shield, Scissors,
-  SkipBack, SkipForward, Sliders, SortAsc, Star, Trash2, TrendingDown,
-  TrendingUp, Timer, Unlock, Upload, User, UserMinus, UserPlus, Users,
-  Video, Volume2, X, XCircle, ZoomIn, ZoomOut, LayoutGrid,
+  Activity, AlertCircle, AlertTriangle, AlignCenter, AlignLeft, AlignRight,
+  Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight,
+  Award, BarChart2, BarChart3, Bell, Bluetooth, Bold, Bookmark,
+  Bug, Calendar, Camera, Check, CheckCircle, ChevronDown, ChevronLeft,
+  ChevronRight, ChevronUp, Clipboard, Clock, Cloud, CloudDownload, CloudUpload,
+  Code, Code2, Copy, CornerDownLeft, CreditCard, Crop, Database, Download,
+  Edit, ExternalLink, Eye, EyeOff, File, FileDown, FileText, FileUp,
+  Filter, Fingerprint, Flag, Folder, FolderOpen, Gauge, Globe, Grid3x3,
+  GripVertical, Heart, HelpCircle, Home, Image, Info, Italic, Key,
+  LayoutDashboard, LayoutGrid, LayoutList, Layers, Lightbulb, Link,
+  LineChart, List, Loader, Lock, LogIn, LogOut, Mail, MapPin, Maximize2,
+  Megaphone, Menu, MessageCircle, MessageSquare, Mic, Minimize2, Minus,
+  Monitor, MoreHorizontal, MoreVertical, Move, Navigation, Package, Palette,
+  PanelLeft, PanelRight, Pencil, Phone, PieChart, Pin, Play, Plus,
+  RefreshCw, Rocket, RotateCcw, Search, Send, Settings, Shield, Scissors,
+  Share2, ShoppingBag, ShoppingCart, SkipBack, SkipForward, Sliders,
+  Smartphone, SortAsc, Sparkles, Star, Tag, Tags, Tablet, Terminal,
+  ThumbsDown, ThumbsUp, Timer, Trash2, TrendingDown, TrendingUp, Truck,
+  Underline, Unlock, Upload, User, UserCheck, UserMinus, UserPlus, Users,
+  UserX, Video, Volume2, Wand2, Wifi, X, XCircle, Zap, ZoomIn, ZoomOut,
 } from 'lucide-react';
 
 // ─── Shared helpers ─────────────────────────────────────────
@@ -267,9 +274,10 @@ export function ButtonStory() {
   return (
     <StoryFrame>
       <Variant label="Variants">
-        <Row>
+        <Row wrap>
           <button className="ds-btn primary">Primary</button>
           <button className="ds-btn secondary">Secondary</button>
+          <button className="ds-btn tertiary">Tertiary</button>
           <button className="ds-btn ghost">Ghost</button>
           <button className="ds-btn danger">Danger</button>
           <button className="ds-btn link">Link</button>
@@ -1240,10 +1248,12 @@ export function TableStory() {
 
 export function TabsStory() {
   const [active, setActive] = useState(0);
+  const [active2, setActive2] = useState(0);
   const tabs = ['Overview','Analytics','Settings','Billing'];
+  const views = ['List','Grid','Board'];
   return (
     <StoryFrame>
-      <Variant label="Default">
+      <Variant label="Underline (default)">
         <div>
           <div className="ds-tab-row">
             {tabs.map((t,i)=>(
@@ -1253,6 +1263,16 @@ export function TabsStory() {
           <div style={{padding:'12px 0',fontSize:12,color:'var(--ds-neutral-600)'}}>
             Showing: <strong>{tabs[active]}</strong> panel content
           </div>
+        </div>
+      </Variant>
+      <Variant label="Enclosed / segmented">
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <div className="ds-tab-row enclosed">
+            {views.map((t,i)=>(
+              <button key={t} className={`ds-tab ${active2===i?'active':''}`} onClick={()=>setActive2(i)}>{t}</button>
+            ))}
+          </div>
+          <div style={{fontSize:12,color:'var(--ds-neutral-600)'}}>View: <strong>{views[active2]}</strong></div>
         </div>
       </Variant>
     </StoryFrame>
@@ -1443,11 +1463,72 @@ export function IconsStory() {
     { name: 'Calendar',      Icon: Calendar },
     { name: 'Clock',         Icon: Clock },
     { name: 'Timer',         Icon: Timer },
-    // Design
+    // Design & editing
     { name: 'Pencil',        Icon: Pencil },
     { name: 'Edit',          Icon: Edit },
-    { name: 'Megaphone',     Icon: Megaphone },
+    { name: 'Wand2',         Icon: Wand2 },
+    { name: 'Sparkles',      Icon: Sparkles },
+    { name: 'Palette',       Icon: Palette },
+    { name: 'Crop',          Icon: Crop },
     { name: 'GripVertical',  Icon: GripVertical },
+    // Text formatting
+    { name: 'Bold',          Icon: Bold },
+    { name: 'Italic',        Icon: Italic },
+    { name: 'Underline',     Icon: Underline },
+    { name: 'AlignLeft',     Icon: AlignLeft },
+    { name: 'AlignCenter',   Icon: AlignCenter },
+    { name: 'AlignRight',    Icon: AlignRight },
+    { name: 'Code',          Icon: Code },
+    { name: 'Code2',         Icon: Code2 },
+    { name: 'Terminal',      Icon: Terminal },
+    // Commerce
+    { name: 'ShoppingCart',  Icon: ShoppingCart },
+    { name: 'ShoppingBag',   Icon: ShoppingBag },
+    { name: 'CreditCard',    Icon: CreditCard },
+    { name: 'Package',       Icon: Package },
+    { name: 'Truck',         Icon: Truck },
+    { name: 'Tag',           Icon: Tag },
+    { name: 'Tags',          Icon: Tags },
+    // Social & sharing
+    { name: 'Share2',        Icon: Share2 },
+    { name: 'ThumbsUp',      Icon: ThumbsUp },
+    { name: 'ThumbsDown',    Icon: ThumbsDown },
+    { name: 'Megaphone',     Icon: Megaphone },
+    { name: 'Flag',          Icon: Flag },
+    { name: 'Pin',           Icon: Pin },
+    // Users (extended)
+    { name: 'UserCheck',     Icon: UserCheck },
+    { name: 'UserX',         Icon: UserX },
+    { name: 'Award',         Icon: Award },
+    // Cloud & connectivity
+    { name: 'Cloud',         Icon: Cloud },
+    { name: 'CloudDownload', Icon: CloudDownload },
+    { name: 'CloudUpload',   Icon: CloudUpload },
+    { name: 'Wifi',          Icon: Wifi },
+    { name: 'Bluetooth',     Icon: Bluetooth },
+    // Devices
+    { name: 'Monitor',       Icon: Monitor },
+    { name: 'Smartphone',    Icon: Smartphone },
+    { name: 'Tablet',        Icon: Tablet },
+    // Auth
+    { name: 'LogIn',         Icon: LogIn },
+    { name: 'LogOut',        Icon: LogOut },
+    { name: 'Fingerprint',   Icon: Fingerprint },
+    // Layout & panels
+    { name: 'LayoutList',    Icon: LayoutList },
+    { name: 'PanelLeft',     Icon: PanelLeft },
+    { name: 'PanelRight',    Icon: PanelRight },
+    // Data (extended)
+    { name: 'BarChart3',     Icon: BarChart3 },
+    { name: 'LineChart',     Icon: LineChart },
+    { name: 'Gauge',         Icon: Gauge },
+    // Misc
+    { name: 'Lightbulb',     Icon: Lightbulb },
+    { name: 'Rocket',        Icon: Rocket },
+    { name: 'Zap',           Icon: Zap },
+    { name: 'Bug',           Icon: Bug },
+    { name: 'ArrowUpRight',  Icon: ArrowUpRight },
+    { name: 'CornerDownLeft',Icon: CornerDownLeft },
   ];
 
   const filtered = query.trim()

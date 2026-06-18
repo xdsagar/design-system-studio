@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Upload, RotateCcw, ArrowRight, ImageIcon, Sun, Moon } from 'lucide-react';
+import { X, Upload, RotateCcw, ArrowRight, ImageIcon, Sun, Moon, LayoutDashboard, Layers } from 'lucide-react';
 import { buildCssVars } from '../hooks/useTokens';
 import { defaultTokens } from '../utils/tokens';
 import ThemePreview from './ThemePreview';
@@ -65,18 +65,117 @@ function buildPreviewVars(s, isDark) {
   return buildCssVars(base);
 }
 
-function DualRow({ label, light, dark }) {
+// Inline components preview — more useful than dashboard for validating tokens
+function ComponentsPreview() {
+  const [tab, setTab] = useState(0);
+  return (
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 24, fontFamily: 'var(--ds-font-body)', background: 'var(--ds-surface)', minHeight: '100%' }}>
+      {/* Buttons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ds-neutral-400)', marginBottom: 2 }}>Buttons</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <button className="ds-btn primary">Primary</button>
+          <button className="ds-btn secondary">Secondary</button>
+          <button className="ds-btn tertiary">Tertiary</button>
+          <button className="ds-btn ghost">Ghost</button>
+          <button className="ds-btn danger">Danger</button>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="ds-btn primary sm">Small</button>
+          <button className="ds-btn primary">Default</button>
+          <button className="ds-btn primary lg">Large</button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ds-neutral-400)', marginBottom: 2 }}>Tabs</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="ds-tab-row">
+            {['Overview','Analytics','Settings'].map((t, i) => (
+              <button key={t} className={`ds-tab ${tab === i ? 'active' : ''}`} onClick={() => setTab(i)}>{t}</button>
+            ))}
+          </div>
+          <div className="ds-tab-row enclosed" style={{ display: 'inline-flex' }}>
+            {['List','Grid','Board'].map((t, i) => (
+              <button key={t} className={`ds-tab ${tab === i + 10 ? 'active' : ''}`} onClick={() => setTab(i + 10)}>{t}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Badges */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ds-neutral-400)', marginBottom: 2 }}>Badges</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <span className="ds-badge brand">Primary</span>
+          <span className="ds-badge success">Success</span>
+          <span className="ds-badge caution">Caution</span>
+          <span className="ds-badge danger">Error</span>
+          <span className="ds-badge info">Info</span>
+          <span className="ds-badge neutral">Neutral</span>
+        </div>
+      </div>
+
+      {/* Input */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 340 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ds-neutral-400)', marginBottom: 2 }}>Form</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--ds-neutral-800)' }}>Email address</label>
+          <input className="ds-input" placeholder="you@company.com" readOnly style={{ maxWidth: 300 }} />
+        </div>
+      </div>
+
+      {/* Card */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 340 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ds-neutral-400)', marginBottom: 2 }}>Card</div>
+        <div className="ds-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ds-neutral-900)', fontFamily: 'var(--ds-font-display)' }}>Team plan</div>
+          <div style={{ fontSize: 12, color: 'var(--ds-neutral-600)' }}>Everything in Pro, plus unlimited seats and priority support.</div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+            <button className="ds-btn primary sm">Upgrade</button>
+            <button className="ds-btn ghost sm">Learn more</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Typography */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ds-neutral-400)', marginBottom: 2 }}>Typography</div>
+        <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--ds-font-display)', color: 'var(--ds-neutral-900)', lineHeight: 1.2 }}>Display heading</div>
+        <div style={{ fontSize: 14, color: 'var(--ds-neutral-800)', lineHeight: 1.6 }}>Body text — Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</div>
+        <div style={{ fontSize: 12, color: 'var(--ds-neutral-600)', lineHeight: 1.5 }}>Secondary / muted text for captions and supporting copy.</div>
+      </div>
+    </div>
+  );
+}
+
+// Editable color swatch — clicking opens the native color picker
+function EditableSwatch({ hex, onChange }) {
+  const inputRef = useRef(null);
+  if (!hex) return <span className="ba-tl-hex">—</span>;
+  return (
+    <div className="ba-tl-val ba-tl-editable" onClick={() => inputRef.current?.click()} title="Click to edit">
+      <div className="ba-tl-dot" style={{ background: hex }} />
+      <span className="ba-tl-hex">{hex}</span>
+      <input
+        ref={inputRef}
+        type="color"
+        value={hex}
+        onChange={e => onChange(e.target.value)}
+        className="ba-color-input"
+        onClick={e => e.stopPropagation()}
+      />
+    </div>
+  );
+}
+
+function EditableDualRow({ label, lightKey, darkKey, light, dark, onEdit }) {
   return (
     <div className="ba-tl-dual-row">
       <span className="ba-tl-name">{label}</span>
-      <div className="ba-tl-val">
-        {light && <div className="ba-tl-dot" style={{ background: light }} />}
-        <span className="ba-tl-hex">{light ?? '—'}</span>
-      </div>
-      <div className="ba-tl-val">
-        {dark && <div className="ba-tl-dot" style={{ background: dark }} />}
-        <span className="ba-tl-hex">{dark ?? '—'}</span>
-      </div>
+      <EditableSwatch hex={light} onChange={v => onEdit(lightKey, v)} />
+      <EditableSwatch hex={dark}  onChange={v => onEdit(darkKey, v)} />
     </div>
   );
 }
@@ -97,16 +196,18 @@ function countTokens(s) {
   if (!s) return 0;
   const pairs = ['brand','secondary','tertiary','success','caution','error','info'];
   const cores = s.coreColors?.length ?? 0;
-  return pairs.length * 2 + cores + 5; // pairs×2 + coreColors + shape/font fields
+  return pairs.length * 2 + cores + 5;
 }
 
 export default function BrandAnalyzer({ onClose, onApply }) {
-  const [images, setImages]           = useState([]);
-  const [phase, setPhase]             = useState('upload');
-  const [suggestion, setSuggestion]   = useState(null);
-  const [errorMsg, setErrorMsg]       = useState('');
-  const [dragOver, setDragOver]       = useState(false);
-  const [previewDark, setPreviewDark] = useState(true);
+  const [images, setImages]                   = useState([]);
+  const [brandDescription, setBrandDescription] = useState('');
+  const [phase, setPhase]                     = useState('upload');
+  const [suggestion, setSuggestion]           = useState(null);
+  const [errorMsg, setErrorMsg]               = useState('');
+  const [dragOver, setDragOver]               = useState(false);
+  const [previewDark, setPreviewDark]         = useState(true);
+  const [previewScene, setPreviewScene]       = useState('components');
   const fileRef = useRef(null);
 
   async function addFiles(files) {
@@ -120,6 +221,10 @@ export default function BrandAnalyzer({ onClose, onApply }) {
     setImages(prev => prev.filter((_, i) => i !== idx));
   }
 
+  function editToken(key, value) {
+    setSuggestion(s => ({ ...s, [key]: value }));
+  }
+
   async function analyze() {
     setPhase('analyzing');
     setErrorMsg('');
@@ -127,7 +232,10 @@ export default function BrandAnalyzer({ onClose, onApply }) {
       const res = await fetch('/api/analyze-brand', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ images: images.map(({ data, mediaType }) => ({ data, mediaType })) }),
+        body: JSON.stringify({
+          images: images.map(({ data, mediaType }) => ({ data, mediaType })),
+          brandDescription: brandDescription.trim() || undefined,
+        }),
       });
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error ?? 'Analysis failed');
@@ -167,8 +275,8 @@ export default function BrandAnalyzer({ onClose, onApply }) {
             <div className="ba-title">Analyze Brand</div>
             <div className="ba-subtitle">
               {isLarge
-                ? `${tokenCount} tokens extracted · review before applying`
-                : 'Upload brand images to get AI-suggested design tokens'}
+                ? `${tokenCount} tokens extracted · click any color to edit before applying`
+                : 'Upload brand images and describe your brand for AI-suggested tokens'}
             </div>
           </div>
           <button className="ba-close" onClick={onClose}><X size={15} /></button>
@@ -184,16 +292,16 @@ export default function BrandAnalyzer({ onClose, onApply }) {
               )}
 
               <label
-                className={`ba-dropzone${dragOver ? ' drag-over' : ''}${images.length >= 3 ? ' full' : ''}`}
+                className={`ba-dropzone${dragOver ? ' drag-over' : ''}${images.length >= 5 ? ' full' : ''}`}
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={e => { e.preventDefault(); setDragOver(false); addFiles(e.dataTransfer.files); }}
               >
                 <ImageIcon size={28} className="ba-drop-icon" />
                 <span className="ba-drop-text">
-                  {images.length >= 5 ? 'Maximum 5 images' : 'Drop images here or browse'}
+                  {images.length >= 5 ? 'Maximum 5 images' : 'Drop brand images here or browse'}
                 </span>
-                <span className="ba-drop-hint">Up to 5 images · JPG, PNG, WebP</span>
+                <span className="ba-drop-hint">Up to 5 images · JPG, PNG, WebP — logos, UI screenshots, brand guidelines</span>
                 <input
                   ref={fileRef}
                   type="file"
@@ -229,9 +337,21 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                 </div>
               )}
 
+              {/* Brand description */}
+              <div className="ba-desc-field">
+                <label className="ba-desc-label">Brand description <span className="ba-desc-optional">(optional but helps a lot)</span></label>
+                <textarea
+                  className="ba-desc-textarea"
+                  placeholder={"Describe your brand's personality, industry, and target audience.\n\nExamples:\n• \"Luxury fintech app for high-net-worth investors. Dark, premium, minimal.\"\n• \"Friendly SaaS tool for small business owners. Warm, approachable, light mode.\"\n• \"Bold sports brand targeting Gen Z. High contrast, energetic, dark mode.\""}
+                  value={brandDescription}
+                  onChange={e => setBrandDescription(e.target.value)}
+                  rows={5}
+                />
+              </div>
+
               <button
                 className="ba-analyze-btn"
-                disabled={images.length === 0}
+                disabled={images.length === 0 && !brandDescription.trim()}
                 onClick={analyze}
               >
                 Analyze brand
@@ -256,7 +376,20 @@ export default function BrandAnalyzer({ onClose, onApply }) {
               {/* Left: live preview */}
               <div className="ba-preview-panel">
                 <div className="ba-preview-topbar">
-                  <span>Live Preview</span>
+                  <div className="ba-preview-scenes">
+                    <button
+                      className={`ba-scene-btn${previewScene === 'components' ? ' active' : ''}`}
+                      onClick={() => setPreviewScene('components')}
+                    >
+                      <Layers size={11} /> Components
+                    </button>
+                    <button
+                      className={`ba-scene-btn${previewScene === 'dashboard' ? ' active' : ''}`}
+                      onClick={() => setPreviewScene('dashboard')}
+                    >
+                      <LayoutDashboard size={11} /> Dashboard
+                    </button>
+                  </div>
                   <div className="ba-preview-toggle">
                     <button
                       className={`ba-pt-btn${previewDark ? ' active' : ''}`}
@@ -272,14 +405,23 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                     </button>
                   </div>
                 </div>
-                <div className="ba-preview-body" style={previewVars}>
-                  <ThemePreview />
+                <div
+                  className="ba-preview-body"
+                  style={previewVars}
+                  data-dark={previewDark ? 'true' : undefined}
+                >
+                  {previewScene === 'dashboard'
+                    ? <ThemePreview />
+                    : <ComponentsPreview />
+                  }
                 </div>
               </div>
 
-              {/* Right: token breakdown */}
+              {/* Right: token breakdown (editable) */}
               <div className="ba-tokens-panel">
                 <div className="ba-tokens-scroll">
+
+                  <div className="ba-edit-hint">Click any color swatch to adjust it</div>
 
                   {/* Action Colors */}
                   <div className="ba-tl-section">
@@ -289,9 +431,9 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                       <span>Light mode</span>
                       <span>Dark mode</span>
                     </div>
-                    <DualRow label="Primary"   light={suggestion.brand}     dark={suggestion.brandDm     ?? suggestion.brand}     />
-                    <DualRow label="Secondary" light={suggestion.secondary} dark={suggestion.secondaryDm ?? suggestion.secondary} />
-                    <DualRow label="Tertiary"  light={suggestion.tertiary}  dark={suggestion.tertiaryDm  ?? suggestion.tertiary}  />
+                    <EditableDualRow label="Primary"   lightKey="brand"     darkKey="brandDm"     light={suggestion.brand}     dark={suggestion.brandDm     ?? suggestion.brand}     onEdit={editToken} />
+                    <EditableDualRow label="Secondary" lightKey="secondary" darkKey="secondaryDm" light={suggestion.secondary} dark={suggestion.secondaryDm ?? suggestion.secondary} onEdit={editToken} />
+                    <EditableDualRow label="Tertiary"  lightKey="tertiary"  darkKey="tertiaryDm"  light={suggestion.tertiary}  dark={suggestion.tertiaryDm  ?? suggestion.tertiary}  onEdit={editToken} />
                   </div>
 
                   {/* Semantic Colors */}
@@ -302,10 +444,10 @@ export default function BrandAnalyzer({ onClose, onApply }) {
                       <span>Light mode</span>
                       <span>Dark mode</span>
                     </div>
-                    <DualRow label="Success" light={suggestion.success} dark={suggestion.successDm ?? suggestion.success} />
-                    <DualRow label="Caution" light={suggestion.caution} dark={suggestion.cautionDm ?? suggestion.caution} />
-                    <DualRow label="Error"   light={suggestion.error}   dark={suggestion.errorDm   ?? suggestion.error}   />
-                    <DualRow label="Info"    light={suggestion.info}    dark={suggestion.infoDm    ?? suggestion.info}    />
+                    <EditableDualRow label="Success" lightKey="success" darkKey="successDm" light={suggestion.success} dark={suggestion.successDm ?? suggestion.success} onEdit={editToken} />
+                    <EditableDualRow label="Caution" lightKey="caution" darkKey="cautionDm" light={suggestion.caution} dark={suggestion.cautionDm ?? suggestion.caution} onEdit={editToken} />
+                    <EditableDualRow label="Error"   lightKey="error"   darkKey="errorDm"   light={suggestion.error}   dark={suggestion.errorDm   ?? suggestion.error}   onEdit={editToken} />
+                    <EditableDualRow label="Info"    lightKey="info"    darkKey="infoDm"    light={suggestion.info}    dark={suggestion.infoDm    ?? suggestion.info}    onEdit={editToken} />
                   </div>
 
                   {/* Surfaces & Text */}

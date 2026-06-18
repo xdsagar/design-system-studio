@@ -10,9 +10,11 @@ import {
   ELEVATION_PRESETS,
   computeHoverColor, shadowValues, wcagContrast, generateColorScale,
 } from '../utils/tokens';
-import { exportSkillFile, exportComponentsCss } from '../utils/exportSkill';
+import { buildExportZip } from '../utils/generateExport';
+import { buildCssVars } from '../hooks/useTokens';
+import { STYLE_PRESETS } from '../utils/stylePresets';
 
-const STEPS = ['Colors', 'Type', 'Space', 'Motion', 'Shape', 'Export'];
+const STEPS = ['Intro', 'Colors', 'Type', 'Space', 'Motion', 'Shape', 'Export'];
 
 const COLOR_GROUPS = [
   { key: 'brand',     label: 'Primary',   tokenKey: 'brand',     dmKey: 'brandDm',     hoverTextKey: 'brandHoverText',     dmHoverTextKey: 'brandHoverTextDm',     cssVar: '--ds-brand',     hoverVar: '--ds-brand-hover',     hoverTextVar: '--ds-brand-hover-text'     },
@@ -187,8 +189,9 @@ function HowToUseAccordion() {
   );
 }
 
-export default function Configurator({ tokens, handlers, importedTokens, configCollapsed, onCollapseToggle }) {
+export default function Configurator({ tokens, handlers, importedTokens, configCollapsed, onCollapseToggle, configWidth, isDragging }) {
   const [step, setStep]           = useState(0);
+  const [activePreset, setActivePreset] = useState('studio');
   const colorMode = tokens.darkMode ? 'dark' : 'light';
   const [radiusIdx, setRadiusIdx] = useState(2);
   const [openGroup, setOpenGroup] = useState('brand');
@@ -274,8 +277,61 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     return init;
   }
 
+  function handleApplyPreset(preset) {
+    const merged = { ...defaultTokens, ...preset.tokens };
+    setAllTokens(merged);
+
+    // Sync Colors-step hex input UI state
+    const newHex = {};
+    COLOR_GROUPS.forEach(g => {
+      newHex[`light:${g.tokenKey}`] = merged[g.tokenKey]  || '#000000';
+      newHex[`dark:${g.tokenKey}`]  = merged[g.dmKey] || merged[g.tokenKey] || '#000000';
+    });
+    setHexInputs(newHex);
+
+    const newHoverHex = {};
+    COLOR_GROUPS.forEach(g => {
+      newHoverHex[`light:${g.tokenKey}`] = merged[`${g.tokenKey}Hover`]   || '#000000';
+      newHoverHex[`dark:${g.tokenKey}`]  = merged[`${g.tokenKey}HoverDm`] || merged[`${g.tokenKey}Hover`] || '#000000';
+    });
+    setHoverHexInputs(newHoverHex);
+
+    const newModes = {};
+    COLOR_GROUPS.forEach(g => {
+      if (g.tokenKey === 'ghost') {
+        newModes[`light:${g.tokenKey}`] = 'custom';
+        newModes[`dark:${g.tokenKey}`]  = 'custom';
+        return;
+      }
+      const pairs = [
+        ['light', merged[g.tokenKey],                          `${g.tokenKey}Hover`],
+        ['dark',  merged[g.dmKey] || merged[g.tokenKey],       `${g.tokenKey}HoverDm`],
+      ];
+      for (const [prefix, base, hoverKey] of pairs) {
+        const stored     = merged[hoverKey] || '';
+        const scaleDark  = computeHoverColor(base, 'dark');
+        const scaleLight = computeHoverColor(base, 'light');
+        newModes[`${prefix}:${g.tokenKey}`] =
+          stored === scaleDark  ? 'dark'  :
+          stored === scaleLight ? 'light' :
+          stored                ? 'custom': 'dark';
+      }
+    });
+    setHoverModes(newModes);
+
+    setCoreHexInputsState(Object.fromEntries(merged.coreColors.map(c => [c.id, c.hex])));
+
+    // Approximate radiusIdx from radiusMd
+    const mdVal = merged.radiusMd || '6px';
+    const radiusStops = ['0px','2px','4px','6px','8px','12px','16px','24px','999px'];
+    const idx = radiusStops.indexOf(mdVal);
+    setRadiusIdx(idx >= 0 ? idx : 3);
+
+    setActivePreset(preset.id);
+  }
+
   function handleResetTab() {
-    if (step === 0) {
+    if (step === 1) {
       setBrand(defaultTokens.brand);
       COLOR_GROUPS.forEach(g => {
         if (g.tokenKey !== 'brand') setSemanticColor(g.tokenKey, defaultTokens[g.tokenKey]);
@@ -291,16 +347,16 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       setHoverHexInputs(makeInitHoverHex());
       setHoverModes(makeInitHoverModes());
       setCoreHexInputsState(Object.fromEntries(defaultTokens.coreColors.map(c => [c.id, c.hex])));
-    } else if (step === 1) {
+    } else if (step === 2) {
       setFont('display', defaultTokens.fontDisplay);
       setFont('body', defaultTokens.fontBody);
       setFont('mono', defaultTokens.fontMono);
       setTypeScale(defaultTokens.typeScalePreset);
-    } else if (step === 2) {
-      setSpacingScale(defaultTokens.spacingScale);
     } else if (step === 3) {
-      setMotionPersonality(defaultTokens.motionPersonality);
+      setSpacingScale(defaultTokens.spacingScale);
     } else if (step === 4) {
+      setMotionPersonality(defaultTokens.motionPersonality);
+    } else if (step === 5) {
       setRadius({ sm: defaultTokens.radiusSm, md: defaultTokens.radiusMd, lg: defaultTokens.radiusLg, pill: defaultTokens.radiusPill });
       setBorderStyle(defaultTokens.borderStyle);
       setShadow(defaultTokens.shadow);
@@ -443,18 +499,17 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     setCustomColors(tokens.customColors.filter(c => c.id !== id));
   }
 
-  const [exportingSkill, setExportingSkill] = useState(false);
-  const [exportingCss, setExportingCss]     = useState(false);
+  const [exporting, setExporting] = useState(false);
   const hasName = dsName.trim() !== '';
 
-  async function handleExportSkill() {
-    setExportingSkill(true);
-    try { await exportSkillFile(tokens, dsName.trim()); }
-    finally { setExportingSkill(false); }
-  }
-
-  function handleExportCss() {
-    exportComponentsCss(tokens, dsName.trim());
+  async function handleExport() {
+    if (!hasName || exporting) return;
+    setExporting(true);
+    try {
+      await buildExportZip(tokens, buildCssVars(tokens), dsName.trim());
+    } finally {
+      setExporting(false);
+    }
   }
 
   const allTokenLines = buildAllTokenLines(tokens);
@@ -502,11 +557,73 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
         </button>
       </nav>
 
-      <div className="config-step-area">
+      <div
+        className="config-step-area"
+        style={configCollapsed
+          ? { width: 0 }
+          : { width: configWidth ?? 340, transition: isDragging ? 'none' : undefined }
+        }
+      >
       <div className="config-body">
 
-        {/* ── Step 0: Colors ── */}
+        {/* ── Step 0: Intro ── */}
         {step === 0 && (
+          <div className="config-section intro-step">
+            <div className="intro-header">
+              <h2 className="intro-title">Choose a starting point</h2>
+              <p className="intro-subtitle">
+                Pick a style preset to set your colors, type, motion, and shape — then customize every detail in the following steps.
+              </p>
+            </div>
+
+            <div className="preset-grid">
+              {STYLE_PRESETS.map(preset => {
+                const isActive = activePreset === preset.id;
+                return (
+                  <button
+                    key={preset.id}
+                    className={`preset-card${isActive ? ' preset-card--active' : ''}`}
+                    onClick={() => handleApplyPreset(preset)}
+                    type="button"
+                  >
+                    <div
+                      className="preset-preview"
+                      style={{ background: `linear-gradient(135deg, ${preset.bgColor} 0%, ${preset.bgColor2} 100%)` }}
+                    >
+                      <div
+                        className="preset-fake-btn"
+                        style={{
+                          borderRadius: preset.tokens.radiusMd ?? '6px',
+                          fontFamily: preset.tokens.fontDisplay ?? 'inherit',
+                          background: preset.bgColor,
+                        }}
+                      >
+                        Button
+                      </div>
+                    </div>
+                    <div className="preset-swatches">
+                      {preset.swatches.map((sw, i) => (
+                        <span key={i} className="preset-swatch" style={{ background: sw }} />
+                      ))}
+                    </div>
+                    <div className="preset-info">
+                      <span className="preset-name">{preset.name}</span>
+                      <span className="preset-desc">{preset.tagline}</span>
+                      <div className="preset-tags">
+                        {preset.tags.map(t => <span key={t} className="preset-tag">{t}</span>)}
+                      </div>
+                    </div>
+                    {isActive && <div className="preset-active-dot" />}
+                  </button>
+                );
+              })}
+            </div>
+
+          </div>
+        )}
+
+        {/* ── Step 1: Colors ── */}
+        {step === 1 && (
           <div className="config-section">
 
             <div className="color-mode-switch">
@@ -762,8 +879,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
           </div>
         )}
 
-        {/* ── Step 1: Type ── */}
-        {step === 1 && (
+        {/* ── Step 2: Type ── */}
+        {step === 2 && (
           <div className="config-section">
 
             {/* Font families */}
@@ -864,8 +981,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
           </div>
         )}
 
-        {/* ── Step 2: Space ── */}
-        {step === 2 && (
+        {/* ── Step 3: Space ── */}
+        {step === 3 && (
           <div className="config-section">
 
             <div className="config-group">
@@ -910,8 +1027,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
           </div>
         )}
 
-        {/* ── Step 3: Motion ── */}
-        {step === 3 && (
+        {/* ── Step 4: Motion ── */}
+        {step === 4 && (
           <div className="config-section">
 
             <div className="config-group">
@@ -1032,8 +1149,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
           </div>
         )}
 
-        {/* ── Step 4: Shape ── */}
-        {step === 4 && (
+        {/* ── Step 5: Shape ── */}
+        {step === 5 && (
           <div className="config-section">
 
             <div className="config-group">
@@ -1165,10 +1282,11 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
           </div>
         )}
 
-        {/* ── Step 5: Export ── */}
-        {step === 5 && (
+        {/* ── Step 6: Export ── */}
+        {step === 6 && (
           <div className="config-section">
 
+            {/* Name field */}
             <div className="export-name-field">
               <label className="export-name-label">
                 Design system name <span style={{color:'var(--shell-danger)'}}>*</span>
@@ -1181,28 +1299,73 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                 onChange={e => setDsName(e.target.value)}
               />
               {dsName.trim() === '' && (
-                <span className="export-name-hint">Required — used in the exported files</span>
+                <span className="export-name-hint">Required — sets filenames and labels in the export</span>
               )}
-              <div className="export-download-links">
-                <button
-                  className={`export-dl-link${hasName ? '' : ' disabled'}`}
-                  onClick={hasName ? handleExportCss : undefined}
-                  disabled={!hasName || exportingCss}
-                >
-                  Download component library
-                </button>
-                <button
-                  className={`export-dl-link${hasName ? '' : ' disabled'}`}
-                  onClick={hasName ? handleExportSkill : undefined}
-                  disabled={!hasName || exportingSkill}
-                >
-                  {exportingSkill ? 'Preparing…' : 'Download design system skill file'}
-                </button>
-              </div>
             </div>
 
-            <HowToUseAccordion />
+            {/* Export manifest */}
+            <div className="export-manifest">
+              <div className="export-manifest-title">What's included</div>
+              <div className="export-manifest-files">
+                <div className="export-manifest-group">
+                  <span className="export-file-badge token">TOKEN</span>
+                  <div className="export-manifest-file-list">
+                    <span>tokens.css</span>
+                    <span>tokens.js</span>
+                  </div>
+                </div>
+                <div className="export-manifest-group">
+                  <span className="export-file-badge css">CSS</span>
+                  <div className="export-manifest-file-list">
+                    <span>components.css</span>
+                  </div>
+                </div>
+                <div className="export-manifest-group">
+                  <span className="export-file-badge react">REACT</span>
+                  <div className="export-manifest-file-list">
+                    <span>Button · Input · Badge · Alert</span>
+                    <span>Card · Tabs · Modal · Avatar</span>
+                    <span>Table · Spinner · index.js</span>
+                  </div>
+                </div>
+                <div className="export-manifest-group">
+                  <span className="export-file-badge html">HTML</span>
+                  <div className="export-manifest-file-list">
+                    <span>examples.html</span>
+                  </div>
+                </div>
+                <div className="export-manifest-group">
+                  <span className="export-file-badge skill">AI</span>
+                  <div className="export-manifest-file-list">
+                    <span>CLAUDE.md</span>
+                  </div>
+                </div>
+              </div>
 
+              <button
+                className={`export-dl-btn${hasName && !exporting ? '' : ' disabled'}`}
+                onClick={handleExport}
+                disabled={!hasName || exporting}
+              >
+                {exporting ? (
+                  <>
+                    <span className="export-btn-spinner" />
+                    Building…
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{flexShrink:0}}>
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" x2="12" y1="15" y2="3"/>
+                    </svg>
+                    Download {hasName ? `"${dsName.trim()}"` : 'design system'} (.zip)
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Token output accordion */}
             {(() => {
               const tokenCount = allTokenLines.filter(t => t.key).length;
               return (
@@ -1211,7 +1374,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                     className="token-accordion-trigger"
                     onClick={() => setTokenAccordionOpen(o => !o)}
                   >
-                    <span>Token Output</span>
+                    <span>Token preview</span>
                     <div style={{display:'flex',alignItems:'center',gap:8}}>
                       <span className="token-count-pill">{tokenCount}</span>
                       <ChevronDown size={14} style={{color:'var(--shell-text-2)',transform:tokenAccordionOpen?'rotate(180deg)':'none',transition:'transform .2s',flexShrink:0}} />
@@ -1242,9 +1405,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
               );
             })()}
 
-            <p className="export-desc">
-              Exports a component file you can drop into any project, plus a markdown reference your team can use.
-            </p>
           </div>
         )}
       </div>
@@ -1283,7 +1443,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
         {step > 0 && (
           <button className="nav-btn" onClick={() => setStep(s => s - 1)}>Back</button>
         )}
-        {step < 5 && (
+        {step < 6 && (
           <button className="nav-btn primary" onClick={() => setStep(s => s + 1)} style={{ marginLeft: 'auto' }}>
             Next
           </button>

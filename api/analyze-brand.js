@@ -12,11 +12,21 @@ export default async function handler(req, res) {
     });
   }
 
-  const { images } = req.body ?? {};
-  if (!images?.length) return res.status(400).json({ error: 'No images provided' });
-  if (images.length > 5) return res.status(400).json({ error: 'Maximum 5 images allowed' });
+  const { images, brandDescription } = req.body ?? {};
+  if (!images?.length && !brandDescription?.trim()) return res.status(400).json({ error: 'Provide at least one image or a brand description' });
+  if (images?.length > 5) return res.status(400).json({ error: 'Maximum 5 images allowed' });
 
-  const PROMPT = `You are a senior UI/brand designer generating a complete design token set from brand images.
+  const PROMPT = `You are a senior UI/brand designer generating a complete design token set from brand images and/or a written description.${brandDescription?.trim() ? `
+
+━━━ BRAND CONTEXT FROM USER ━━━
+The user has provided this description of their brand — treat it as high-priority signal that overrides inferences from imagery alone:
+
+"${brandDescription.trim()}"
+
+Use this to calibrate tone (premium vs. friendly), personality (bold vs. minimal), preferred mode (dark vs. light), industry conventions, and color palette direction.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` : ''}
+
+You are a senior UI/brand designer generating a complete design token set.
 
 ━━━ CRITICAL RULE — TEXT ON COLOR (WCAG AA) ━━━
 Semantic colors (brand, secondary, tertiary, success, caution, error, info) are used as SOLID FILL
@@ -140,7 +150,7 @@ Return ONLY valid JSON — no markdown fences, no text outside the JSON object.
         messages: [{
           role: 'user',
           content: [
-            ...images.map(img => ({
+            ...(images ?? []).map(img => ({
               type: 'image',
               source: { type: 'base64', media_type: img.mediaType, data: img.data },
             })),
