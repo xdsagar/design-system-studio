@@ -1158,6 +1158,8 @@ input[type=color] {
   background: var(--ds-surface, #fff);
   color: var(--ds-neutral-800, #1a1a1a);
   font-family: var(--ds-font-body, system-ui, sans-serif);
+  container-type: inline-size;
+  container-name: canvas-scene;
 }
 .canvas-preview-scene--center {
   display: flex; align-items: flex-start; justify-content: center;
@@ -4042,6 +4044,77 @@ input[type=color] {
 [data-dark="true"] .mkt-pricing-sub { color: var(--ds-neutral-600, #9a9a9a); }
 [data-dark="true"] .mkt-blog-card { background: var(--ds-surface-2, #16161e); border-color: rgba(255,255,255,.08); }
 [data-dark="true"] .mkt-blog-title { color: var(--ds-neutral-900, #f9f9f9); }
+
+/* ── Canvas scene: container-query responsive stacking ──────────────────── */
+@container canvas-scene (max-width: 680px) {
+  .mkt-features-grid     { grid-template-columns: 1fr; }
+  .mkt-pricing-grid      { grid-template-columns: 1fr; max-width: 100%; }
+  .mkt-blog-grid         { grid-template-columns: 1fr; }
+  .mkt-features,
+  .mkt-pricing,
+  .mkt-blog              { padding-left: 20px; padding-right: 20px; }
+  .mkt-hero              { padding: 40px 20px 32px; }
+  .mkt-hero-headline     { font-size: clamp(28px, 6vw, 48px); }
+  .mkt-cta-card          { flex-direction: column; gap: 20px; }
+  .tp-stats-grid         { grid-template-columns: repeat(2, 1fr); }
+}
+@container canvas-scene (max-width: 480px) {
+  .mkt-stats-strip       { flex-direction: column; gap: 12px; }
+  .tp-stats-grid         { grid-template-columns: 1fr; }
+}
+
+/* ── Overlay backdrop (appears behind drawer in tablet mode) ────────────── */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  top: 56px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 199;
+}
+
+/* ── Overlay mode: config panel floats over canvas (786–1148px) ─────────── */
+@media (min-width: 786px) and (max-width: 1148px) {
+  .overlay-mode .config-step-area {
+    position: fixed !important;
+    left: 80px !important;
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+    z-index: 200;
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.4);
+    transition: width 0.22s cubic-bezier(.4, 0, .2, 1) !important;
+    overflow-y: auto;
+  }
+  .overlay-mode .config-panel {
+    flex-shrink: 0;
+    width: 80px; /* only the rail takes space in flow */
+  }
+  .config-resize-handle { display: none !important; }
+}
+
+/* ── Small screen gate (< 786px) ───────────────────────────────────────── */
+.small-screen-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 100dvh;
+  padding: 32px;
+  background: var(--shell-bg, #0d0f14);
+  text-align: center;
+}
+.small-screen-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--shell-fg, #f0f0f0);
+}
+.small-screen-msg {
+  font-size: 13px;
+  color: var(--shell-fg-muted, #888);
+  line-height: 1.6;
+  max-width: 280px;
+}
 
 /* ── Intro Step ──────────────────────────────────────────────────────────── */
 .intro-step { display: flex; flex-direction: column; gap: 20px; padding-bottom: 12px; }

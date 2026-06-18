@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Download, Upload, Sun, Moon, Sparkles } from 'lucide-react';
 import { useTokens } from './hooks/useTokens';
 import { deriveBrandTokens } from './utils/tokens';
@@ -73,10 +73,20 @@ export default function App() {
   const [showAnalyzer, setShowAnalyzer]       = useState(false);
   const [showWelcome, setShowWelcome]         = useState(() => !localStorage.getItem(HAS_VISITED_KEY));
   const [importedTokens, setImportedTokens]   = useState(null);
-  const [configCollapsed, setConfigCollapsed] = useState(false);
+  const [configCollapsed, setConfigCollapsed] = useState(() => window.innerWidth < 1149);
   const [showSave, setShowSave]               = useState(false);
   const [configWidth, setConfigWidth]         = useState(340);
   const [isDragging, setIsDragging]           = useState(false);
+  const [windowWidth, setWindowWidth]         = useState(window.innerWidth);
+
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const isSmallScreen  = windowWidth < 786;
+  const isOverlayMode  = windowWidth >= 786 && windowWidth < 1149;
 
   const {
     tokens, cssVars,
@@ -180,8 +190,21 @@ export default function App() {
     document.addEventListener('mouseup',   onUp);
   }, [configWidth]);
 
+  if (isSmallScreen) {
+    return (
+      <div className="small-screen-gate">
+        <LogoMark />
+        <div className="small-screen-title">Design System Studio</div>
+        <p className="small-screen-msg">
+          This tool needs a wider screen to work properly.<br />
+          Open it on a desktop or rotate your tablet to landscape.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className={`app${shellDark ? '' : ' shell-light'}`}>
+    <div className={`app${shellDark ? '' : ' shell-light'}${isOverlayMode ? ' overlay-mode' : ''}`}>
       <header className="app-header">
         <div className="app-logo">
           <LogoMark />
@@ -217,6 +240,9 @@ export default function App() {
       </header>
 
       <main className="app-main">
+        {isOverlayMode && !configCollapsed && (
+          <div className="overlay-backdrop" onClick={() => setConfigCollapsed(true)} />
+        )}
         <Configurator
           tokens={tokens}
           importedTokens={importedTokens}
