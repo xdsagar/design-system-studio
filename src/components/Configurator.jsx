@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Check, X, ChevronDown, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Check, X, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
 import {
   defaultTokens,
   radiusPresets,
   fontDisplayOptions, fontBodyOptions, fontMonoOptions,
-  typeSizeOptions, typeScaleRatioOptions, computeTypeScale,
+  typeScalePresetOptions, TYPE_SCALE_PRESETS,
   spacingScaleOptions, SPACING_SCALES, SPACE_STEP_KEYS,
   MOTION_PRESETS,
   ELEVATION_PRESETS,
@@ -27,7 +27,6 @@ const COLOR_GROUPS = [
 
 const SCALE_STEPS = [10, 20, 30, 40, 50, 60, 70, 80, 90];
 
-const TYPE_SCALE_NAMES = ['2xs','xs','sm','base','md','lg','xl','2xl','3xl','4xl','5xl'];
 
 function toVarName(name) {
   return '--ds-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -93,9 +92,9 @@ function buildAllTokenLines(tokens) {
   return lines;
 }
 
-function WcagBadge({ hex }) {
+function WcagBadge({ hex, compareHex = '#ffffff', onInfoClick }) {
   if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
-  const ratio = wcagContrast(hex, '#ffffff');
+  const ratio = wcagContrast(hex, compareHex);
   const aa  = ratio >= 4.5;
   const aaa = ratio >= 7;
   return (
@@ -104,6 +103,11 @@ function WcagBadge({ hex }) {
       <span className="wcag-ratio">{ratio.toFixed(2)}:1</span>
       <span className={`wcag-pill ${aa  ? 'pass' : 'fail'}`}>AA</span>
       <span className={`wcag-pill ${aaa ? 'pass' : 'fail'}`}>AAA</span>
+      {onInfoClick && (
+        <button className="wcag-info-btn" onClick={onInfoClick} title="What does this mean?">
+          <Info size={11} />
+        </button>
+      )}
     </div>
   );
 }
@@ -198,6 +202,20 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
 
   const [resetOpen, setResetOpen] = useState(false);
   const resetRef = useRef(null);
+  const coreColorsRef = useRef(null);
+  const [wcagInfoData, setWcagInfoData] = useState(null);
+  const [motionDemoPhase, setMotionDemoPhase] = useState('visible');
+
+  function triggerMotionDemo() {
+    setMotionDemoPhase('hidden');
+    requestAnimationFrame(() => requestAnimationFrame(() => setMotionDemoPhase('visible')));
+  }
+
+  function goToTextColor() {
+    const targetId = colorMode === 'dark' ? 'text-primary-dark' : 'text-primary';
+    setOpenCoreGroup(targetId);
+    setTimeout(() => coreColorsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
 
   useEffect(() => {
     if (!resetOpen) return;
@@ -234,9 +252,24 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
   function makeInitHoverModes() {
     const init = {};
     COLOR_GROUPS.forEach(g => {
-      const def = g.tokenKey === 'ghost' ? 'custom' : 'dark';
-      init[`light:${g.tokenKey}`] = def;
-      init[`dark:${g.tokenKey}`]  = def;
+      if (g.tokenKey === 'ghost') {
+        init[`light:${g.tokenKey}`] = 'custom';
+        init[`dark:${g.tokenKey}`]  = 'custom';
+        return;
+      }
+      const pairs = [
+        ['light', defaultTokens[g.tokenKey],                             `${g.tokenKey}Hover`],
+        ['dark',  defaultTokens[g.dmKey] || defaultTokens[g.tokenKey],  `${g.tokenKey}HoverDm`],
+      ];
+      for (const [prefix, base, hoverKey] of pairs) {
+        const stored = defaultTokens[hoverKey] || '';
+        const scaleDark  = computeHoverColor(base, 'dark');
+        const scaleLight = computeHoverColor(base, 'light');
+        init[`${prefix}:${g.tokenKey}`] =
+          stored === scaleDark  ? 'dark'  :
+          stored === scaleLight ? 'light' :
+          stored                ? 'custom': 'dark';
+      }
     });
     return init;
   }
@@ -262,7 +295,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       setFont('display', defaultTokens.fontDisplay);
       setFont('body', defaultTokens.fontBody);
       setFont('mono', defaultTokens.fontMono);
-      setTypeScale(defaultTokens.typeBaseSize, defaultTokens.typeScaleRatio);
+      setTypeScale(defaultTokens.typeScalePreset);
     } else if (step === 2) {
       setSpacingScale(defaultTokens.spacingScale);
     } else if (step === 3) {
@@ -282,7 +315,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     setFont('display', defaultTokens.fontDisplay);
     setFont('body', defaultTokens.fontBody);
     setFont('mono', defaultTokens.fontMono);
-    setTypeScale(defaultTokens.typeBaseSize, defaultTokens.typeScaleRatio);
+    setTypeScale(defaultTokens.typeScalePreset);
     setSpacingScale(defaultTokens.spacingScale);
     setMotionPersonality(defaultTokens.motionPersonality);
     setRadius({ sm: defaultTokens.radiusSm, md: defaultTokens.radiusMd, lg: defaultTokens.radiusLg, pill: defaultTokens.radiusPill });
@@ -341,12 +374,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       } else {
         setSemanticColor(group.dmKey, val);
       }
-      // Auto-compute accessible text color for this background
       const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-      if (htKey) {
-        const contrastOnWhite = wcagContrast(val, '#ffffff');
-        setSemanticColor(htKey, contrastOnWhite >= 4.5 ? '#ffffff' : '#000000');
-      }
+      if (htKey) setSemanticColor(htKey, getTextTokenHex());
     }
   }
 
@@ -358,11 +387,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       const hoverKey = colorMode === 'dark' ? `${group.tokenKey}HoverDm` : `${group.tokenKey}Hover`;
       setSemanticColor(hoverKey, val);
       const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-      if (htKey) {
-        const ratio = wcagContrast(val, '#ffffff');
-        const baseKey = colorMode === 'dark' ? group.dmKey : group.tokenKey;
-        setSemanticColor(htKey, ratio >= 4.5 ? '#ffffff' : (tokens[baseKey] || '#000000'));
-      }
+      if (htKey) setSemanticColor(htKey, getTextTokenHex());
     }
   }
 
@@ -380,9 +405,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     setSemanticColor(hoverKey, computed);
     setHoverModes(m => ({ ...m, [mk]: mode }));
     const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-    if (htKey) {
-      setSemanticColor(htKey, mode === 'light' ? base : '#ffffff');
-    }
+    if (htKey) setSemanticColor(htKey, getTextTokenHex());
   }
 
   function updateCoreColor(id, hex) {
@@ -395,6 +418,12 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
   function getTokenValue(group) {
     const key = colorMode === 'dark' ? group.dmKey : group.tokenKey;
     return tokens[key] || hexInputs[`${colorMode}:${group.tokenKey}`] || tokens[group.tokenKey];
+  }
+
+  function getTextTokenHex() {
+    const id = colorMode === 'dark' ? 'text-primary-dark' : 'text-primary';
+    const core = tokens.coreColors.find(c => c.id === id);
+    return core?.hex || (colorMode === 'dark' ? '#F5F5F5' : '#1E1E1E');
   }
 
   function handleRadius(idx) {
@@ -435,10 +464,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     : allTokenLines;
 
   // Derived type scale for preview
-  const typeScale = computeTypeScale(
-    tokens.typeBaseSize  || 16,
-    tokens.typeScaleRatio || 'perfectFourth',
-  );
+  const typeScale = TYPE_SCALE_PRESETS[tokens.typeScalePreset] || TYPE_SCALE_PRESETS.default;
 
   // Spacing scale values for selected preset
   const spaceVals = SPACING_SCALES[tokens.spacingScale] || SPACING_SCALES.default;
@@ -539,45 +565,68 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                             />
                           </div>
 
-                          <WcagBadge hex={activeHex} />
-
-                          {!isGhost && (() => {
-                            const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-                            const textHex = (htKey && tokens[htKey]) ? tokens[htKey].toLowerCase() : '#ffffff';
-                            const autoText = wcagContrast(activeHex, '#ffffff') >= 4.5 ? '#ffffff' : '#000000';
-                            const isWhite = textHex === '#ffffff';
+                          {(() => {
+                            const textHex   = getTextTokenHex();
+                            const textLabel = colorMode === 'dark' ? 'Text Primary Dark' : 'Text Primary';
+                            const isLight   = wcagContrast(textHex, '#ffffff') < 3;
                             return (
-                              <div className="text-contrast-preview">
-                                <div className="text-contrast-chip" style={{ background: activeHex, color: textHex }}>
-                                  <span className="text-contrast-aa">Aa</span>
-                                  <span className="text-contrast-label">Text on this color</span>
-                                </div>
-                                <div className="text-contrast-toggle">
-                                  <button
-                                    className={`tc-btn${isWhite ? ' active' : ''}`}
-                                    onClick={() => htKey && setSemanticColor(htKey, '#ffffff')}
-                                  >
-                                    <span className="tc-swatch tc-swatch--white" />
-                                    White
-                                    {autoText === '#ffffff' && <span className="tc-auto">Auto</span>}
-                                  </button>
-                                  <button
-                                    className={`tc-btn${!isWhite ? ' active' : ''}`}
-                                    onClick={() => htKey && setSemanticColor(htKey, '#000000')}
-                                  >
-                                    <span className="tc-swatch tc-swatch--black" />
-                                    Black
-                                    {autoText === '#000000' && <span className="tc-auto">Auto</span>}
-                                  </button>
-                                </div>
-                              </div>
+                              <>
+                                <WcagBadge
+                                  hex={activeHex}
+                                  compareHex={textHex}
+                                  onInfoClick={() => setWcagInfoData({
+                                    semanticHex: activeHex,
+                                    semanticLabel: group.label,
+                                    textHex,
+                                    textLabel,
+                                  })}
+                                />
+
+                                {!isGhost && (
+                                  <div className="text-contrast-preview">
+                                    <div className="text-contrast-chip" style={{ background: activeHex, color: textHex }}>
+                                      <span className="text-contrast-aa">Aa</span>
+                                      <span className="text-contrast-label">Text on this color</span>
+                                    </div>
+                                    <div className="tc-info tc-info--link" onClick={goToTextColor} role="button" tabIndex={0}>
+                                      <span className="tc-info-label">Text color</span>
+                                      <div className="tc-info-value">
+                                        <span className="tc-info-swatch" style={{
+                                          background: textHex,
+                                          border: isLight ? '1px solid rgba(128,128,128,.25)' : 'none',
+                                        }} />
+                                        <span>{textLabel}</span>
+                                        <ChevronRight size={11} className="tc-info-chevron" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </>
                             );
                           })()}
 
                           <ColorScaleStrip hex={activeHex} onSwatchClick={copyHexToClipboard} />
 
                           <div>
-                            <div className="config-label" style={{ marginBottom: 6 }}>Hover</div>
+                            {(() => {
+                              // Light mode: always darken — preserves button character.
+                              // Dark mode: pick whichever direction keeps text readable on the hover bg.
+                              // Deep accessible darks (L ≤ 0.16) always win with dark hover here.
+                              let rec = 'Dark';
+                              if (colorMode === 'dark') {
+                                const textHex    = getTextTokenHex();
+                                const scale      = generateColorScale(activeHex);
+                                const darkRatio  = scale?.[70] ? wcagContrast(scale[70],  textHex) : 0;
+                                const lightRatio = scale?.[20] ? wcagContrast(scale[20], textHex) : 0;
+                                rec = darkRatio >= lightRatio ? 'Dark' : 'Light';
+                              }
+                              return (
+                                <div className="hover-label-row">
+                                  <span className="config-label">Hover</span>
+                                  <span className="hover-guideline-chip">{rec} recommended</span>
+                                </div>
+                              );
+                            })()}
                             <div className="hover-radio-list">
                               {(isGhost ? ['custom'] : ['dark', 'light', 'custom']).map(mode => {
                                 const isActive = activeHoverMode === mode;
@@ -630,7 +679,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
               </div>
             </div>
 
-            <div className="color-section dashed">
+            <div className="color-section dashed" ref={coreColorsRef}>
               <div className="color-section-header">
                 <span className="color-section-title">Core Colors</span>
               </div>
@@ -750,33 +799,45 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
 
             {/* Type scale */}
             <div className="config-group">
-              <label className="config-label">Base size</label>
-              <div className="type-size-row">
-                {typeSizeOptions.map(sz => (
+              <label className="config-label">Type scale</label>
+              <p className="config-hint">Fixed 4pt-grid sizes — no irrational ratios, clean values across all steps.</p>
+              <div className="density-card-list">
+                {typeScalePresetOptions.map(o => (
                   <button
-                    key={sz}
-                    className={`type-size-btn ${tokens.typeBaseSize === sz ? 'active' : ''}`}
-                    onClick={() => setTypeScale(sz, null)}
+                    key={o.id}
+                    className={`density-card ${tokens.typeScalePreset === o.id ? 'active' : ''}`}
+                    onClick={() => setTypeScale(o.id)}
                   >
-                    {sz}
+                    <div className="density-card-top">
+                      <span className="density-card-label">{o.label}</span>
+                      <span className="density-card-ref">{o.ref}</span>
+                    </div>
+                    <span className="density-card-desc">{o.desc}</span>
                   </button>
                 ))}
               </div>
             </div>
 
+            {/* Heading preview */}
             <div className="config-group">
-              <label className="config-label">Scale ratio</label>
-              <div className="ratio-card-list">
-                {typeScaleRatioOptions.map(o => (
-                  <button
-                    key={o.id}
-                    className={`ratio-card ${tokens.typeScaleRatio === o.id ? 'active' : ''}`}
-                    onClick={() => setTypeScale(null, o.id)}
-                  >
-                    <span className="ratio-card-label">{o.label}</span>
-                    <span className="ratio-card-ratio">{o.ratio.toFixed(3)}</span>
-                    <span className="ratio-card-desc">{o.desc}</span>
-                  </button>
+              <label className="config-label">Heading preview</label>
+              <div className="heading-preview">
+                {[
+                  { tag: 'H1', step: '4xl', weight: 700 },
+                  { tag: 'H2', step: '3xl', weight: 600 },
+                  { tag: 'H3', step: '2xl', weight: 600 },
+                  { tag: 'H4', step: 'xl',  weight: 600 },
+                ].map(({ tag, step, weight }) => (
+                  <div key={tag} className="heading-preview-row">
+                    <span className="heading-preview-tag">{tag}</span>
+                    <span className="heading-preview-px">{typeScale[step]}px</span>
+                    <span
+                      className="heading-preview-text"
+                      style={{ fontFamily: tokens.fontDisplay, fontSize: typeScale[step], fontWeight: weight }}
+                    >
+                      The quick brown fox
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -785,21 +846,18 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
             <div className="config-group">
               <label className="config-label">Scale preview</label>
               <div className="type-scale-preview">
-                {TYPE_SCALE_NAMES.map(name => {
-                  const px = typeScale[name];
-                  return (
-                    <div key={name} className="type-scale-row">
-                      <span className="type-scale-name">{name}</span>
-                      <span className="type-scale-px">{px}px</span>
-                      <span
-                        className="type-scale-sample"
-                        style={{ fontFamily: tokens.fontBody, fontSize: Math.min(px, 20) }}
-                      >
-                        Aa
-                      </span>
-                    </div>
-                  );
-                })}
+                {Object.entries(typeScale).map(([name, px]) => (
+                  <div key={name} className="type-scale-row">
+                    <span className="type-scale-name">{name}</span>
+                    <span className="type-scale-px">{px}px</span>
+                    <span
+                      className="type-scale-sample"
+                      style={{ fontFamily: tokens.fontBody, fontSize: Math.min(px, 24) }}
+                    >
+                      Aa
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -917,6 +975,60 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
               </div>
             </div>
 
+            {/* Live interaction preview */}
+            <div className="config-group">
+              <label className="config-label">Live preview</label>
+
+              {/* Hover demo — uses CSS custom props so :hover works */}
+              <div className="motion-demo-block">
+                <div className="motion-demo-row-label">
+                  <span className="motion-demo-kind">Hover</span>
+                  <span className="motion-demo-meta">{motionPreset.fast}ms</span>
+                </div>
+                <button
+                  className="motion-demo-hover-btn"
+                  style={{
+                    '--mdur': `${motionPreset.fast}ms`,
+                    '--mease': motionPreset.ease,
+                  }}
+                >
+                  Hover me
+                </button>
+              </div>
+
+              {/* Enter / stagger demo */}
+              <div className="motion-demo-block">
+                <div className="motion-demo-row-label">
+                  <span className="motion-demo-kind">Enter</span>
+                  <span className="motion-demo-meta">{motionPreset.slow}ms · stagger {motionPreset.fast}ms</span>
+                </div>
+                <div className="motion-demo-enter-row">
+                  <div className="motion-demo-cards">
+                    {[0, 1, 2, 3].map(i => (
+                      <div
+                        key={i}
+                        className="motion-demo-card"
+                        style={{
+                          opacity:   motionDemoPhase === 'visible' ? 1 : 0,
+                          transform: motionDemoPhase === 'visible' ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.94)',
+                          transition: motionDemoPhase === 'hidden'
+                            ? 'none'
+                            : [
+                                `opacity   ${motionPreset.slow}ms ${motionPreset.easeEnter} ${i * motionPreset.fast}ms`,
+                                `transform ${motionPreset.slow}ms ${motionPreset.easeEnter} ${i * motionPreset.fast}ms`,
+                              ].join(', '),
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <button className="motion-demo-play-btn" onClick={triggerMotionDemo} title="Replay">
+                    ▶
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         )}
 
@@ -930,15 +1042,14 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                 {radiusPresets.map((p, i) => (
                   <button
                     key={p.label}
-                    className={`radius-box ${radiusIdx === i ? 'selected' : ''}`}
-                    style={{ borderRadius: p.md, background: tokens.brand }}
+                    className={`radius-swatch ${radiusIdx === i ? 'selected' : ''}`}
                     onClick={() => handleRadius(i)}
                     title={p.label}
-                  />
+                  >
+                    <div className="radius-box" style={{ borderRadius: p.md, background: tokens.brand }} />
+                    <span className="radius-swatch-label">{p.label}</span>
+                  </button>
                 ))}
-              </div>
-              <div className="radius-labels">
-                {radiusPresets.map(p => <span key={p.label}>{p.label}</span>)}
               </div>
             </div>
 
@@ -951,10 +1062,22 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                   </button>
                 ))}
               </div>
+              <div className="style-preview-strip">
+                {['solid', 'dashed', 'dotted'].map(s => (
+                  <div
+                    key={s}
+                    className={`style-preview-box ${tokens.borderStyle === s ? 'active' : ''}`}
+                    style={{ borderStyle: s, borderRadius: tokens.radiusMd }}
+                  />
+                ))}
+              </div>
             </div>
 
             <div className="config-group">
-              <label className="config-label">Shadow depth</label>
+              <div className="config-label-row">
+                <label className="config-label">Shadow depth</label>
+                <span className="elev-mode-badge">Best in light mode</span>
+              </div>
               <div className="btn-row">
                 {[['none', 'Flat'], ['sm', 'Subtle'], ['md', 'Raised']].map(([val, label]) => (
                   <button key={val} className={`shape-btn ${tokens.shadow === val ? 'active' : ''}`} onClick={() => setShadow(val)}>
@@ -962,11 +1085,23 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                   </button>
                 ))}
               </div>
+              <div className="style-preview-strip">
+                {[['none', 'Flat'], ['sm', 'Subtle'], ['md', 'Raised']].map(([val]) => (
+                  <div
+                    key={val}
+                    className={`style-preview-box ${tokens.shadow === val ? 'active' : ''}`}
+                    style={{ borderRadius: tokens.radiusMd, boxShadow: shadowValues[val], border: 'none' }}
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Elevation style */}
             <div className="config-group">
-              <label className="config-label">Elevation style</label>
+              <div className="config-label-row">
+                <label className="config-label">Elevation style</label>
+                <span className="elev-mode-badge">Best in light mode</span>
+              </div>
               <p className="config-hint">Controls shadow depth across layers — from flat minimal to dramatic layered depth.</p>
               <div className="elev-card-list">
                 {Object.entries(ELEVATION_PRESETS).map(([id, preset]) => (
@@ -981,29 +1116,49 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                 ))}
               </div>
 
-              {/* 6 shadow level samples */}
-              <div className="elev-samples">
-                {elevShadows.map((shadow, i) => (
-                  <div key={i} className="elev-sample-item">
-                    <div className="elev-sample-box" style={{ boxShadow: shadow }} />
-                    <span className="elev-sample-label">Level {i}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+              {/* Layer depth scene */}
+              <div className="elev-scene">
+                {/* Page label */}
+                <span className="elev-scene-page-tag">Page · L0</span>
 
-            <div className="shape-preview">
-              <div className="shape-preview-card" style={{
-                borderRadius: tokens.radiusLg,
-                borderStyle: tokens.borderStyle,
-                boxShadow: elevShadows[2],
-              }}>
-                <div className="shape-preview-label" style={{ fontFamily: tokens.fontDisplay }}>Preview</div>
-                <button style={{
-                  background: tokens.brand, borderRadius: tokens.radiusMd,
-                  color: '#fff', padding: '7px 16px', border: 'none',
-                  fontFamily: tokens.fontBody, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-                }}>Button</button>
+                {/* Card — L1 */}
+                <div className="elev-scene-card" style={{
+                  borderRadius: tokens.radiusMd,
+                  borderStyle: tokens.borderStyle,
+                  boxShadow: elevShadows[1],
+                }}>
+                  <div className="elev-scene-row">
+                    <div className="elev-scene-avatar" style={{ borderRadius: tokens.radiusSm, background: tokens.brand }} />
+                    <div className="elev-scene-lines">
+                      <div className="elev-scene-line" style={{ width: '70%' }} />
+                      <div className="elev-scene-line" style={{ width: '45%' }} />
+                    </div>
+                  </div>
+                  <span className="elev-scene-tag">Card · L1</span>
+
+                  {/* Dialog — L3 */}
+                  <div className="elev-scene-dialog" style={{
+                    borderRadius: tokens.radiusMd,
+                    borderStyle: tokens.borderStyle,
+                    boxShadow: elevShadows[3],
+                  }}>
+                    <div className="elev-scene-dialog-title" style={{ width: '55%' }} />
+                    <div className="elev-scene-line" style={{ width: '85%', marginBottom: 8 }} />
+                    <div className="elev-scene-dialog-actions">
+                      <div className="elev-scene-dialog-btn ghost" style={{ borderRadius: tokens.radiusSm }} />
+                      <div className="elev-scene-dialog-btn fill" style={{ borderRadius: tokens.radiusSm, background: tokens.brand }} />
+                    </div>
+                    <span className="elev-scene-tag">Dialog · L3</span>
+
+                    {/* Tooltip — L5 */}
+                    <div className="elev-scene-tooltip" style={{
+                      borderRadius: tokens.radiusSm,
+                      boxShadow: elevShadows[5],
+                    }}>
+                      Tooltip · L5
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1146,6 +1301,110 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
         </div>
       )}
       </div>{/* /config-step-area */}
+
+      {/* WCAG info modal */}
+      {wcagInfoData && (() => {
+        const ratio = wcagContrast(wcagInfoData.semanticHex, wcagInfoData.textHex);
+        const aa    = ratio >= 4.5;
+        const aaa   = ratio >= 7;
+        const bgDarkness = wcagContrast(wcagInfoData.semanticHex, '#ffffff');
+        const bgIsDark   = bgDarkness < wcagContrast(wcagInfoData.semanticHex, '#000000');
+        const textIsLight = wcagContrast(wcagInfoData.textHex, '#ffffff') < 3;
+
+        let fixes = [];
+        if (!aa) {
+          const deficit = (4.5 - ratio).toFixed(2);
+          fixes.push({ icon: '↑', text: `You need ${deficit}:1 more to reach AA — the minimum for readable text.` });
+          if (bgIsDark && textIsLight) {
+            fixes.push({ icon: '✦', text: `Both colors are dark. Try a lighter brand color, or lighten your ${wcagInfoData.textLabel} token in Core Colors.` });
+          } else if (!bgIsDark && !textIsLight) {
+            fixes.push({ icon: '✦', text: `Both colors are light. Try a darker brand color, or darken your ${wcagInfoData.textLabel} token in Core Colors.` });
+          } else {
+            fixes.push({ icon: '✦', text: `Increase the contrast gap. Try a ${bgIsDark ? 'lighter' : 'darker'} ${wcagInfoData.semanticLabel} color, or adjust ${wcagInfoData.textLabel} in Core Colors.` });
+          }
+        } else if (!aaa) {
+          const gap = (7 - ratio).toFixed(2);
+          fixes.push({ icon: '↑', text: `Passes AA. ${gap}:1 more would reach AAA — the gold standard for accessibility.` });
+          fixes.push({ icon: '✦', text: `To reach AAA, slightly ${bgIsDark ? 'lighten' : 'darken'} your ${wcagInfoData.semanticLabel} color or adjust ${wcagInfoData.textLabel} in Core Colors.` });
+        } else {
+          fixes.push({ icon: '✓', text: 'Excellent — this pairing exceeds the AAA standard. No changes needed.' });
+        }
+
+        return (
+          <div className="wcag-modal-overlay" onClick={() => setWcagInfoData(null)}>
+            <div className="wcag-modal" onClick={e => e.stopPropagation()}>
+              <div className="wcag-modal-header">
+                <span className="wcag-modal-title">Contrast Check</span>
+                <button className="wcag-modal-close" onClick={() => setWcagInfoData(null)}>✕</button>
+              </div>
+              <div className="wcag-modal-body">
+
+                {/* Score + preview */}
+                <div className="wcag-modal-score-row">
+                  <div className="wcag-modal-preview" style={{ background: wcagInfoData.semanticHex, color: wcagInfoData.textHex }}>
+                    <span className="wcag-preview-aa">Aa</span>
+                    <span className="wcag-preview-label">Sample text</span>
+                  </div>
+                  <div className="wcag-modal-score-block">
+                    <div className={`wcag-modal-ratio ${aaa ? 'aaa' : aa ? 'aa' : 'fail'}`}>
+                      {ratio.toFixed(2)}<span className="wcag-ratio-unit">:1</span>
+                    </div>
+                    <div className="wcag-modal-badges">
+                      <span className={`wcag-pill ${aa  ? 'pass' : 'fail'}`}>AA</span>
+                      <span className={`wcag-pill ${aaa ? 'pass' : 'fail'}`}>AAA</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Color pair */}
+                <div className="wcag-modal-pair">
+                  <div className="wcag-modal-swatch-row">
+                    <span className="wcag-modal-swatch" style={{ background: wcagInfoData.semanticHex }} />
+                    <div>
+                      <div className="wcag-modal-swatch-label">{wcagInfoData.semanticLabel} (background)</div>
+                      <div className="wcag-modal-swatch-value">{wcagInfoData.semanticHex}</div>
+                    </div>
+                  </div>
+                  <div className="wcag-modal-swatch-row">
+                    <span className="wcag-modal-swatch" style={{
+                      background: wcagInfoData.textHex,
+                      border: textIsLight ? '1px solid rgba(128,128,128,.25)' : 'none',
+                    }} />
+                    <div>
+                      <div className="wcag-modal-swatch-label">{wcagInfoData.textLabel} (text)</div>
+                      <div className="wcag-modal-swatch-value">{wcagInfoData.textHex}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Standards reference */}
+                <div className="wcag-modal-levels">
+                  <div className="wcag-modal-level">
+                    <span className={`wcag-pill ${aa ? 'pass' : 'fail'}`}>AA</span>
+                    <span>4.5:1 — minimum for normal text</span>
+                  </div>
+                  <div className="wcag-modal-level">
+                    <span className={`wcag-pill ${aaa ? 'pass' : 'fail'}`}>AAA</span>
+                    <span>7:1 — enhanced / gold standard</span>
+                  </div>
+                </div>
+
+                {/* Actionable fixes */}
+                <div className="wcag-modal-fix">
+                  <div className="wcag-modal-fix-title">How to improve</div>
+                  {fixes.map((f, i) => (
+                    <div key={i} className="wcag-modal-fix-item">
+                      <span className="wcag-fix-icon">{f.icon}</span>
+                      <span>{f.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </aside>
   );
 }

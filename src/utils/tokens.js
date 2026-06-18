@@ -5,68 +5,68 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const defaultTokens = {
-  // ── Primary (Figma Blue)
-  brand:              '#0D99FF',
+  // ── Primary — chosen so dark text (#1E1E1E) on bg passes WCAG AA in light mode
+  brand:              '#0D99FF',  // 5.74:1 with #1E1E1E ✓
   brandDark:          '#0B7FD4',
   brandLight:         '#E5F4FF',
-  brandDm:            '#0D99FF',
+  brandDm:            '#005FA3',  // 6.01:1 with #F5F5F5 ✓
   neutral:            '#1E293B',
 
-  // ── Semantic – light mode
-  secondary:          '#7B61FF',
-  tertiary:           '#1BC47D',
+  // ── Semantic – light mode (all ≥ 4.5:1 with text-primary #1E1E1E)
+  secondary:          '#9575FF',  // 5.02:1 ✓  (was #7B61FF = 4.0 — failed)
+  tertiary:           '#1BC47D',  // 7.41:1 ✓
   ghost:              '#666666',
-  success:            '#14AE5C',
-  caution:            '#FFA629',
-  error:              '#F24822',
-  info:               '#0D99FF',
+  success:            '#14AE5C',  // 5.82:1 ✓
+  caution:            '#FFA629',  // 8.59:1 ✓
+  error:              '#F24822',  // 4.66:1 ✓
+  info:               '#0D99FF',  // 5.74:1 ✓
 
-  // ── Semantic – dark mode
-  secondaryDm:        '#9B80FF',
-  tertiaryDm:         '#34D47E',
+  // ── Semantic – dark mode (all ≥ 4.5:1 with text-primary-dark #F5F5F5)
+  secondaryDm:        '#5527B8',  // 8.03:1 ✓  (was #9B80FF — failed)
+  tertiaryDm:         '#0D7A47',  // 4.90:1 ✓  (was #34D47E — failed)
   ghostDm:            '#9A9A9A',
-  successDm:          '#1BC47D',
-  cautionDm:          '#FFB74D',
-  errorDm:            '#FF6B4A',
-  infoDm:             '#3BAFF5',
+  successDm:          '#0D7A47',  // 4.90:1 ✓  (was #1BC47D — failed)
+  cautionDm:          '#854600',  // 6.64:1 ✓  (was #FFB74D — failed)
+  errorDm:            '#AE2020',  // 6.33:1 ✓  (was #FF6B4A — failed)
+  infoDm:             '#005FA3',  // 6.01:1 ✓  (was #3BAFF5 — failed)
 
-  // ── Hover – light mode
-  brandHover:         '#0B7FD4',
-  secondaryHover:     '#604CC7',
-  tertiaryHover:      '#0F9E63',
-  ghostHover:         '#F5F5F5',
-  successHover:       '#0D9150',
-  cautionHover:       '#E8891A',
-  errorHover:         '#C83A1C',
-  infoHover:          '#0B7FD4',
+  // ── Hover – light mode (scale[70]: dark hover recommended in light mode)
+  brandHover:         '#0a77c7',
+  secondaryHover:     '#745bc7',
+  tertiaryHover:      '#159962',
+  ghostHover:         '#505050',
+  successHover:       '#108848',
+  cautionHover:       '#c78120',
+  errorHover:         '#bd381b',
+  infoHover:          '#0a77c7',
 
-  // ── Hover – dark mode
-  brandHoverDm:       '#50B7FF',
-  secondaryHoverDm:   '#8A70FF',
-  tertiaryHoverDm:    '#1BC47D',
-  ghostHoverDm:       '#333333',
-  successHoverDm:     '#14AE5C',
-  cautionHoverDm:     '#FFA629',
-  errorHoverDm:       '#F24822',
-  infoHoverDm:        '#0D99FF',
+  // ── Hover – dark mode (scale[70]: dark hover recommended — deep colors stay deep on hover)
+  brandHoverDm:       '#004a7f',
+  secondaryHoverDm:   '#421e90',
+  tertiaryHoverDm:    '#0a5f37',
+  ghostHoverDm:       '#787878',
+  successHoverDm:     '#0a5f37',
+  cautionHoverDm:     '#683700',
+  errorHoverDm:       '#881919',
+  infoHoverDm:        '#004a7f',
 
-  // ── Hover text – light mode
-  brandHoverText:     '#ffffff',
-  secondaryHoverText: '#ffffff',
-  tertiaryHoverText:  '#ffffff',
-  successHoverText:   '#ffffff',
-  cautionHoverText:   '#ffffff',
-  errorHoverText:     '#ffffff',
-  infoHoverText:      '#ffffff',
+  // ── Hover text (overridden in buildCssVars from core text token — kept for export compat)
+  brandHoverText:     '#1E1E1E',
+  secondaryHoverText: '#1E1E1E',
+  tertiaryHoverText:  '#1E1E1E',
+  successHoverText:   '#1E1E1E',
+  cautionHoverText:   '#1E1E1E',
+  errorHoverText:     '#1E1E1E',
+  infoHoverText:      '#1E1E1E',
 
   // ── Hover text – dark mode
-  brandHoverTextDm:     '#ffffff',
-  secondaryHoverTextDm: '#ffffff',
-  tertiaryHoverTextDm:  '#ffffff',
-  successHoverTextDm:   '#ffffff',
-  cautionHoverTextDm:   '#1A1A1A',
-  errorHoverTextDm:     '#ffffff',
-  infoHoverTextDm:      '#ffffff',
+  brandHoverTextDm:     '#F5F5F5',
+  secondaryHoverTextDm: '#F5F5F5',
+  tertiaryHoverTextDm:  '#F5F5F5',
+  successHoverTextDm:   '#F5F5F5',
+  cautionHoverTextDm:   '#F5F5F5',
+  errorHoverTextDm:     '#F5F5F5',
+  infoHoverTextDm:      '#F5F5F5',
 
   coreColors: [
     { id: 'neutral',           label: 'Neutral',           hex: '#808080' },
@@ -85,13 +85,12 @@ export const defaultTokens = {
   customColors: [],
 
   // ── Typography
-  fontDisplay:    'Georgia, serif',
-  fontBody:       'system-ui, sans-serif',
-  fontMono:       "'Fira Code', 'Cascadia Code', 'Menlo', monospace",
+  fontDisplay:      "'Plus Jakarta Sans', sans-serif",
+  fontBody:         "'Inter', sans-serif",
+  fontMono:         "'JetBrains Mono', monospace",
 
-  // ── Type scale
-  typeBaseSize:   16,                // px — the base (md) size
-  typeScaleRatio: 'perfectFourth',   // which modular scale ratio to use
+  // ── Type scale (4pt-grid preset)
+  typeScalePreset:  'default',
 
   // ── Shape
   radiusSm:    '6px',
@@ -136,41 +135,29 @@ export const spacingScaleOptions = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TYPE SCALE — modular scale ratios
+// TYPE SCALE — fixed 4pt-grid presets
+// Steps: 2xs / xs / sm / base / md / lg / xl / 2xl / 3xl / 4xl / 5xl
 // ─────────────────────────────────────────────────────────────────────────────
-export const TYPE_SCALE_RATIOS = {
-  minorThird:    1.200,
-  majorThird:    1.250,
-  perfectFourth: 1.333,
-  goldenRatio:   1.618,
+export const TYPE_SCALE_PRESETS = {
+  compact:     { '2xs': 10, 'xs': 11, 'sm': 12, 'base': 14, 'md': 16, 'lg': 20, 'xl': 24, '2xl': 28, '3xl': 32, '4xl': 40, '5xl': 48 },
+  default:     { '2xs': 10, 'xs': 12, 'sm': 14, 'base': 16, 'md': 20, 'lg': 24, 'xl': 28, '2xl': 32, '3xl': 40, '4xl': 48, '5xl': 56 },
+  comfortable: { '2xs': 12, 'xs': 14, 'sm': 16, 'base': 18, 'md': 20, 'lg': 24, 'xl': 32, '2xl': 40, '3xl': 48, '4xl': 56, '5xl': 64 },
+  editorial:   { '2xs': 12, 'xs': 14, 'sm': 16, 'base': 20, 'md': 24, 'lg': 32, 'xl': 40, '2xl': 48, '3xl': 56, '4xl': 64, '5xl': 72 },
 };
 
-export const typeScaleRatioOptions = [
-  { id: 'minorThird',    label: 'Minor Third',     ratio: 1.200, desc: 'Compact — subtle hierarchy, great for dense UIs' },
-  { id: 'majorThird',    label: 'Major Third',     ratio: 1.250, desc: 'Balanced — clean and professional' },
-  { id: 'perfectFourth', label: 'Perfect Fourth',  ratio: 1.333, desc: 'Expressive — strong hierarchy, most SaaS apps' },
-  { id: 'goldenRatio',   label: 'Golden Ratio',    ratio: 1.618, desc: 'Dramatic — editorial and marketing-heavy' },
+export const typeScalePresetOptions = [
+  { id: 'compact',     label: 'Compact',     desc: 'Dense labels and data-heavy UIs',     ref: 'Figma, Linear'    },
+  { id: 'default',     label: 'Default',     desc: 'Balanced hierarchy for most products', ref: 'Stripe, GitHub'   },
+  { id: 'comfortable', label: 'Comfortable', desc: 'Generous spacing, modern B2B SaaS',   ref: 'Notion, Vercel'   },
+  { id: 'editorial',   label: 'Editorial',   desc: 'Large expressive display hierarchy',   ref: 'Apple, Awwwards'  },
 ];
 
-export const typeSizeOptions = [13, 14, 15, 16, 17, 18, 20];
-
-// Computes all 11 type scale steps from a base size and ratio
-export function computeTypeScale(baseSize, ratioKey) {
-  const r = TYPE_SCALE_RATIOS[ratioKey] || TYPE_SCALE_RATIOS.perfectFourth;
-  const b = baseSize || 16;
-  return {
-    '2xs': Math.max(9,  Math.round(b / r / r / r)),
-    'xs':  Math.max(10, Math.round(b / r / r)),
-    'sm':  Math.max(11, Math.round(b / r)),
-    'base': b,
-    'md':  Math.round(b * r),
-    'lg':  Math.round(b * r * r),
-    'xl':  Math.round(b * r * r * r),
-    '2xl': Math.round(b * r * r * r * r),
-    '3xl': Math.round(b * r * r * r * r * r),
-    '4xl': Math.round(b * r * r * r * r * r * r),
-    '5xl': Math.round(b * r * r * r * r * r * r * r),
-  };
+export function computeTypeScale(baseSize, ratioOrPreset) {
+  const preset = TYPE_SCALE_PRESETS[ratioOrPreset];
+  if (preset) return preset;
+  // Legacy fallback — keep backward compat if a ratio key was stored
+  const scale = TYPE_SCALE_PRESETS.default;
+  return scale;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -308,11 +295,10 @@ export const ELEVATION_PRESETS = {
 // Radius presets
 // ─────────────────────────────────────────────────────────────────────────────
 export const radiusPresets = [
-  { label: 'Sharp',   sm: '0px',   md: '0px',   lg: '0px',   pill: '4px'   },
-  { label: 'Subtle',  sm: '3px',   md: '5px',   lg: '8px',   pill: '999px' },
-  { label: 'Rounded', sm: '6px',   md: '10px',  lg: '16px',  pill: '999px' },
-  { label: 'Soft',    sm: '8px',   md: '14px',  lg: '22px',  pill: '999px' },
-  { label: 'Pill',    sm: '999px', md: '999px', lg: '999px', pill: '999px' },
+  { label: 'Sharp',   sm: '0px',  md: '0px',   lg: '0px',   pill: '4px'   },
+  { label: 'Subtle',  sm: '3px',  md: '5px',   lg: '8px',   pill: '999px' },
+  { label: 'Rounded', sm: '6px',  md: '10px',  lg: '16px',  pill: '999px' },
+  { label: 'Soft',    sm: '8px',  md: '14px',  lg: '22px',  pill: '999px' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -332,32 +318,47 @@ export const neutralSwatches = [
   { hex: '#2a1f1f', label: 'Mahogany'  },
 ];
 
-export const fontDisplayOptions = [
-  { label: 'Georgia (serif)',         value: 'Georgia, serif'                 },
-  { label: 'Playfair Display',        value: "'Playfair Display', serif"      },
-  { label: 'DM Serif Display',        value: "'DM Serif Display', serif"      },
-  { label: 'System UI (sans)',        value: 'system-ui, sans-serif'          },
-  { label: 'DM Sans',                 value: "'DM Sans', sans-serif"          },
-  { label: 'Space Grotesk',           value: "'Space Grotesk', sans-serif"    },
-  { label: 'Fraunces',                value: "'Fraunces', serif"              },
-  { label: 'Monospace',               value: 'monospace'                      },
+// ── Sans-serif options (display + body use the same pool; body omits purely decorative picks)
+const SANS = [
+  { label: 'Inter',             value: "'Inter', sans-serif"             },
+  { label: 'Plus Jakarta Sans', value: "'Plus Jakarta Sans', sans-serif" },
+  { label: 'DM Sans',           value: "'DM Sans', sans-serif"           },
+  { label: 'Space Grotesk',     value: "'Space Grotesk', sans-serif"     },
+  { label: 'Outfit',            value: "'Outfit', sans-serif"            },
+  { label: 'Poppins',           value: "'Poppins', sans-serif"           },
+  { label: 'Work Sans',         value: "'Work Sans', sans-serif"         },
+  { label: 'Figtree',           value: "'Figtree', sans-serif"           },
+  { label: 'Manrope',           value: "'Manrope', sans-serif"           },
+  { label: 'Sora',              value: "'Sora', sans-serif"              },
+  { label: 'Nunito',            value: "'Nunito', sans-serif"            },
+  { label: 'Lexend',            value: "'Lexend', sans-serif"            },
+  { label: 'Be Vietnam Pro',    value: "'Be Vietnam Pro', sans-serif"    },
+  { label: 'Open Sans',         value: "'Open Sans', sans-serif"         },
+  { label: 'Source Sans 3',     value: "'Source Sans 3', sans-serif"     },
+  { label: 'IBM Plex Sans',     value: "'IBM Plex Sans', sans-serif"     },
+  { label: 'System UI',         value: 'system-ui, sans-serif'           },
 ];
 
-export const fontBodyOptions = [
-  { label: 'System UI',               value: 'system-ui, sans-serif'          },
-  { label: 'DM Sans',                 value: "'DM Sans', sans-serif"          },
-  { label: 'Inter',                   value: "'Inter', sans-serif"            },
-  { label: 'IBM Plex Sans',           value: "'IBM Plex Sans', sans-serif"    },
-  { label: 'Georgia',                 value: 'Georgia, serif'                 },
-  { label: 'IBM Plex Mono',           value: "'IBM Plex Mono', monospace"     },
+const SERIFS = [
+  { label: 'Playfair Display',  value: "'Playfair Display', serif"       },
+  { label: 'DM Serif Display',  value: "'DM Serif Display', serif"       },
+  { label: 'Fraunces',          value: "'Fraunces', serif"               },
+  { label: 'Lora',              value: "'Lora', serif"                   },
+  { label: 'Georgia',           value: 'Georgia, serif'                  },
 ];
+
+export const fontDisplayOptions = [...SANS, ...SERIFS];
+
+export const fontBodyOptions = SANS; // serifs excluded for body by convention
 
 export const fontMonoOptions = [
-  { label: 'Fira Code',               value: "'Fira Code', 'Cascadia Code', 'Menlo', monospace" },
-  { label: 'JetBrains Mono',          value: "'JetBrains Mono', 'Fira Code', monospace"         },
-  { label: 'IBM Plex Mono',           value: "'IBM Plex Mono', monospace"                       },
-  { label: 'Cascadia Code',           value: "'Cascadia Code', 'Fira Code', monospace"           },
-  { label: 'System Mono',             value: "'Menlo', 'Monaco', 'Courier New', monospace"      },
+  { label: 'JetBrains Mono',    value: "'JetBrains Mono', monospace"                      },
+  { label: 'Fira Code',         value: "'Fira Code', monospace"                           },
+  { label: 'IBM Plex Mono',     value: "'IBM Plex Mono', monospace"                       },
+  { label: 'Source Code Pro',   value: "'Source Code Pro', monospace"                     },
+  { label: 'Roboto Mono',       value: "'Roboto Mono', monospace"                         },
+  { label: 'Space Mono',        value: "'Space Mono', monospace"                          },
+  { label: 'System Mono',       value: "'Menlo', 'Monaco', 'Courier New', monospace"      },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

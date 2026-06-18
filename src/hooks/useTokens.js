@@ -3,7 +3,7 @@ import {
   defaultTokens, deriveBrandTokens, shadowValues, darkOverrides,
   generateColorScale, lighten, rgbToHex,
   SPACING_SCALES, SPACE_STEP_KEYS,
-  TYPE_SCALE_RATIOS, computeTypeScale,
+  TYPE_SCALE_PRESETS,
   MOTION_PRESETS,
   ELEVATION_PRESETS,
 } from '../utils/tokens';
@@ -40,6 +40,11 @@ export function buildCssVars(tokens) {
   const dangerHex  = m('error',   'errorDm');
   const infoHex    = m('info',    'infoDm');
 
+  // Text on semantic colors always tracks the core text token, not a stored white/black value.
+  const textOnColor = isDark
+    ? (findCore('text-primary-dark') || '#F5F5F5')
+    : (findCore('text-primary')      || '#1E1E1E');
+
   const bgDarkHex   = findCore('bg-dark') || darkOverrides.surface;
   const surfaceHex  = isDark ? bgDarkHex                              : (findCore('surface')  || '#fff');
   const surface1Hex = isDark ? rgbToHex(lighten(bgDarkHex, 0.065))   : (findCore('bg-light') || '#F5F5F5');
@@ -58,29 +63,29 @@ export function buildCssVars(tokens) {
     '--ds-brand-dark':           derived.brandDark,
     '--ds-brand-light':          derived.brandLight,
     '--ds-brand-hover':          m('brandHover',         'brandHoverDm'),
-    '--ds-brand-hover-text':     m('brandHoverText',     'brandHoverTextDm'),
+    '--ds-brand-hover-text':     textOnColor,
     '--ds-secondary':            m('secondary',          'secondaryDm'),
     '--ds-secondary-hover':      m('secondaryHover',     'secondaryHoverDm'),
-    '--ds-secondary-hover-text': m('secondaryHoverText', 'secondaryHoverTextDm'),
+    '--ds-secondary-hover-text': textOnColor,
     '--ds-tertiary':             m('tertiary',           'tertiaryDm'),
     '--ds-tertiary-hover':       m('tertiaryHover',      'tertiaryHoverDm'),
-    '--ds-tertiary-hover-text':  m('tertiaryHoverText',  'tertiaryHoverTextDm'),
+    '--ds-tertiary-hover-text':  textOnColor,
     '--ds-ghost':                m('ghost',              'ghostDm'),
     '--ds-ghost-hover':          m('ghostHover',         'ghostHoverDm'),
 
     // ── Color: semantic
     '--ds-success':              successHex,
     '--ds-success-hover':        m('successHover',       'successHoverDm'),
-    '--ds-success-hover-text':   m('successHoverText',   'successHoverTextDm'),
+    '--ds-success-hover-text':   textOnColor,
     '--ds-warning':              warnHex,
     '--ds-warning-hover':        m('cautionHover',       'cautionHoverDm'),
-    '--ds-warning-hover-text':   m('cautionHoverText',   'cautionHoverTextDm'),
+    '--ds-warning-hover-text':   textOnColor,
     '--ds-danger':               dangerHex,
     '--ds-danger-hover':         m('errorHover',         'errorHoverDm'),
-    '--ds-danger-hover-text':    m('errorHoverText',     'errorHoverTextDm'),
+    '--ds-danger-hover-text':    textOnColor,
     '--ds-info':                 infoHex,
     '--ds-info-hover':           m('infoHover',          'infoHoverDm'),
-    '--ds-info-hover-text':      m('infoHoverText',      'infoHoverTextDm'),
+    '--ds-info-hover-text':      textOnColor,
 
     // ── Color: semantic tints (badges, alerts, callouts)
     '--ds-success-subtle':       subtle(successHex),
@@ -155,11 +160,8 @@ export function buildCssVars(tokens) {
     '--ds-z-tooltip':  '700',
   };
 
-  // ── Type scale (modular — derived from base size + ratio)
-  const typeScale = computeTypeScale(
-    tokens.typeBaseSize  || 16,
-    tokens.typeScaleRatio || 'perfectFourth',
-  );
+  // ── Type scale (fixed 4pt-grid preset)
+  const typeScale = TYPE_SCALE_PRESETS[tokens.typeScalePreset] || TYPE_SCALE_PRESETS.default;
   Object.entries(typeScale).forEach(([name, size]) => {
     vars[`--ds-text-${name}`] = size + 'px';
   });
@@ -244,12 +246,8 @@ export function useTokens() {
     else if (type === 'mono') setTokens(t => ({ ...t, fontMono: value }));
   }, []);
 
-  const setTypeScale = useCallback((baseSize, ratioKey) => {
-    setTokens(t => ({
-      ...t,
-      ...(baseSize  != null ? { typeBaseSize:   baseSize  } : {}),
-      ...(ratioKey  != null ? { typeScaleRatio: ratioKey  } : {}),
-    }));
+  const setTypeScale = useCallback((preset) => {
+    setTokens(t => ({ ...t, typeScalePreset: preset }));
   }, []);
 
   const setSpacingScale = useCallback((scale) => {

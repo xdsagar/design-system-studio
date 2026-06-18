@@ -20,11 +20,11 @@ export default function WelcomeModal({ onClose, onAnalyze, onImport }) {
             <LogoIcon />
           </div>
           <h1 className="welcome-headline">
-            Build systems that<br />
-            <span>compete.</span>
+            Your design system,<br />
+            <span>beautifully built.</span>
           </h1>
           <p className="welcome-sub">
-            The professional token builder for founding teams who believe design is a competitive advantage.
+            Configure tokens, preview across real product layouts, and export to CSS, Tailwind, or Figma — all in one place.
           </p>
         </div>
 

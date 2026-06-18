@@ -137,7 +137,6 @@ export default function App() {
           <LogoMark />
           <div className="logo-wordmark">
             <span className="logo-name">Design System Studio</span>
-            <span className="logo-tag">Token builder &amp; exporter</span>
           </div>
         </div>
 
