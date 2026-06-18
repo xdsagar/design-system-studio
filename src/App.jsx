@@ -8,6 +8,7 @@ import ImportModal from './components/ImportModal';
 import BrandAnalyzer from './components/BrandAnalyzer';
 import WelcomeModal from './components/WelcomeModal';
 import SaveModal from './components/SaveModal';
+import GuideModal from './components/GuideModal';
 import { downloadTemplate } from './utils/tokenTemplate';
 import './index.css';
 
@@ -75,6 +76,7 @@ export default function App() {
   const [importedTokens, setImportedTokens]   = useState(null);
   const [configCollapsed, setConfigCollapsed] = useState(() => window.innerWidth < 1149);
   const [showSave, setShowSave]               = useState(false);
+  const [showGuide, setShowGuide]             = useState(false);
   const [configWidth, setConfigWidth]         = useState(340);
   const [isDragging, setIsDragging]           = useState(false);
   const [windowWidth, setWindowWidth]         = useState(window.innerWidth);
@@ -213,9 +215,15 @@ export default function App() {
           </div>
         </div>
 
-        <button className="save-progress-link" onClick={() => setShowSave(true)}>
-          Save your progress?
-        </button>
+        <div className="header-center-links">
+          <button className="save-progress-link" onClick={() => setShowGuide(true)}>
+            Guide
+          </button>
+          <span className="header-links-sep">|</span>
+          <button className="save-progress-link" onClick={() => setShowSave(true)}>
+            Save your progress?
+          </button>
+        </div>
 
         <div className="app-meta">
           <button
@@ -294,6 +302,10 @@ export default function App() {
           onAnalyze={handleWelcomeAnalyze}
           onImport={handleWelcomeImport}
         />
+      )}
+
+      {showGuide && (
+        <GuideModal onClose={() => setShowGuide(false)} />
       )}
 
       {showSave && (
