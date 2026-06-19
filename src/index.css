@@ -4800,3 +4800,32 @@ input[type=color] {
   padding-top: 20px;
   border-top: 0.5px solid var(--shell-border-2);
 }
+
+/* ── Guide audience callout ───────────────────────────────── */
+.guide-audience-callout {
+  background: var(--shell-surface-2);
+  border-left: 3px solid var(--shell-accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  font-size: 12.5px; line-height: 1.6; color: var(--shell-text-2);
+  margin-bottom: 16px;
+}
+.guide-audience-callout strong { color: var(--shell-text); }
+.guide-audience-callout em { color: var(--shell-text); font-style: italic; }
+
+/* ── Export Claude hint ───────────────────────────────────── */
+.export-claude-hint {
+  background: var(--shell-surface-2);
+  border-left: 3px solid var(--shell-accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  font-size: 12px; line-height: 1.65; color: var(--shell-text-2);
+  margin-top: 4px;
+}
+.export-claude-hint-label {
+  display: block; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--shell-accent); margin-bottom: 5px;
+}
+.export-claude-hint em { font-style: italic; color: var(--shell-text); }
+.export-claude-hint strong { color: var(--shell-text); }

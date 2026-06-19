@@ -96,16 +96,19 @@ export default function GuideModal({ onClose, onStartTour }) {
           <div className="guide-content" ref={contentRef}>
 
             <Section id="overview" title="Overview">
-              <p>Design System Studio is a browser-based design token configurator. You define the visual language of your product — colors, typography, spacing, motion, shape — then preview it live across real product layouts before exporting production-ready code.</p>
+              <div className="guide-audience-callout">
+                <strong>New to this?</strong> A design system is simply a set of visual decisions for your app — what colors it uses, what fonts, how rounded the buttons are, how things move. This tool helps you make those decisions visually, then packages them into a file you (or Claude) can use directly. No coding required to get started.
+              </div>
+              <p>Design System Studio is a browser-based visual style configurator. You define the look and feel of your product — colors, typography, spacing, motion, shape — then preview it live across real product layouts before exporting a complete, production-ready style guide.</p>
               <p>The tool is split into two main areas:</p>
               <ul>
-                <li><strong>Configurator panel</strong> (left) — 7 steps that walk you through every dimension of your design system</li>
-                <li><strong>Canvas</strong> (right) — live preview of your tokens applied to real UI: components, a marketing page, a dashboard, and a mobile screen</li>
+                <li><strong>Configurator panel</strong> (left) — 7 steps that walk you through every visual dimension of your design system</li>
+                <li><strong>Canvas</strong> (right) — live preview of your style applied to real UI: components, a marketing page, a dashboard, and a mobile screen</li>
               </ul>
               <div className="guide-quickstart">
                 <div className="guide-qs-step"><span className="guide-qs-num">1</span><span>Pick a style preset or analyze your brand with AI on the Intro step</span></div>
-                <div className="guide-qs-step"><span className="guide-qs-num">2</span><span>Walk through each step to fine-tune colors, type, spacing, motion, and shape</span></div>
-                <div className="guide-qs-step"><span className="guide-qs-num">3</span><span>Watch the canvas update live, then export your design system as a ZIP</span></div>
+                <div className="guide-qs-step"><span className="guide-qs-num">2</span><span>Walk through each step to fine-tune colors, fonts, spacing, motion, and shape</span></div>
+                <div className="guide-qs-step"><span className="guide-qs-num">3</span><span>Watch the canvas update live, then download your style guide as a ZIP</span></div>
               </div>
             </Section>
 
@@ -181,21 +184,25 @@ export default function GuideModal({ onClose, onStartTour }) {
             </Section>
 
             <Section id="export" title="Export Step">
-              <p>The final step packages your complete design system into a downloadable ZIP.</p>
+              <p>The final step packages your complete style guide into a downloadable ZIP file.</p>
               <h3 className="guide-h3">Naming your system</h3>
-              <p>Enter a name (e.g. "Acme Design System") — this sets the filenames, CSS comments, and labels throughout the export.</p>
+              <p>Give your design system a name (e.g. "Acme Design System") — this sets the filenames and labels throughout the export.</p>
+              <h3 className="guide-h3">Using your export with Claude</h3>
+              <div className="guide-audience-callout">
+                After downloading, open Claude and say: <em>"I've attached my design system — use it for everything you build for me."</em> Then attach the <strong>CLAUDE.md</strong> file from inside the ZIP. Claude will follow your exact colors, fonts, and style from that point on — every component it builds will match your visual choices.
+              </div>
               <h3 className="guide-h3">What's in the ZIP</h3>
               <ul>
-                <li><strong>tokens.css</strong> — all <code>--ds-*</code> CSS custom properties as a <code>:root</code> block. Import once at your app root.</li>
-                <li><strong>tokens.js</strong> — the same tokens as a JavaScript object, with helper functions (<code>token()</code>, <code>v()</code>)</li>
-                <li><strong>components.css</strong> — a full component library (buttons, inputs, badges, cards, tables, modals…) built entirely on <code>var(--ds-*)</code> tokens</li>
-                <li><strong>react/</strong> — 10 React components (Button, Input, Badge, Alert, Card, Tabs, Modal, Avatar, Table, Spinner) with a barrel <code>index.js</code></li>
-                <li><strong>html-css/examples.html</strong> — a standalone HTML file you can open in any browser to see all components rendered</li>
-                <li><strong>CLAUDE.md</strong> — an AI skill file that teaches Claude Code your exact token values, so any AI-assisted code it writes stays on-brand automatically</li>
+                <li><strong>CLAUDE.md</strong> — the most important file if you're using AI. Teaches Claude your exact style so it stays consistent across every screen it builds</li>
+                <li><strong>tokens.css</strong> — all your style settings as CSS variables. Drop this into any web project and everything inherits your colors, fonts, and spacing automatically</li>
+                <li><strong>tokens.js</strong> — the same settings as a JavaScript object, for use in React and Node projects</li>
+                <li><strong>components.css</strong> — a full set of ready-to-use component styles (buttons, inputs, cards, tables, modals…) built on your tokens</li>
+                <li><strong>react/</strong> — 10 ready-to-use React components (Button, Input, Badge, Alert, Card, Tabs, Modal, Avatar, Table, Spinner)</li>
+                <li><strong>html-css/examples.html</strong> — open this file in any browser to see all your components rendered with your style — no setup needed</li>
               </ul>
               <h3 className="guide-h3">Token preview</h3>
-              <p>Expand the <strong>Token preview</strong> accordion at the bottom of the Export step to see and search all generated CSS custom properties before downloading.</p>
-              <Tip>Open <code>html-css/examples.html</code> directly in a browser to instantly verify your exported components look right — no build step needed.</Tip>
+              <p>Expand the <strong>Token preview</strong> accordion at the bottom of the Export step to see and search all your style settings before downloading.</p>
+              <Tip>Open <code>html-css/examples.html</code> directly in a browser to instantly verify how your exported components look — no build step or coding needed.</Tip>
             </Section>
 
             <Section id="canvas" title="Canvas & Scenes">
@@ -232,13 +239,14 @@ export default function GuideModal({ onClose, onStartTour }) {
             </Section>
 
             <Section id="importexport" title="Import & Export">
-              <h3 className="guide-h3">Downloading a token template</h3>
-              <p>Click the <strong>download icon</strong> in the header to get a blank JSON token template. This file lists every configurable token with its default value — edit it in any text editor and re-import it to apply your values.</p>
-              <h3 className="guide-h3">Importing tokens</h3>
-              <p>Click the <strong>upload icon</strong> in the header (or <strong>Import tokens</strong> in the welcome modal) to import a JSON token file. The configurator, canvas, and all step inputs sync immediately to the imported values.</p>
+              <h3 className="guide-h3">Auto-save</h3>
+              <p>Your work saves automatically in your browser as you go. Refreshing the page or closing the tab won't lose anything. Progress is tied to this specific browser on this device — use the export options below to move work to another device or share it.</p>
+              <h3 className="guide-h3">Downloading a blank template</h3>
+              <p>Click <strong>Token template</strong> in the header, then <strong>Download token template</strong> to get a blank JSON file listing every configurable setting with its default value. Fill it in (or have Claude fill it in) and re-import it to apply your values instantly.</p>
+              <h3 className="guide-h3">Importing a style file</h3>
+              <p>Click <strong>Token template → Import token template</strong> in the header (or <strong>I have a style file</strong> in the welcome screen) to load a previously saved JSON file. The configurator and canvas sync immediately to the imported values.</p>
               <h3 className="guide-h3">Saving your progress</h3>
-              <p>Click <strong>Save your progress?</strong> in the header to open the Save modal. From here you can download your current token state as a JSON file — bring it back next time via Import to continue where you left off.</p>
-              <Note>The tool does not save to a server or account. Progress is not persisted between sessions automatically. Use Save → Import to carry work across sessions.</Note>
+              <p>Click <strong>Save your progress?</strong> in the header to open the Save panel. From here you can export your current settings as a JSON file and bring it back anytime via Import — useful for picking up on a different device or sharing with a team member.</p>
             </Section>
 
             <Section id="tips" title="Tips & Tricks">

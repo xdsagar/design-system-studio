@@ -1399,6 +1399,12 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
               </button>
             </div>
 
+            {/* Claude next-step hint */}
+            <div className="export-claude-hint">
+              <span className="export-claude-hint-label">Using Claude to build your app?</span>
+              After downloading, open Claude and say: <em>"I've attached my design system — use it for everything you build for me."</em> Then attach the <strong>CLAUDE.md</strong> file from inside the ZIP. Claude will follow your exact colors, fonts, and style from that point on.
+            </div>
+
             {/* Token output accordion */}
             {(() => {
               const tokenCount = allTokenLines.filter(t => t.key).length;

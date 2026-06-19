@@ -5,35 +5,35 @@ const TOUR_STEPS = [
   {
     target: null,
     title: 'Here\'s how this works',
-    body: null, // rendered as custom intro layout
+    body: null,
     placement: 'center',
     pad: 0,
   },
   {
     target: '.step-nav-rail',
     title: 'Start here — pick your style',
-    body: 'The first step lets you choose a pre-built look — colors, fonts, and shapes ready to go. Think of it like picking a theme. You can tweak every detail afterwards.',
+    body: 'Choose a pre-built look from the Intro step, or let AI read your brand images. Think of it like picking a theme for your app. Each step after this lets you fine-tune the details.',
     placement: 'right',
     pad: 6,
   },
   {
     target: '.canvas-scene-tabs',
-    title: 'See it live in real screens',
-    body: 'This canvas shows your style applied to real product screens — a marketing page, a dashboard, a mobile app, and UI components. Every change you make on the left appears here instantly.',
+    title: 'Your app, live in real screens',
+    body: 'This preview updates instantly as you make changes on the left. Switch between a website, dashboard, mobile app, and UI components to see exactly how your style looks in context.',
     placement: 'bottom',
     pad: 6,
   },
   {
     target: '.header-analyze-btn',
-    title: 'Have a brand? Let AI do the setup',
-    body: 'Upload a logo or brand images — or just describe your brand in plain English. The AI reads your visual style and generates a matching color palette and token set automatically.',
+    title: 'Let AI read your brand',
+    body: 'Have a logo or brand images? Upload them here — or just describe what your brand feels like in plain English. The AI figures out your colors and style for you automatically.',
     placement: 'bottom',
     pad: 8,
   },
   {
     target: '.step-nav-item:last-child',
-    title: 'Export production-ready code',
-    body: 'When you\'re happy with how everything looks, download your design system as a ZIP. It includes CSS variables, React components, and HTML examples — ready to drop straight into your project.',
+    title: 'Get your style file for Claude',
+    body: 'When everything looks right, download your style guide. Share it with Claude and say "use this for my project" — Claude will follow your exact colors, fonts, and style from then on.',
     placement: 'right',
     pad: 6,
   },
@@ -70,32 +70,32 @@ function IntroCard({ onNext, onSkip, stepCount }) {
         Skip tour
       </button>
 
-      <div className="tour-intro-eyebrow">Quick start</div>
-      <div className="tour-intro-title">Here's how this works</div>
+      <div className="tour-intro-eyebrow">Before you open Claude...</div>
+      <div className="tour-intro-title">Decide what your app looks like</div>
       <p className="tour-intro-sub">
-        Design System Studio helps you define the visual style of your app or website — colors, fonts, spacing, and more — and turns it into production-ready code. No design software needed.
+        When you ask Claude to build an app, it guesses at the colors, fonts, and style — and it guesses differently every time. This tool lets you make those decisions first, so Claude always builds in your style.
       </p>
 
       <ol className="tour-intro-steps">
         <li>
           <span className="tour-intro-num">1</span>
           <div>
-            <strong>Pick a starting point</strong>
-            <span>Choose a pre-built style preset or let the AI analyze your brand images</span>
+            <strong>Pick a look you like</strong>
+            <span>Choose from pre-built styles, or upload your logo and let AI match your brand</span>
           </div>
         </li>
         <li>
           <span className="tour-intro-num">2</span>
           <div>
-            <strong>Customize your style</strong>
-            <span>Fine-tune colors, fonts, spacing, and more — the canvas updates live as you go</span>
+            <strong>Tweak it until it feels right</strong>
+            <span>Adjust colors, fonts, and more — a live preview shows your changes instantly</span>
           </div>
         </li>
         <li>
           <span className="tour-intro-num">3</span>
           <div>
-            <strong>Export your code</strong>
-            <span>Download CSS, React components, and HTML examples ready for your project</span>
+            <strong>Give the style guide to Claude</strong>
+            <span>Download your file and share it with Claude — it follows your style from then on</span>
           </div>
         </li>
       </ol>
