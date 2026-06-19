@@ -4746,3 +4746,57 @@ input[type=color] {
   transition: background .12s, color .12s;
 }
 .guide-tour-btn:hover { background: var(--shell-surface-1); color: var(--shell-text); }
+
+/* ── Tour intro card (step 0, centered) ───────────────────── */
+.tour-backdrop--intro { background: rgba(0,0,0,0.72); }
+.tour-intro-card {
+  position: fixed; z-index: 10002;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 420px; max-width: calc(100vw - 32px);
+  background: var(--shell-surface-1);
+  border: 0.5px solid var(--shell-border);
+  border-radius: 18px;
+  padding: 32px 32px 24px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.05);
+}
+.tour-intro-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--shell-accent);
+  margin-bottom: 8px;
+}
+.tour-intro-title {
+  font-size: 20px; font-weight: 700; color: var(--shell-text);
+  margin-bottom: 10px; line-height: 1.2;
+}
+.tour-intro-sub {
+  font-size: 13px; line-height: 1.65; color: var(--shell-text-2);
+  margin-bottom: 24px;
+}
+.tour-intro-steps {
+  list-style: none; margin: 0 0 24px; padding: 0;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.tour-intro-steps li {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.tour-intro-num {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: var(--shell-accent); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.tour-intro-steps li > div {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.tour-intro-steps li strong {
+  font-size: 13px; font-weight: 600; color: var(--shell-text);
+}
+.tour-intro-steps li span {
+  font-size: 12px; color: var(--shell-text-2); line-height: 1.5;
+}
+.tour-intro-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 20px;
+  border-top: 0.5px solid var(--shell-border-2);
+}
