@@ -2205,7 +2205,7 @@ input[type=color] {
 .tp-breadcrumb-sep { color: var(--ds-neutral-300); }
 .tp-breadcrumb-active { color: var(--ds-neutral-600); }
 .tp-page-title {
-  font-size: 20px; font-weight: 700; color: var(--ds-neutral-900);
+  font-size: var(--ds-text-xl, 20px); font-weight: 700; color: var(--ds-neutral-900);
   font-family: var(--ds-font-display); margin: 0; line-height: 1.2;
 }
 .tp-page-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -3860,7 +3860,7 @@ input[type=color] {
   0%, 100% { opacity: 1; } 50% { opacity: .4; }
 }
 .mkt-hero-headline {
-  font-size: clamp(36px, 5vw, 52px);
+  font-size: var(--ds-text-5xl, 52px);
   font-weight: 900; letter-spacing: -.04em; line-height: 1.05;
   color: var(--ds-neutral-900, #111);
   font-family: var(--ds-font-display, inherit);
@@ -3873,7 +3873,7 @@ input[type=color] {
   background-clip: text;
 }
 .mkt-hero-sub {
-  font-size: 16px; line-height: 1.65;
+  font-size: var(--ds-text-md, 16px); line-height: 1.65;
   color: var(--ds-neutral-600, #555);
   max-width: 480px; margin-bottom: 32px;
 }
@@ -3908,7 +3908,7 @@ input[type=color] {
 }
 .mkt-stat { text-align: center; }
 .mkt-stat-value {
-  font-size: 28px; font-weight: 800; letter-spacing: -.03em;
+  font-size: var(--ds-text-2xl, 28px); font-weight: 800; letter-spacing: -.03em;
   color: var(--ds-neutral-900, #111);
   font-family: var(--ds-font-display, inherit);
 }
@@ -3921,7 +3921,7 @@ input[type=color] {
   color: var(--ds-brand, #5B6AF8); margin-bottom: 12px;
 }
 .mkt-section-headline {
-  font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2;
+  font-size: var(--ds-text-3xl, 32px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2;
   color: var(--ds-neutral-900, #111);
   font-family: var(--ds-font-display, inherit);
   max-width: 560px; margin: 0 auto 48px;
@@ -3962,7 +3962,7 @@ input[type=color] {
 }
 .mkt-cta-left { flex: 1; }
 .mkt-cta-headline {
-  font-size: 22px; font-weight: 800; letter-spacing: -.03em; line-height: 1.2;
+  font-size: var(--ds-text-xl, 22px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2;
   font-family: var(--ds-font-display, inherit);
   margin-bottom: 16px;
 }
@@ -4282,7 +4282,7 @@ input[type=color] {
   .mkt-pricing,
   .mkt-blog              { padding-left: 20px; padding-right: 20px; }
   .mkt-hero              { padding: 40px 20px 32px; }
-  .mkt-hero-headline     { font-size: clamp(28px, 6vw, 48px); }
+  .mkt-hero-headline     { font-size: var(--ds-text-4xl, 40px); }
   .mkt-cta-card          { flex-direction: column; gap: 20px; }
   .tp-stats-grid         { grid-template-columns: repeat(2, 1fr); }
 }
