@@ -440,7 +440,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
         setSemanticColor(group.dmKey, val);
       }
       const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-      if (htKey) setSemanticColor(htKey, getTextTokenHex());
+      if (htKey) setSemanticColor(htKey, getTextTokenHex(val));
     }
   }
 
@@ -452,7 +452,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       const hoverKey = colorMode === 'dark' ? `${group.tokenKey}HoverDm` : `${group.tokenKey}Hover`;
       setSemanticColor(hoverKey, val);
       const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-      if (htKey) setSemanticColor(htKey, getTextTokenHex());
+      if (htKey) setSemanticColor(htKey, getTextTokenHex(val));
     }
   }
 
@@ -470,7 +470,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     setSemanticColor(hoverKey, computed);
     setHoverModes(m => ({ ...m, [mk]: mode }));
     const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-    if (htKey) setSemanticColor(htKey, getTextTokenHex());
+    if (htKey) setSemanticColor(htKey, getTextTokenHex(computed));
   }
 
   function updateCoreColor(id, hex) {
@@ -485,10 +485,14 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     return tokens[key] || hexInputs[`${colorMode}:${group.tokenKey}`] || tokens[group.tokenKey];
   }
 
-  function getTextTokenHex() {
-    const id = colorMode === 'dark' ? 'text-primary-dark' : 'text-primary';
-    const core = tokens.coreColors.find(c => c.id === id);
-    return core?.hex || (colorMode === 'dark' ? '#F5F5F5' : '#1E1E1E');
+  function getTextTokenHex(bgHex) {
+    const lightCore = tokens.coreColors.find(c => c.id === 'text-primary-dark');
+    const darkCore  = tokens.coreColors.find(c => c.id === 'text-primary');
+    const lightHex  = lightCore?.hex || '#F5F5F5';
+    const darkHex   = darkCore?.hex  || '#1E1E1E';
+    // Mirror textOn() in useTokens: prefer white/light on any non-pastel background
+    if (bgHex && wcagContrast(bgHex, '#FFFFFF') >= 2) return lightHex;
+    return darkHex;
   }
 
   function handleRadius(idx) {
@@ -710,8 +714,10 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                           </div>
 
                           {(() => {
-                            const textHex   = getTextTokenHex();
-                            const textLabel = colorMode === 'dark' ? 'Text Primary Dark' : 'Text Primary';
+                            const textHex   = getTextTokenHex(activeHex);
+                            const lightCore = tokens.coreColors.find(c => c.id === 'text-primary-dark');
+                            const lightHex  = lightCore?.hex || '#F5F5F5';
+                            const textLabel = textHex === lightHex ? 'Text Primary Dark' : 'Text Primary';
                             const isLight   = wcagContrast(textHex, '#ffffff') < 3;
                             return (
                               <>
@@ -758,7 +764,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                               // Deep accessible darks (L ≤ 0.16) always win with dark hover here.
                               let rec = 'Dark';
                               if (colorMode === 'dark') {
-                                const textHex    = getTextTokenHex();
+                                const textHex    = getTextTokenHex(activeHex);
                                 const scale      = generateColorScale(activeHex);
                                 const darkRatio  = scale?.[70] ? wcagContrast(scale[70],  textHex) : 0;
                                 const lightRatio = scale?.[20] ? wcagContrast(scale[20], textHex) : 0;
