@@ -132,8 +132,8 @@ export default function GuideModal({ onClose }) {
               <Tip>Click any hex value in the canvas to copy it to your clipboard — a brief "Copied!" indicator confirms it.</Tip>
               <Tip>The WCAG badge in the configurator matches what the Brand Analyzer enforces — every button color is automatically checked for 4.5:1 contrast with the text token.</Tip>
               <h3 className="guide-h3">Button text color — auto-computed</h3>
-              <p>Button text color is set automatically. The tool checks whether white text clears a 2:1 contrast ratio against the button background — if it does, white is used; otherwise dark text is applied. This means every button stays legible across all presets and custom colors without any manual work.</p>
-              <Note>This is intentional. Design systems that hard-code button text colors break silently when brand colors change. Auto-computation keeps every button correct by default.</Note>
+              <p>Button text color is set automatically using the same WCAG AA standard (4.5:1) shown in the contrast check. The tool checks whether white text clears 4.5:1 against the button background — if it does, white (light text) is used; otherwise dark text is applied. This applies to every brand-colored element in the canvas: buttons, badges, step indicators, avatars, cards, and more.</p>
+              <Note>This is intentional. Design systems that hard-code button text colors break silently when brand colors change. Auto-computation keeps every element correct by default — and the contrast check will always agree with what you see.</Note>
               <p>To manually override after export, edit the <code>color</code> property on <code>.ds-btn.primary</code> in your exported <code>components.css</code>, or ask your LLM: <em>"Change the primary button text color to #000000 in components.css."</em></p>
             </Section>
 

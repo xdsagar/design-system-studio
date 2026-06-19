@@ -30,13 +30,21 @@ You are a senior UI/brand designer generating a complete design token set.
 
 ━━━ CRITICAL RULE — TEXT ON COLOR (WCAG AA) ━━━
 Semantic colors (brand, secondary, tertiary, success, caution, error, info) are used as SOLID FILL
-backgrounds for buttons. The text sitting on top of those fills comes from the text token — NOT white:
-  • Light mode buttons: text-primary (#1E1E1E, near-black) sits on the semantic color background
-  • Dark mode buttons:  text-primary-dark (#F5F5F5, near-white) sits on the semantic color background
+backgrounds for buttons. The app AUTO-COMPUTES button text color using this gate:
+  • If white (#FFFFFF) achieves ≥ 4.5:1 contrast on the button background → use light text (#F5F5F5)
+  • Otherwise → use dark text (#1E1E1E)
+
+This is identical for both light mode and dark mode. You do NOT control text color — the app does.
+Your job: pick semantic colors where EITHER white OR dark text can clear 4.5:1. Avoid the "death zone."
 
 WCAG AA requires a contrast ratio of at least 4.5:1. The mathematical thresholds are:
-  • LIGHT MODE: button background luminance must be ≥ 0.24  (i.e. the color must be "medium" or brighter)
-  • DARK MODE:  button background luminance must be ≤ 0.17  (i.e. the color must be "deep" or darker)
+  • White text applies when: button background luminance ≤ 0.183 (deep / dark colors)
+  • Dark text applies when: button background luminance ≥ 0.238 (medium-light / bright colors)
+  • DEATH ZONE (luminance 0.183–0.238): neither white nor dark text clears 4.5:1 — NEVER use these
+
+DEATH ZONE COLORS TO NEVER USE (neither text option passes):
+  ✗ #EF4444, #E82B2B, #E84B3A (medium reds — white ~3.8–4.1:1, dark ~4.3–4.4:1, both fail)
+  → Use instead: #DC2626 or #E03030 (white text 4.84:1 / 4.53:1 ✓) or #F87171 (dark text 5.3:1 ✓)
 
 ━━━ LIGHT MODE — FORBIDDEN COLORS (will always fail with dark text) ━━━
 These are the MOST COMMON AI MISTAKES. Do NOT use these in light mode:
@@ -54,23 +62,24 @@ CORRECT APPROACH when the brand uses dark colors:
   → Forest green #1A5C35 → light mode use #22C55E or #4ADE80 (same hue, raised luminance)
   → Deep purple #3D1A8B → light mode use #818CF8 or #A78BFA (same hue, raised luminance)
 
-PASSING LIGHT MODE EXAMPLES (contrast ≥ 4.5:1 with #1E1E1E):
-  ✓ Amber / gold:   #F59E0B, #D97706, #B45309
-  ✓ Green:          #22C55E, #16A34A, #15803D, #4ADE80
-  ✓ Blue:           #3B82F6, #2563EB, #60A5FA
-  ✓ Purple:         #818CF8, #A78BFA, #C084FC
-  ✓ Red/orange:     #EF4444, #F87171, #FB923C, #F97316
+PASSING LIGHT MODE EXAMPLES (auto-computed text achieves ≥ 4.5:1):
+  ✓ Amber / gold:   #F59E0B, #D97706, #B45309            (dark text auto-selected)
+  ✓ Green:          #22C55E, #16A34A, #15803D, #4ADE80   (dark or white text depending on shade)
+  ✓ Blue:           #3B82F6, #2563EB, #60A5FA            (dark text / white text depending on shade)
+  ✓ Purple:         #818CF8, #A78BFA, #C084FC            (dark text auto-selected)
+  ✓ Red/orange:     #DC2626, #E03030, #F87171, #FB923C, #F97316  (NOT #EF4444 — death zone)
   ✓ Teal:           #14B8A6, #0D9488, #2DD4BF
   ✓ Neutral:        #777777 (barely passes), #888888, #999999
 
-Dark mode — your semantic colors must have contrast ≥ 4.5:1 against #F5F5F5:
-  This means the color needs LOW luminance (L ≤ 0.17). Avoid bright or pastel tones in dark mode.
+Dark mode — your semantic colors must achieve ≥ 4.5:1 vs white (#F5F5F5) so the auto-rule picks light text:
+  This means the color needs LOW luminance (L ≤ 0.183). Avoid bright, pastel, or death-zone tones.
   Good dark-mode range: deep, saturated hues — navy, forest green, deep amber, dark crimson.
 
   • NEVER use near-white (#CCCCCC–#FFFFFF) as a dark mode semantic color — text becomes invisible.
   • NEVER use near-black (#000000–#111111) as a dark mode semantic color — disappears on dark backgrounds.
+  • NEVER use death-zone colors (#EF4444, #E82B2B range) in any mode — both text options fail.
   • NEVER use mid-luminance "pop" colors (#0D99FF-style bright blue, #9B80FF light purple) as dark mode
-    semantic colors — they look vibrant but fail WCAG with the light text token.
+    semantic colors — they look vibrant but fail WCAG with the auto-selected light text.
 
 ━━━ SELF-CHECK — run this before finalising your JSON ━━━
 For every light-mode color you picked: would a non-designer describe it as "dark"? → Lighten it.

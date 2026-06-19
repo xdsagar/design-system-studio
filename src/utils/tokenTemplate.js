@@ -15,12 +15,6 @@ export const SCALAR_KEYS = [
   // Hover colors — dark
   'brandHoverDm', 'secondaryHoverDm', 'tertiaryHoverDm', 'ghostHoverDm',
   'successHoverDm', 'cautionHoverDm', 'errorHoverDm', 'infoHoverDm',
-  // Hover text — light
-  'brandHoverText', 'secondaryHoverText', 'tertiaryHoverText',
-  'successHoverText', 'cautionHoverText', 'errorHoverText', 'infoHoverText',
-  // Hover text — dark
-  'brandHoverTextDm', 'secondaryHoverTextDm', 'tertiaryHoverTextDm',
-  'successHoverTextDm', 'cautionHoverTextDm', 'errorHoverTextDm', 'infoHoverTextDm',
   // Typography
   'fontDisplay', 'fontBody',
   // Shape

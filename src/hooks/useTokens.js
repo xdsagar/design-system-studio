@@ -48,13 +48,10 @@ export function buildCssVars(tokens) {
   const lightText = findCore('text-primary-dark') || '#F5F5F5';
   function textOn(bgHex) {
     if (!bgHex) return lightText;
-    // Always prefer white/light text on colored buttons — only fall back to
-    // dark text when light genuinely fails AA (4.5:1). This handles light
-    // pastels (fall back to dark) while keeping white on any saturated color.
-    // Gate on pure white to decide "is this a white-text bg?" — avoids
-    // token-value sensitivity (e.g. #E5E5E5 vs #EF4444 = 2.99, just misses 3:1
-    // even though #FFFFFF would clear 3.74:1 on the same red).
-    if (wcagContrast(bgHex, '#FFFFFF') >= 2) return lightText;
+    // Prefer white/light text when it clears WCAG AA (4.5:1).
+    // Gate on pure #FFFFFF to avoid token-value sensitivity — e.g. lightText
+    // #E5E5E5 vs #EF4444 = 2.99 would miss the gate even though #FFFFFF clears 3.74:1.
+    if (wcagContrast(bgHex, '#FFFFFF') >= 4.5) return lightText;
     if (wcagContrast(bgHex, darkText)  >= 3) return darkText;
     return wcagContrast(bgHex, lightText) >= wcagContrast(bgHex, darkText) ? lightText : darkText;
   }

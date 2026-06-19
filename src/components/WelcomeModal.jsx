@@ -25,7 +25,7 @@ export default function WelcomeModal({ onClose, onAnalyze, onImport }) {
             <span>beautifully built.</span>
           </h1>
           <p className="welcome-sub">
-            Configure tokens, preview across real product layouts, and export to CSS, Tailwind, or Figma — all in one place.
+            Configure tokens, preview across real product layouts, and export to CSS, Tailwind, or Figma — with automatic WCAG AA contrast on every button.
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Download, Upload, Sun, Moon, Sparkles } from 'lucide-react';
+import { Download, Upload, Sun, Moon, Sparkles, ChevronDown } from 'lucide-react';
 import { useTokens } from './hooks/useTokens';
 import { deriveBrandTokens } from './utils/tokens';
 import Configurator from './components/Configurator';
@@ -78,6 +78,8 @@ export default function App() {
   const [showSave, setShowSave]               = useState(false);
   const [showGuide, setShowGuide]             = useState(false);
   const [configWidth, setConfigWidth]         = useState(340);
+  const [showFileMenu, setShowFileMenu]       = useState(false);
+  const fileMenuRef                           = useRef(null);
   const [isDragging, setIsDragging]           = useState(false);
   const [windowWidth, setWindowWidth]         = useState(window.innerWidth);
 
@@ -86,6 +88,17 @@ export default function App() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  useEffect(() => {
+    if (!showFileMenu) return;
+    const onClickOutside = (e) => {
+      if (fileMenuRef.current && !fileMenuRef.current.contains(e.target)) {
+        setShowFileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, [showFileMenu]);
 
   const isSmallScreen  = windowWidth < 786;
   const isOverlayMode  = windowWidth >= 786 && windowWidth < 1149;
@@ -236,13 +249,27 @@ export default function App() {
             <span className="beta-badge">Beta</span>
           </button>
 
-          <HeaderIconBtn onClick={downloadTemplate} title="Download token template">
-            <Download size={14} />
-          </HeaderIconBtn>
-
-          <HeaderIconBtn onClick={() => setShowImport(true)} title="Import token template">
-            <Upload size={14} />
-          </HeaderIconBtn>
+          <div className="header-file-menu" ref={fileMenuRef}>
+            <button
+              className={`header-file-btn${showFileMenu ? ' open' : ''}`}
+              onClick={() => setShowFileMenu(m => !m)}
+            >
+              Token template
+              <ChevronDown size={11} className="header-file-chevron" />
+            </button>
+            {showFileMenu && (
+              <div className="header-file-dropdown">
+                <button className="header-file-item" onClick={() => { downloadTemplate(); setShowFileMenu(false); }}>
+                  <Download size={13} />
+                  Download token template
+                </button>
+                <button className="header-file-item" onClick={() => { setShowImport(true); setShowFileMenu(false); }}>
+                  <Upload size={13} />
+                  Import token template
+                </button>
+              </div>
+            )}
+          </div>
 
           <ThemeToggle isDark={shellDark} onToggle={toggleShell} />
         </div>

@@ -50,24 +50,6 @@ export const defaultTokens = {
   errorHoverDm:       '#881919',
   infoHoverDm:        '#004a7f',
 
-  // ── Hover text (overridden in buildCssVars from core text token — kept for export compat)
-  brandHoverText:     '#1E1E1E',
-  secondaryHoverText: '#1E1E1E',
-  tertiaryHoverText:  '#1E1E1E',
-  successHoverText:   '#1E1E1E',
-  cautionHoverText:   '#1E1E1E',
-  errorHoverText:     '#1E1E1E',
-  infoHoverText:      '#1E1E1E',
-
-  // ── Hover text – dark mode
-  brandHoverTextDm:     '#F5F5F5',
-  secondaryHoverTextDm: '#F5F5F5',
-  tertiaryHoverTextDm:  '#F5F5F5',
-  successHoverTextDm:   '#F5F5F5',
-  cautionHoverTextDm:   '#F5F5F5',
-  errorHoverTextDm:     '#F5F5F5',
-  infoHoverTextDm:      '#F5F5F5',
-
   coreColors: [
     { id: 'neutral',           label: 'Neutral',           hex: '#808080' },
     { id: 'bg-light',          label: 'Background Light',  hex: '#F5F5F5' },

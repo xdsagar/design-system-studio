@@ -17,14 +17,14 @@ import { STYLE_PRESETS } from '../utils/stylePresets';
 const STEPS = ['Intro', 'Colors', 'Type', 'Space', 'Motion', 'Shape', 'Export'];
 
 const COLOR_GROUPS = [
-  { key: 'brand',     label: 'Primary',   tokenKey: 'brand',     dmKey: 'brandDm',     hoverTextKey: 'brandHoverText',     dmHoverTextKey: 'brandHoverTextDm',     cssVar: '--ds-brand',     hoverVar: '--ds-brand-hover',     hoverTextVar: '--ds-brand-hover-text'     },
-  { key: 'secondary', label: 'Secondary', tokenKey: 'secondary', dmKey: 'secondaryDm', hoverTextKey: 'secondaryHoverText', dmHoverTextKey: 'secondaryHoverTextDm', cssVar: '--ds-secondary', hoverVar: '--ds-secondary-hover', hoverTextVar: '--ds-secondary-hover-text' },
-  { key: 'tertiary',  label: 'Tertiary',  tokenKey: 'tertiary',  dmKey: 'tertiaryDm',  hoverTextKey: 'tertiaryHoverText',  dmHoverTextKey: 'tertiaryHoverTextDm',  cssVar: '--ds-tertiary',  hoverVar: '--ds-tertiary-hover',  hoverTextVar: '--ds-tertiary-hover-text'  },
-  { key: 'success',   label: 'Success',   tokenKey: 'success',   dmKey: 'successDm',   hoverTextKey: 'successHoverText',   dmHoverTextKey: 'successHoverTextDm',   cssVar: '--ds-success',   hoverVar: '--ds-success-hover',   hoverTextVar: '--ds-success-hover-text'   },
-  { key: 'caution',   label: 'Warning',   tokenKey: 'caution',   dmKey: 'cautionDm',   hoverTextKey: 'cautionHoverText',   dmHoverTextKey: 'cautionHoverTextDm',   cssVar: '--ds-warning',   hoverVar: '--ds-warning-hover',   hoverTextVar: '--ds-warning-hover-text'   },
-  { key: 'error',     label: 'Danger',    tokenKey: 'error',     dmKey: 'errorDm',     hoverTextKey: 'errorHoverText',     dmHoverTextKey: 'errorHoverTextDm',     cssVar: '--ds-danger',    hoverVar: '--ds-danger-hover',    hoverTextVar: '--ds-danger-hover-text'    },
-  { key: 'info',      label: 'Info',      tokenKey: 'info',      dmKey: 'infoDm',      hoverTextKey: 'infoHoverText',      dmHoverTextKey: 'infoHoverTextDm',      cssVar: '--ds-info',      hoverVar: '--ds-info-hover',      hoverTextVar: '--ds-info-hover-text'      },
-  { key: 'ghost',     label: 'Ghost',     tokenKey: 'ghost',     dmKey: 'ghostDm',     hoverTextKey: null,                 dmHoverTextKey: null,                   cssVar: '--ds-ghost',     hoverVar: '--ds-ghost-hover',     hoverTextVar: null                         },
+  { key: 'brand',     label: 'Primary',   tokenKey: 'brand',     dmKey: 'brandDm',     cssVar: '--ds-brand',     hoverVar: '--ds-brand-hover',     hoverTextVar: '--ds-brand-hover-text'     },
+  { key: 'secondary', label: 'Secondary', tokenKey: 'secondary', dmKey: 'secondaryDm', cssVar: '--ds-secondary', hoverVar: '--ds-secondary-hover', hoverTextVar: '--ds-secondary-hover-text' },
+  { key: 'tertiary',  label: 'Tertiary',  tokenKey: 'tertiary',  dmKey: 'tertiaryDm',  cssVar: '--ds-tertiary',  hoverVar: '--ds-tertiary-hover',  hoverTextVar: '--ds-tertiary-hover-text'  },
+  { key: 'success',   label: 'Success',   tokenKey: 'success',   dmKey: 'successDm',   cssVar: '--ds-success',   hoverVar: '--ds-success-hover',   hoverTextVar: '--ds-success-hover-text'   },
+  { key: 'caution',   label: 'Warning',   tokenKey: 'caution',   dmKey: 'cautionDm',   cssVar: '--ds-warning',   hoverVar: '--ds-warning-hover',   hoverTextVar: '--ds-warning-hover-text'   },
+  { key: 'error',     label: 'Danger',    tokenKey: 'error',     dmKey: 'errorDm',     cssVar: '--ds-danger',    hoverVar: '--ds-danger-hover',    hoverTextVar: '--ds-danger-hover-text'    },
+  { key: 'info',      label: 'Info',      tokenKey: 'info',      dmKey: 'infoDm',      cssVar: '--ds-info',      hoverVar: '--ds-info-hover',      hoverTextVar: '--ds-info-hover-text'      },
+  { key: 'ghost',     label: 'Ghost',     tokenKey: 'ghost',     dmKey: 'ghostDm',     cssVar: '--ds-ghost',     hoverVar: '--ds-ghost-hover',     hoverTextVar: null                         },
 ];
 
 const SCALE_STEPS = [10, 20, 30, 40, 50, 60, 70, 80, 90];
@@ -35,32 +35,33 @@ function toVarName(name) {
 }
 
 function buildAllTokenLines(tokens) {
+  const cv = buildCssVars(tokens);
   const lines = [
     { section: 'Brand' },
     { key: '--ds-brand',                value: tokens.brand },
     { key: '--ds-brand-dark',           value: tokens.brandDark },
     { key: '--ds-brand-light',          value: tokens.brandLight },
     { key: '--ds-brand-hover',          value: tokens.brandHover },
-    { key: '--ds-brand-hover-text',     value: tokens.brandHoverText },
+    { key: '--ds-brand-hover-text',     value: cv['--ds-brand-hover-text'] },
     { section: 'Semantic' },
     { key: '--ds-secondary',            value: tokens.secondary },
     { key: '--ds-secondary-hover',      value: tokens.secondaryHover },
-    { key: '--ds-secondary-hover-text', value: tokens.secondaryHoverText },
+    { key: '--ds-secondary-hover-text', value: cv['--ds-secondary-hover-text'] },
     { key: '--ds-tertiary',             value: tokens.tertiary },
     { key: '--ds-tertiary-hover',       value: tokens.tertiaryHover },
-    { key: '--ds-tertiary-hover-text',  value: tokens.tertiaryHoverText },
+    { key: '--ds-tertiary-hover-text',  value: cv['--ds-tertiary-hover-text'] },
     { key: '--ds-success',              value: tokens.success },
     { key: '--ds-success-hover',        value: tokens.successHover },
-    { key: '--ds-success-hover-text',   value: tokens.successHoverText },
+    { key: '--ds-success-hover-text',   value: cv['--ds-success-hover-text'] },
     { key: '--ds-warning',              value: tokens.caution },
     { key: '--ds-warning-hover',        value: tokens.cautionHover },
-    { key: '--ds-warning-hover-text',   value: tokens.cautionHoverText },
+    { key: '--ds-warning-hover-text',   value: cv['--ds-warning-hover-text'] },
     { key: '--ds-danger',               value: tokens.error },
     { key: '--ds-danger-hover',         value: tokens.errorHover },
-    { key: '--ds-danger-hover-text',    value: tokens.errorHoverText },
+    { key: '--ds-danger-hover-text',    value: cv['--ds-danger-hover-text'] },
     { key: '--ds-info',                 value: tokens.info },
     { key: '--ds-info-hover',           value: tokens.infoHover },
-    { key: '--ds-info-hover-text',      value: tokens.infoHoverText },
+    { key: '--ds-info-hover-text',      value: cv['--ds-info-hover-text'] },
     { key: '--ds-ghost',                value: tokens.ghost },
     { key: '--ds-ghost-hover',          value: tokens.ghostHover },
     { section: 'Typography' },
@@ -347,8 +348,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
         if (defaultTokens[g.dmKey])           setSemanticColor(g.dmKey, defaultTokens[g.dmKey]);
         setSemanticColor(`${g.tokenKey}Hover`,   defaultTokens[`${g.tokenKey}Hover`]);
         setSemanticColor(`${g.tokenKey}HoverDm`, defaultTokens[`${g.tokenKey}HoverDm`]);
-        if (g.hoverTextKey    && defaultTokens[g.hoverTextKey])    setSemanticColor(g.hoverTextKey,    defaultTokens[g.hoverTextKey]);
-        if (g.dmHoverTextKey  && defaultTokens[g.dmHoverTextKey])  setSemanticColor(g.dmHoverTextKey,  defaultTokens[g.dmHoverTextKey]);
       });
       setCustomColors([]);
       setCoreColors(defaultTokens.coreColors);
@@ -393,8 +392,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       if (defaultTokens[g.dmKey])           setSemanticColor(g.dmKey, defaultTokens[g.dmKey]);
       setSemanticColor(`${g.tokenKey}Hover`,   defaultTokens[`${g.tokenKey}Hover`]);
       setSemanticColor(`${g.tokenKey}HoverDm`, defaultTokens[`${g.tokenKey}HoverDm`]);
-      if (g.hoverTextKey   && defaultTokens[g.hoverTextKey])   setSemanticColor(g.hoverTextKey,   defaultTokens[g.hoverTextKey]);
-      if (g.dmHoverTextKey && defaultTokens[g.dmHoverTextKey]) setSemanticColor(g.dmHoverTextKey, defaultTokens[g.dmHoverTextKey]);
     });
     setCustomColors([]);
     setCoreColors(defaultTokens.coreColors);
@@ -439,8 +436,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
       } else {
         setSemanticColor(group.dmKey, val);
       }
-      const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-      if (htKey) setSemanticColor(htKey, getTextTokenHex(val));
     }
   }
 
@@ -451,8 +446,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     if (/^#[0-9a-fA-F]{6}$/.test(val)) {
       const hoverKey = colorMode === 'dark' ? `${group.tokenKey}HoverDm` : `${group.tokenKey}Hover`;
       setSemanticColor(hoverKey, val);
-      const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-      if (htKey) setSemanticColor(htKey, getTextTokenHex(val));
     }
   }
 
@@ -469,8 +462,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     const hoverKey = colorMode === 'dark' ? `${group.tokenKey}HoverDm` : `${group.tokenKey}Hover`;
     setSemanticColor(hoverKey, computed);
     setHoverModes(m => ({ ...m, [mk]: mode }));
-    const htKey = colorMode === 'dark' ? group.dmHoverTextKey : group.hoverTextKey;
-    if (htKey) setSemanticColor(htKey, getTextTokenHex(computed));
   }
 
   function updateCoreColor(id, hex) {
@@ -491,7 +482,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
     const lightHex  = lightCore?.hex || '#F5F5F5';
     const darkHex   = darkCore?.hex  || '#1E1E1E';
     // Mirror textOn() in useTokens: prefer white/light on any non-pastel background
-    if (bgHex && wcagContrast(bgHex, '#FFFFFF') >= 2) return lightHex;
+    if (bgHex && wcagContrast(bgHex, '#FFFFFF') >= 4.5) return lightHex;
     return darkHex;
   }
 
@@ -745,8 +736,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                                         <span className="tc-auto-info-wrap">
                                           <Info size={11} className="tc-auto-info-icon" />
                                           <span className="tc-auto-info-popover">
-                                            <strong>Auto-computed for contrast</strong>
-                                            <span>Button text is automatically set to light or dark based on the button's background color — so every button stays readable without manual work.</span>
+                                            <strong>Auto-computed for WCAG AA</strong>
+                                            <span>Light text is used when white (#FFF) reaches 4.5:1 contrast on this color. Otherwise dark text is used. Both options are WCAG AA checked.</span>
                                             <span>To override after export, edit the <code>color</code> value in <code>tokens.css</code> or ask your LLM: <em>"Change the primary button text to #000000."</em></span>
                                           </span>
                                         </span>
@@ -1555,6 +1546,9 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                     <div className="wcag-modal-badges">
                       <span className={`wcag-pill ${aa  ? 'pass' : 'fail'}`}>AA</span>
                       <span className={`wcag-pill ${aaa ? 'pass' : 'fail'}`}>AAA</span>
+                    </div>
+                    <div className="wcag-auto-text-note">
+                      → {textIsLight ? 'Light' : 'Dark'} text auto-selected
                     </div>
                   </div>
                 </div>
