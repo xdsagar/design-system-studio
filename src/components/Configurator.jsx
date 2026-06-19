@@ -717,7 +717,8 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                             const textHex   = getTextTokenHex(activeHex);
                             const lightCore = tokens.coreColors.find(c => c.id === 'text-primary-dark');
                             const lightHex  = lightCore?.hex || '#F5F5F5';
-                            const textLabel = textHex === lightHex ? 'Text Primary Dark' : 'Text Primary';
+                            const usesLight = textHex === lightHex;
+                            const textLabel = usesLight ? 'Light text' : 'Dark text';
                             const isLight   = wcagContrast(textHex, '#ffffff') < 3;
                             return (
                               <>
@@ -738,7 +739,11 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                                       <span className="text-contrast-aa">Aa</span>
                                       <span className="text-contrast-label">Text on this color</span>
                                     </div>
-                                    <div className="tc-info tc-info--link" onClick={goToTextColor} role="button" tabIndex={0}>
+                                    <div className="tc-info tc-info--link" onClick={() => {
+                                      const id = usesLight ? 'text-primary-dark' : 'text-primary';
+                                      setOpenCoreGroup(id);
+                                      setTimeout(() => coreColorsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                                    }} role="button" tabIndex={0}>
                                       <span className="tc-info-label">Text color</span>
                                       <div className="tc-info-value">
                                         <span className="tc-info-swatch" style={{
