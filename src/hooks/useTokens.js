@@ -54,7 +54,7 @@ export function buildCssVars(tokens) {
     // Gate on pure white to decide "is this a white-text bg?" — avoids
     // token-value sensitivity (e.g. #E5E5E5 vs #EF4444 = 2.99, just misses 3:1
     // even though #FFFFFF would clear 3.74:1 on the same red).
-    if (wcagContrast(bgHex, '#FFFFFF') >= 3) return lightText;
+    if (wcagContrast(bgHex, '#FFFFFF') >= 2) return lightText;
     if (wcagContrast(bgHex, darkText)  >= 3) return darkText;
     return wcagContrast(bgHex, lightText) >= wcagContrast(bgHex, darkText) ? lightText : darkText;
   }
