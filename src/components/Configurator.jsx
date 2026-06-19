@@ -740,7 +740,17 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                                       <span className="text-contrast-label">Text on this color</span>
                                     </div>
                                     <div className="tc-info">
-                                      <span className="tc-info-label">Text color</span>
+                                      <span className="tc-info-label">
+                                        Text color
+                                        <span className="tc-auto-info-wrap">
+                                          <Info size={11} className="tc-auto-info-icon" />
+                                          <span className="tc-auto-info-popover">
+                                            <strong>Auto-computed for contrast</strong>
+                                            <span>Button text is automatically set to light or dark based on the button's background color — so every button stays readable without manual work.</span>
+                                            <span>To override after export, edit the <code>color</code> value in <code>tokens.css</code> or ask your LLM: <em>"Change the primary button text to #000000."</em></span>
+                                          </span>
+                                        </span>
+                                      </span>
                                       <div className="tc-info-value">
                                         <span className="tc-info-swatch" style={{
                                           background: textHex,
