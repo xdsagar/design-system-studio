@@ -47,10 +47,13 @@ export function buildCssVars(tokens) {
   const darkText  = findCore('text-primary')      || '#1E1E1E';
   const lightText = findCore('text-primary-dark') || '#F5F5F5';
   function textOn(bgHex) {
-    if (!bgHex) return isDark ? lightText : darkText;
-    const preferred = isDark ? lightText : darkText;
-    const fallback  = isDark ? darkText  : lightText;
-    return wcagContrast(bgHex, preferred) >= 3 ? preferred : fallback;
+    if (!bgHex) return lightText;
+    // Always prefer white/light text on colored buttons — only fall back to
+    // dark text when light genuinely fails AA (4.5:1). This handles light
+    // pastels (fall back to dark) while keeping white on any saturated color.
+    if (wcagContrast(bgHex, lightText) >= 4.5) return lightText;
+    if (wcagContrast(bgHex, darkText)  >= 4.5) return darkText;
+    return wcagContrast(bgHex, lightText) >= wcagContrast(bgHex, darkText) ? lightText : darkText;
   }
 
   const bgDarkHex   = findCore('bg-dark') || darkOverrides.surface;
