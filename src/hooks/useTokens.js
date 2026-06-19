@@ -51,8 +51,8 @@ export function buildCssVars(tokens) {
     // Always prefer white/light text on colored buttons — only fall back to
     // dark text when light genuinely fails AA (4.5:1). This handles light
     // pastels (fall back to dark) while keeping white on any saturated color.
-    if (wcagContrast(bgHex, lightText) >= 4.5) return lightText;
-    if (wcagContrast(bgHex, darkText)  >= 4.5) return darkText;
+    if (wcagContrast(bgHex, lightText) >= 3) return lightText;
+    if (wcagContrast(bgHex, darkText)  >= 3) return darkText;
     return wcagContrast(bgHex, lightText) >= wcagContrast(bgHex, darkText) ? lightText : darkText;
   }
 
