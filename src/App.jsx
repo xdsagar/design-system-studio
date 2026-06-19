@@ -7,6 +7,7 @@ import Canvas from './components/Canvas';
 import ImportModal from './components/ImportModal';
 import BrandAnalyzer from './components/BrandAnalyzer';
 import WelcomeModal from './components/WelcomeModal';
+import TourOverlay, { TOUR_KEY } from './components/TourOverlay';
 import SaveModal from './components/SaveModal';
 import GuideModal from './components/GuideModal';
 import { downloadTemplate } from './utils/tokenTemplate';
@@ -79,6 +80,7 @@ export default function App() {
   const [showGuide, setShowGuide]             = useState(false);
   const [configWidth, setConfigWidth]         = useState(340);
   const [showFileMenu, setShowFileMenu]       = useState(false);
+  const [showTour, setShowTour]               = useState(false);
   const fileMenuRef                           = useRef(null);
   const [isDragging, setIsDragging]           = useState(false);
   const [windowWidth, setWindowWidth]         = useState(window.innerWidth);
@@ -148,6 +150,7 @@ export default function App() {
   function handleWelcomeClose() {
     localStorage.setItem(HAS_VISITED_KEY, '1');
     setShowWelcome(false);
+    if (!localStorage.getItem(TOUR_KEY)) setShowTour(true);
   }
 
   function handleWelcomeAnalyze() {
@@ -332,8 +335,13 @@ export default function App() {
       )}
 
       {showGuide && (
-        <GuideModal onClose={() => setShowGuide(false)} />
+        <GuideModal
+          onClose={() => setShowGuide(false)}
+          onStartTour={() => { setShowGuide(false); setShowTour(true); }}
+        />
       )}
+
+      {showTour && <TourOverlay onDone={() => setShowTour(false)} />}
 
       {showSave && (
         <SaveModal

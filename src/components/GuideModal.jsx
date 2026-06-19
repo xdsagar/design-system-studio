@@ -34,7 +34,7 @@ function Section({ id, title, children }) {
   );
 }
 
-export default function GuideModal({ onClose }) {
+export default function GuideModal({ onClose, onStartTour }) {
   const [active, setActive] = useState('overview');
   const contentRef = useRef(null);
 
@@ -68,7 +68,12 @@ export default function GuideModal({ onClose }) {
             <div className="guide-title">Design System Studio — Guide</div>
             <div className="guide-subtitle">Everything you need to know about the tool</div>
           </div>
-          <button className="guide-close" onClick={onClose}><X size={15} /></button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {onStartTour && (
+              <button className="guide-tour-btn" onClick={onStartTour}>Take the tour</button>
+            )}
+            <button className="guide-close" onClick={onClose}><X size={15} /></button>
+          </div>
         </div>
 
         <div className="guide-body">

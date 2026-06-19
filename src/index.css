@@ -4673,3 +4673,76 @@ input[type=color] {
 .preset-confirm-ok:hover { opacity: .85; }
 
 
+
+/* ── Product tour ─────────────────────────────────────────── */
+.tour-backdrop {
+  position: fixed; inset: 0; z-index: 9999;
+  cursor: default;
+}
+.tour-spotlight {
+  position: fixed; z-index: 10000; pointer-events: none;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.68);
+  transition: left .3s ease, top .3s ease, width .3s ease, height .3s ease;
+}
+.tour-tooltip {
+  position: fixed; z-index: 10002;
+  width: 288px;
+  background: var(--shell-surface-1);
+  border: 0.5px solid var(--shell-border);
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(255,255,255,0.05);
+}
+.tour-tooltip-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.tour-step-counter {
+  font-size: 10px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--shell-text-3);
+}
+.tour-skip {
+  font-size: 11px; color: var(--shell-text-3);
+  background: none; border: none; cursor: pointer; padding: 0;
+  text-decoration: underline; text-underline-offset: 2px;
+  transition: color .12s;
+}
+.tour-skip:hover { color: var(--shell-text-2); }
+.tour-title {
+  font-size: 13.5px; font-weight: 700; color: var(--shell-text);
+  margin-bottom: 7px; line-height: 1.3;
+}
+.tour-body {
+  font-size: 12px; line-height: 1.65; color: var(--shell-text-2);
+  margin-bottom: 16px;
+}
+.tour-nav {
+  display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+}
+.tour-btn-back {
+  font-size: 12px; font-weight: 500; color: var(--shell-text-3);
+  background: none; border: none; cursor: pointer;
+  padding: 6px 10px; border-radius: 7px;
+  transition: background .12s, color .12s;
+}
+.tour-btn-back:hover { background: var(--shell-surface-2); color: var(--shell-text-2); }
+.tour-btn-next {
+  font-size: 12px; font-weight: 600; color: #fff;
+  background: var(--shell-accent); border: none; cursor: pointer;
+  padding: 7px 16px; border-radius: 8px;
+  transition: opacity .12s;
+}
+.tour-btn-next:hover { opacity: .85; }
+
+/* Guide modal — tour trigger button */
+.guide-tour-btn {
+  font-size: 12px; font-weight: 500;
+  color: var(--shell-text-2);
+  background: var(--shell-surface-2);
+  border: 0.5px solid var(--shell-border-2);
+  border-radius: 8px; padding: 6px 12px;
+  cursor: pointer; white-space: nowrap;
+  transition: background .12s, color .12s;
+}
+.guide-tour-btn:hover { background: var(--shell-surface-1); color: var(--shell-text); }
