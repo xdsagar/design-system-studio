@@ -40,12 +40,17 @@ export function buildCssVars(tokens) {
   const dangerHex  = m('error',   'errorDm');
   const infoHex    = m('info',    'infoDm');
 
-  // Pick dark or light text for a given button background based on actual WCAG contrast.
+  // Pick dark or light text for a given button background.
+  // We prefer the mode-conventional text (near-white in dark mode, near-black in light mode)
+  // as long as it clears 3:1 (AA Large — sufficient for bold button text at 13–16px).
+  // Only flip to the other option if the preferred text genuinely fails that threshold.
   const darkText  = findCore('text-primary')      || '#1E1E1E';
   const lightText = findCore('text-primary-dark') || '#F5F5F5';
   function textOn(bgHex) {
-    if (!bgHex) return darkText;
-    return wcagContrast(bgHex, darkText) >= wcagContrast(bgHex, lightText) ? darkText : lightText;
+    if (!bgHex) return isDark ? lightText : darkText;
+    const preferred = isDark ? lightText : darkText;
+    const fallback  = isDark ? darkText  : lightText;
+    return wcagContrast(bgHex, preferred) >= 3 ? preferred : fallback;
   }
 
   const bgDarkHex   = findCore('bg-dark') || darkOverrides.surface;
