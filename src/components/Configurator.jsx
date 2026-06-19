@@ -739,11 +739,7 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                                       <span className="text-contrast-aa">Aa</span>
                                       <span className="text-contrast-label">Text on this color</span>
                                     </div>
-                                    <div className="tc-info tc-info--link" onClick={() => {
-                                      const id = usesLight ? 'text-primary-dark' : 'text-primary';
-                                      setOpenCoreGroup(id);
-                                      setTimeout(() => coreColorsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-                                    }} role="button" tabIndex={0}>
+                                    <div className="tc-info">
                                       <span className="tc-info-label">Text color</span>
                                       <div className="tc-info-value">
                                         <span className="tc-info-swatch" style={{
@@ -751,7 +747,6 @@ export default function Configurator({ tokens, handlers, importedTokens, configC
                                           border: isLight ? '1px solid rgba(128,128,128,.25)' : 'none',
                                         }} />
                                         <span>{textLabel}</span>
-                                        <ChevronRight size={11} className="tc-info-chevron" />
                                       </div>
                                     </div>
                                   </div>
