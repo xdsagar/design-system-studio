@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   defaultTokens, deriveBrandTokens, shadowValues, darkOverrides,
-  generateColorScale, lighten, rgbToHex,
+  generateColorScale, lighten, rgbToHex, wcagContrast,
   SPACING_SCALES, SPACE_STEP_KEYS,
   TYPE_SCALE_PRESETS,
   MOTION_PRESETS,
@@ -40,10 +40,13 @@ export function buildCssVars(tokens) {
   const dangerHex  = m('error',   'errorDm');
   const infoHex    = m('info',    'infoDm');
 
-  // Text on semantic colors always tracks the core text token, not a stored white/black value.
-  const textOnColor = isDark
-    ? (findCore('text-primary-dark') || '#F5F5F5')
-    : (findCore('text-primary')      || '#1E1E1E');
+  // Pick dark or light text for a given button background based on actual WCAG contrast.
+  const darkText  = findCore('text-primary')      || '#1E1E1E';
+  const lightText = findCore('text-primary-dark') || '#F5F5F5';
+  function textOn(bgHex) {
+    if (!bgHex) return darkText;
+    return wcagContrast(bgHex, darkText) >= wcagContrast(bgHex, lightText) ? darkText : lightText;
+  }
 
   const bgDarkHex   = findCore('bg-dark') || darkOverrides.surface;
   const surfaceHex  = isDark ? bgDarkHex                              : (findCore('surface')  || '#fff');
@@ -63,29 +66,29 @@ export function buildCssVars(tokens) {
     '--ds-brand-dark':           derived.brandDark,
     '--ds-brand-light':          derived.brandLight,
     '--ds-brand-hover':          m('brandHover',         'brandHoverDm'),
-    '--ds-brand-hover-text':     textOnColor,
+    '--ds-brand-hover-text':     textOn(activeBrand),
     '--ds-secondary':            m('secondary',          'secondaryDm'),
     '--ds-secondary-hover':      m('secondaryHover',     'secondaryHoverDm'),
-    '--ds-secondary-hover-text': textOnColor,
+    '--ds-secondary-hover-text': textOn(m('secondary',  'secondaryDm')),
     '--ds-tertiary':             m('tertiary',           'tertiaryDm'),
     '--ds-tertiary-hover':       m('tertiaryHover',      'tertiaryHoverDm'),
-    '--ds-tertiary-hover-text':  textOnColor,
+    '--ds-tertiary-hover-text':  textOn(m('tertiary',   'tertiaryDm')),
     '--ds-ghost':                m('ghost',              'ghostDm'),
     '--ds-ghost-hover':          m('ghostHover',         'ghostHoverDm'),
 
     // ── Color: semantic
     '--ds-success':              successHex,
     '--ds-success-hover':        m('successHover',       'successHoverDm'),
-    '--ds-success-hover-text':   textOnColor,
+    '--ds-success-hover-text':   textOn(successHex),
     '--ds-warning':              warnHex,
     '--ds-warning-hover':        m('cautionHover',       'cautionHoverDm'),
-    '--ds-warning-hover-text':   textOnColor,
+    '--ds-warning-hover-text':   textOn(warnHex),
     '--ds-danger':               dangerHex,
     '--ds-danger-hover':         m('errorHover',         'errorHoverDm'),
-    '--ds-danger-hover-text':    textOnColor,
+    '--ds-danger-hover-text':    textOn(dangerHex),
     '--ds-info':                 infoHex,
     '--ds-info-hover':           m('infoHover',          'infoHoverDm'),
-    '--ds-info-hover-text':      textOnColor,
+    '--ds-info-hover-text':      textOn(infoHex),
 
     // ── Color: semantic tints (badges, alerts, callouts)
     '--ds-success-subtle':       subtle(successHex),
